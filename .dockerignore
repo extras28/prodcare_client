@@ -1,0 +1,31 @@
+# Node modules
+node_modules
+npm-debug.log
+
+# Build output
+build
+
+# Source control
+.git
+.gitignore
+
+# IDE and editor specific files
+.vscode
+.idea
+*.sublime-project
+*.sublime-workspace
+
+# Environment variables files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.log
+*.tmp

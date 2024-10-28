@@ -1,0 +1,41 @@
+.KTBaseTextField {
+  &_Input {
+    height: 100%;
+
+    &:focus {
+      outline: none;
+    }
+  }
+
+  &_Group {
+    height: 40px;
+    border: 1px solid #dbe3ef;
+
+    &:focus-within {
+      border: 1px solid #3699ff;
+    }
+  }
+
+  &_Disabled {
+    border: none;
+    background: #ffff !important;
+    border: 1px solid #dbe3ef;
+
+    ::placeholder {
+      font-weight: 500;
+      color: #4a5677;
+    }
+    :hover {
+      cursor: no-drop;
+    }
+  }
+
+  &_Eye {
+    position: absolute;
+    top: 50%;
+    right: 3%;
+  }
+  input::-ms-reveal {
+    display: none;
+  }
+}

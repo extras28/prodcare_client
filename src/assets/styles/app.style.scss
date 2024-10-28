@@ -1,0 +1,314 @@
+@import './mixin/index';
+
+body {
+  font-family: 'Roboto', sans-serif;
+}
+
+// Change tooltip arrow color - bootstrap 5
+.tooltip.bs-tooltip-top .tooltip-arrow::before {
+  border-top-color: white;
+}
+
+.tooltip.bs-tooltip-bottom .tooltip-arrow::before {
+  border-bottom-color: white;
+}
+
+.tooltip.bs-tooltip-start .tooltip-arrow::before {
+  border-left-color: white;
+}
+
+.tooltip.bs-tooltip-end .tooltip-arrow::before {
+  border-right-color: white;
+}
+
+// Swal
+.swal2-icon {
+  margin: 2.5em auto 0.6em !important;
+}
+
+// Bootstrap DatetimePicker Widget
+.bootstrap-datetimepicker-widget table tbody {
+  border-top: 0 !important;
+}
+
+// Date range picker
+.daterangepicker {
+  padding: 0;
+  margin: 0;
+  width: auto;
+  -webkit-box-shadow: 0px 0px 50px 0px rgba(82, 63, 105, 0.15);
+  box-shadow: 0px 0px 50px 0px rgba(82, 63, 105, 0.15);
+  border-radius: 0.42rem;
+  border: 0;
+  font-family: 'Be Vietnam Pro', Helvetica, 'sans-serif';
+  z-index: 98;
+}
+.modal-open .daterangepicker {
+  z-index: 1051;
+}
+.daterangepicker:after,
+.daterangepicker:before {
+  display: none;
+}
+.daterangepicker .ranges ul {
+  padding: 1rem 0;
+  width: 175px;
+}
+.daterangepicker .ranges li {
+  padding: 0.7rem 1.75rem;
+  font-weight: 500;
+  font-size: 1rem;
+  color: #7e8299;
+  -webkit-transition: color 0.3s ease;
+  transition: color 0.3s ease;
+}
+.daterangepicker .ranges li:hover,
+.daterangepicker .ranges li.active {
+  background-color: #f3f6f9;
+  color: #3699ff;
+  -webkit-transition: color 0.3s ease;
+  transition: color 0.3s ease;
+}
+.daterangepicker.show-calendar .ranges {
+  border-right: 1px solid #ebedf3;
+  margin-top: 0;
+  height: 297px;
+}
+.daterangepicker.show-ranges .drp-calendar.left {
+  border-left: 0;
+}
+.daterangepicker .drp-buttons {
+  padding: 1rem 1.75rem;
+  border-top: 1px solid #ebedf3;
+}
+.daterangepicker .drp-buttons .btn {
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 0.42rem;
+}
+.daterangepicker .drp-selected {
+  font-size: 0.9rem;
+}
+.daterangepicker .drp-calendar.left,
+.daterangepicker .drp-calendar.right {
+  padding: 1rem 1rem;
+}
+.daterangepicker .drp-calendar.left {
+  border-left: 0 !important;
+}
+.daterangepicker .drp-calendar th,
+.daterangepicker .drp-calendar td {
+  font-size: 1rem;
+  font-weight: regular;
+  width: 33px;
+  height: 33px;
+}
+.daterangepicker .drp-calendar th {
+  font-weight: 500;
+  color: #3f4254;
+}
+.daterangepicker .drp-calendar th.month {
+  font-weight: 500;
+  color: #3f4254;
+}
+.daterangepicker .drp-calendar th.next span,
+.daterangepicker .drp-calendar th.prev span {
+  border-width: 0 1px 1px 0;
+  border-color: #7e8299;
+}
+.daterangepicker .drp-calendar th.next span {
+  margin-right: 1px;
+}
+.daterangepicker .drp-calendar th.prev span {
+  margin-left: 1px;
+}
+.daterangepicker .drp-calendar td {
+  color: #7e8299;
+}
+.daterangepicker .drp-calendar td:hover {
+  background-color: #f3f6f9;
+}
+.daterangepicker .drp-calendar td.available.off {
+  color: #b5b5c3;
+}
+.daterangepicker .drp-calendar td.active {
+  background-color: #3699ff !important;
+  color: #ffffff !important;
+  border-radius: 0.42rem;
+}
+.daterangepicker .drp-calendar td.active.start-date {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.daterangepicker .drp-calendar td.active.end-date {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+.daterangepicker .drp-calendar td.active.start-date.end-date {
+  border-radius: 0.42rem;
+}
+.daterangepicker .drp-calendar td.today,
+.daterangepicker .drp-calendar td.today.active {
+  border-radius: 0.42rem;
+  background: rgba(54, 153, 255, 0.12) !important;
+  color: #3699ff !important;
+}
+.daterangepicker .drp-calendar td.in-range.available:not(.active):not(.off):not(.today) {
+  background-color: #f3f6f9;
+  color: #3f4254;
+}
+.daterangepicker select {
+  border-radius: 0.42rem;
+  background: transparent !important;
+  border-color: #e4e6ef !important;
+  color: #3f4254 !important;
+}
+
+@media (min-width: 730px) {
+  .daterangepicker.show-calendar .ranges {
+    height: 297px !important;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .daterangepicker.show-calendar .ranges {
+    height: 245px;
+  }
+}
+
+// Text max line
+.text-maxline-1 {
+  @include maxLine(1);
+}
+.text-maxline-2 {
+  @include maxLine(2);
+}
+.text-maxline-3 {
+  @include maxLine(3);
+}
+.text-maxline-4 {
+  @include maxLine(4);
+}
+
+// Rdt custom style
+.rdt_TableCol,
+.rdt_TableCell {
+  // justify-content: start !important;
+}
+
+.rdt_TableCol_Sortable > div {
+  white-space: normal !important;
+}
+
+// custom scrollbar
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #fff;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #e4e6ef;
+  border-radius: 3px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #ddd;
+}
+
+// custom scrolltop color
+// .scrolltop {
+//     background-color: #e92e4e !important;
+// }
+
+.tooltip-inner {
+  max-width: 1000px !important;
+}
+
+.q-max-line-4 {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 4; /* number of lines to show */
+  line-clamp: 4;
+  -webkit-box-orient: vertical;
+}
+
+.q-max-line-3 {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3; /* number of lines to show */
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+.q-max-line-2 {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* number of lines to show */
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.q-max-line-1 {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 1; /* number of lines to show */
+  line-clamp: 1;
+  -webkit-box-orient: vertical;
+}
+
+// .ck-content span[lang] {
+//   font-style: normal;
+// }
+
+.ck-content i {
+  color: unset;
+  font-size: unset;
+}
+
+.ck-content > ol {
+  padding: 0px;
+}
+
+// .aside-menu .menu-nav > .menu-item > .menu-heading .menu-text,
+// .aside-menu .menu-nav > .menu-item > .menu-link .menu-text {
+//   color: #24262d;
+// }
+
+.btn.btn-clean{
+  color: #ffffff;
+}
+
+// // Brand toggle
+.brand-toggle > .svg-icon > img {
+  filter: invert(35%) sepia(28%) saturate(259%) hue-rotate(197deg) brightness(95%) contrast(93%);
+  transition: all 0.15s ease;
+}
+.brand-toggle {
+  &:hover > .svg-icon > img {
+    filter: invert(21%) sepia(96%) saturate(2913%) hue-rotate(309deg) brightness(91%) contrast(96%);
+    transition: all 0.15s ease;
+  }
+}
+.brand-toggle.active {
+  & > .svg-icon > img {
+    // filter: invert(22%) sepia(48%) saturate(5800%) hue-rotate(310deg) brightness(92%) contrast(94%);
+    transition: all 0.15s ease;
+    transform: rotate(180deg);
+  }
+}
+
+.border-dashed {
+  border-style: dashed !important;
+}

@@ -1,0 +1,20 @@
+.KTFormRichTextEditor {
+  .ck.ck-editor__main > .ck-editor__editable:not(.ck-focused) {
+    border-color: #dbe3ef !important;
+  }
+  .ck.ck-toolbar {
+    border: 1px solid #dbe3ef !important;
+  }
+  .ck-content.ck-focused {
+    border-color: #dbe3ef !important;
+  }
+
+  // .ck-content span[lang] {
+  //   font-style: normal;
+  // }
+
+  // .ck-rounded-corners .ck.ck-balloon-panel,
+  // .ck.ck-balloon-panel.ck-rounded-corners {
+  //   z-index: 9999999;
+  // }
+}
