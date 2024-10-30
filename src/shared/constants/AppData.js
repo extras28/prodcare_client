@@ -70,8 +70,8 @@ const AppData = {
   ],
 
   errorRemainStatus: [
-    { name: 'Done', value: 'DONE' },
-    { name: 'Remain', value: 'REMAIN' },
+    { name: 'Done', value: 'DONE', status: 'PROCESSED' },
+    { name: 'Remain', value: 'REMAIN', status: 'UNPROCESSED' },
   ],
 
   errorUnhandleReason: [
@@ -89,6 +89,7 @@ const AppData = {
       bgColor: '#FFA800',
       color: '#FFFFFF',
       selectedColor: '#FFFFFF',
+      remainStatus: 'REMAIN',
     },
     {
       name: 'Processed',
@@ -96,6 +97,7 @@ const AppData = {
       bgColor: '#1BC5BD',
       color: '#FFFFFF',
       selectedColor: '#FFFFFF',
+      remainStatus: 'DONE',
     },
     {
       name: 'Processing',
@@ -103,6 +105,7 @@ const AppData = {
       bgColor: '#3699ff',
       color: '#FFFFFF',
       selectedColor: '#FFFFFF',
+      remainStatus: 'REMAIN',
     },
   ],
 
@@ -203,6 +206,13 @@ const AppData = {
     { name: 'MeasurementCompleted', value: 'MEASUREMENT_COMPLETED' },
     { name: 'GoodsShippedNotIntegrated', value: 'GOODS_SHIPPED_NOT_INTEGRATED' },
     { name: 'InTesting', value: 'IN_TESTING' },
+  ],
+
+  quarters: [
+    { name: '1', value: '1' },
+    { name: '2', value: '2' },
+    { name: '3', value: '3' },
+    { name: '4', value: '4' },
   ],
 };
 

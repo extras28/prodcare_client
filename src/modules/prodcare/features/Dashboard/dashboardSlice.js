@@ -12,6 +12,14 @@ export const thunkGetMonthReport = createAsyncThunk('dashboard/month', async (pa
   return res;
 });
 
+export const thunkGetQuarterReport = createAsyncThunk(
+  'dashboard/quarter',
+  async (params, thunkApi) => {
+    const res = await dashboardApi.getReportByQuarter(params);
+    return res;
+  }
+);
+
 const dashboardSlice = createSlice({
   name: 'dashboard',
   initialState: {
@@ -62,7 +70,7 @@ const dashboardSlice = createSlice({
         averageTimeError,
       } = action.payload;
       if (result === 'success') {
-        state.year = {
+        state.month = {
           project,
           issueCount,
           remain,
@@ -70,6 +78,39 @@ const dashboardSlice = createSlice({
           totalHandledInMonth,
           warranty,
           averageTimeError,
+        };
+      }
+    });
+
+    builder.addCase(thunkGetQuarterReport.pending, (state, action) => {
+      state.isGettingQuarterReport = true;
+    });
+    builder.addCase(thunkGetQuarterReport.rejected, (state, action) => {
+      state.isGettingQuarterReport = false;
+    });
+    builder.addCase(thunkGetQuarterReport.fulfilled, (state, action) => {
+      state.isGettingQuarterReport = false;
+      const {
+        result,
+        project,
+        issueCount,
+        remain,
+        cummulative,
+        totalHandledInQuarter,
+        warranty,
+        averageTimeError,
+        remainIssue,
+      } = action.payload;
+      if (result === 'success') {
+        state.quarter = {
+          project,
+          issueCount,
+          remain,
+          cummulative,
+          totalHandledInQuarter,
+          warranty,
+          averageTimeError,
+          remainIssue,
         };
       }
     });

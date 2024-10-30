@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import YearReportTable from '../../components/YearReportTable';
 import MonthReportTable from '../../components/MonthReportTable';
+import WeekReportTable from '../../components/WeekReportTable';
+import QuarterReportTable from '../../components/QuarterReportTable';
 
 DashboardHomeScreen.propTypes = {};
 
@@ -64,7 +66,7 @@ function DashboardHomeScreen(props) {
                   <span className="nav-text">{t('Month')}</span>
                 </a>
               </li>
-              <li className="nav-item">
+              {/* <li className="nav-item">
                 <a
                   className={`nav-link cursor-pointer ${selectedTab === 3 ? 'active' : ''}`}
                   data-toggle="tab"
@@ -78,7 +80,7 @@ function DashboardHomeScreen(props) {
                   </span>
                   <span className="nav-text">{t('Week')}</span>
                 </a>
-              </li>
+              </li> */}
             </ul>
           </div>
         </div>
@@ -89,19 +91,21 @@ function DashboardHomeScreen(props) {
                 <YearReportTable />
               </div>
             ) : null}
-            {/* {selectedTab === 2 ? (
+            {selectedTab === 1 ? (
+              <div>
+                <QuarterReportTable />
+              </div>
+            ) : null}
+            {selectedTab === 2 ? (
               <div>
                 <MonthReportTable />
               </div>
-            ) : null} */}
-            <div
-              className="tab-pane fade"
-              id="kt_tab_pane_3_3"
-              role="tabpanel"
-              aria-labelledby="kt_tab_pane_3_3"
-            >
-              ...
-            </div>
+            ) : null}
+            {selectedTab === 3 ? (
+              <div>
+                <WeekReportTable />
+              </div>
+            ) : null}
           </div>
         </div>
       </div>

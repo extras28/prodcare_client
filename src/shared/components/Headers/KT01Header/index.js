@@ -225,7 +225,7 @@ function KT01Header(props) {
             </div>
           </div> */}
           {/* language */}
-          <KTBSDropdown
+          {/* <KTBSDropdown
             toggleElement={
               <div className="topbar-item">
                 <div className="btn btn-icon btn-clean btn-lg mr-1">
@@ -244,7 +244,7 @@ function KT01Header(props) {
             onChange={(newValue) => {
               LanguageHelper.changeLanguage(newValue);
             }}
-          />
+          /> */}
 
           <KTBSDropdown
             toggleElement={

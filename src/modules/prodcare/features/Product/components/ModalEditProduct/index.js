@@ -291,17 +291,20 @@ function ModalEditProduct({
                         <KTFormInput
                           {...field}
                           onChange={(value) => {
-                            form.setFieldValue(field.name, value);
-                            setChangeObj((prev) => {
-                              return {
-                                ...prev,
-                                [`${t('Mfg')}`]: `${
-                                  productItem?.mfg
-                                    ? Utils.formatDateTime(productItem?.mfg, 'YYYY-MM-DD')
-                                    : ''
-                                } -> ${Utils.formatDateTime(value, 'YYYY-MM-DD')}`,
-                              };
-                            });
+                            const isValidFormat = moment(value, 'YYYY-MM-DD', true).isValid();
+                            if (isValidFormat) {
+                              form.setFieldValue(field.name, value);
+                              setChangeObj((prev) => {
+                                return {
+                                  ...prev,
+                                  [`${t('Mfg')}`]: `${
+                                    productItem?.mfg
+                                      ? Utils.formatDateTime(productItem?.mfg, 'YYYY-MM-DD')
+                                      : ''
+                                  } -> ${Utils.formatDateTime(value, 'YYYY-MM-DD')}`,
+                                };
+                              });
+                            }
                           }}
                           onBlur={() => form.setFieldTouched(field.name, true)}
                           enableCheckValid
@@ -330,20 +333,23 @@ function ModalEditProduct({
                         <KTFormInput
                           {...field}
                           onChange={(value) => {
-                            form.setFieldValue(field.name, value);
-                            setChangeObj((prev) => {
-                              return {
-                                ...prev,
-                                [`${t('HandedOverTime')}`]: `${
-                                  productItem?.handed_over_time
-                                    ? Utils.formatDateTime(
-                                        productItem?.handed_over_time,
-                                        'YYYY-MM-DD'
-                                      )
-                                    : ''
-                                } -> ${Utils.formatDateTime(value, 'YYYY-MM-DD')}`,
-                              };
-                            });
+                            const isValidFormat = moment(value, 'YYYY-MM-DD', true).isValid();
+                            if (isValidFormat) {
+                              form.setFieldValue(field.name, value);
+                              setChangeObj((prev) => {
+                                return {
+                                  ...prev,
+                                  [`${t('HandedOverTime')}`]: `${
+                                    productItem?.handed_over_time
+                                      ? Utils.formatDateTime(
+                                          productItem?.handed_over_time,
+                                          'YYYY-MM-DD'
+                                        )
+                                      : ''
+                                  } -> ${Utils.formatDateTime(value, 'YYYY-MM-DD')}`,
+                                };
+                              });
+                            }
                           }}
                           onBlur={() => form.setFieldTouched(field.name, true)}
                           enableCheckValid

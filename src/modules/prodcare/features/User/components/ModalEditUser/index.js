@@ -301,7 +301,12 @@ function ModalEditUser({
                       {({ field, form, meta }) => (
                         <KTFormInput
                           {...field}
-                          onChange={(value) => form.setFieldValue(field.name, value)}
+                          onChange={(value) => {
+                            const isValidFormat = moment(value, 'YYYY-MM-DD', true).isValid();
+                            if (isValidFormat) {
+                              form.setFieldValue(field.name, value);
+                            }
+                          }}
                           onBlur={() => form.setFieldTouched(field.name, true)}
                           enableCheckValid
                           isValid={_.isEmpty(meta.error)}

@@ -104,15 +104,21 @@ function YearReportTable(props) {
           name="report_year"
           value={filters.year.toString()}
           onChange={(value) => {
-            setFilters({
-              projectId: JSON.parse(localStorage.getItem(PreferenceKeys.currentProject))?.id,
-              year: value,
-            });
-            Global.gFiltersStatisticByYear = {
-              projectId: JSON.parse(localStorage.getItem(PreferenceKeys.currentProject))?.id,
-              year: value,
-            };
-            Global.gNeedToRefreshStatisticByYear = true;
+            const isValidYear = moment(value, 'YYYY', true).isValid();
+
+            if (isValidYear) {
+              setFilters({
+                projectId: JSON.parse(localStorage.getItem(PreferenceKeys.currentProject))?.id,
+                year: value,
+              });
+              Global.gFiltersStatisticByYear = {
+                projectId: JSON.parse(localStorage.getItem(PreferenceKeys.currentProject))?.id,
+                year: value,
+              };
+              Global.gNeedToRefreshStatisticByYear = true;
+            } else {
+              console.error("Invalid year format. Please enter a year in the 'YYYY' format.");
+            }
           }}
           placeholder={`${_.capitalize(t('Year'))}...`}
           type={KTFormInputType.btdPicker}

@@ -118,16 +118,16 @@ function ModalEditIssue({
         responsibleType: issueItem?.responsible_type || 'USER',
         level: issueItem?.level || 'MINOR',
         unit: issueItem?.unit || '',
-        // kpiH: issueItem?.kpi_h || '',
+        kpiH: issueItem?.kpi_h || '',
         repairPart: issueItem?.repair_part || '',
         repairPartCount: issueItem?.repair_part_count || '',
         responsibleHandlingUnit: issueItem?.responsible_handling_unit || '',
         materialStatus: issueItem?.material_status || '',
         reportingPerson: issueItem?.reporting_person || '',
-        // remainStatus: issueItem?.remain_status || '',
-        // overdueKpi: issueItem?.overdue_kpi || '',
+        remainStatus: issueItem?.remain_status || 'REMAIN',
+        overdueKpi: issueItem?.overdue_kpi || '',
         warrantyStatus: issueItem?.warranty_status || '',
-        // overdueKpiReason: issueItem?.overdue_kpi_reason || '',
+        overdueKpiReason: issueItem?.overdue_kpi_reason || '',
         impact: issueItem?.impact || 'YES',
         stopFighting: issueItem?.stop_fighting || '',
         stopFightingDays: issueItem?.stop_ighting_days || 1,
@@ -148,7 +148,7 @@ function ModalEditIssue({
         completionTime: issueItem?.completion_time
           ? Utils.formatDateTime(issueItem?.completion_time, 'YYYY-MM-DD')
           : '',
-        handlingTime: issueItem?.handling_time || '',
+        handlingTime: issueItem?.handling_time?.toString() || '',
         note: issueItem?.note || '',
         responsibleTypeDescription: issueItem?.responsible_type_description || '',
         unhandleReasonDescription: issueItem?.unhandle_reason_description || '',
@@ -160,7 +160,6 @@ function ModalEditIssue({
         impactPoint: issueItem?.impact_point || '1',
         urgencyLevel: issueItem?.urgency_level || '',
         urgencyPoint: issueItem?.urgency_point || '',
-        productStatus: issueItem?.product_status || '',
       }}
       validationSchema={Yup.object({
         // projectId: Yup.string().required(t('Required')),
@@ -224,19 +223,33 @@ function ModalEditIssue({
                           name={field.name}
                           options={AppData.errorStatus}
                           onValueChanged={(newValue) => {
+                            const { errorStatus, errorRemainStatus } = AppData;
+
+                            const newStatus = errorStatus.find((item) => item.value === newValue);
+                            const currentStatus = errorStatus.find(
+                              (item) => item.value === issueItem?.['status']
+                            );
+                            const currentRemainStatus = errorRemainStatus.find(
+                              (item) => item.value === issueItem?.['remain_status']
+                            );
+                            const newRemainStatus = errorRemainStatus.find(
+                              (item) => item.value == newStatus?.remainStatus
+                            );
+
                             form.setFieldValue(field.name, newValue);
-                            setChangeObj((prev) => {
-                              return {
-                                ...prev,
-                                [`${t('ErrorStatus')}`]: `${t(
-                                  AppData.errorStatus.find(
-                                    (item) => item.value === issueItem?.['status']
-                                  )?.name
-                                )} -> ${t(
-                                  AppData.errorStatus.find((item) => item.value === newValue)?.name
-                                )}`,
-                              };
-                            });
+                            formikProps
+                              .getFieldHelpers('remainStatus')
+                              .setValue(newStatus?.remainStatus);
+
+                            setChangeObj((prev) => ({
+                              ...prev,
+                              [`${t('ErrorStatus')}`]: `${t(currentStatus?.name)} -> ${t(
+                                newStatus?.name
+                              )}`,
+                              [`${t('RemainStatus')}`]: `${t(currentRemainStatus?.name)} -> ${t(
+                                newRemainStatus?.name
+                              )}`,
+                            }));
                           }}
                           disabled={current?.role === 'GUEST'}
                         />
@@ -494,17 +507,23 @@ function ModalEditIssue({
                         <KTFormInput
                           {...field}
                           onChange={(value) => {
-                            form.setFieldValue(field.name, value);
-                            setChangeObj((prev) => {
-                              return {
-                                ...prev,
-                                [`${t('ReceptionTime')}`]: `${
-                                  issueItem?.reception_time
-                                    ? Utils.formatDateTime(issueItem?.reception_time, 'YYYY-MM-DD')
-                                    : ''
-                                } -> ${Utils.formatDateTime(value, 'YYYY-MM-DD')}`,
-                              };
-                            });
+                            const isValidFormat = moment(value, 'YYYY-MM-DD', true).isValid();
+                            if (isValidFormat) {
+                              form.setFieldValue(field.name, value);
+                              setChangeObj((prev) => {
+                                return {
+                                  ...prev,
+                                  [`${t('ReceptionTime')}`]: `${
+                                    issueItem?.reception_time
+                                      ? Utils.formatDateTime(
+                                          issueItem?.reception_time,
+                                          'YYYY-MM-DD'
+                                        )
+                                      : ''
+                                  } -> ${Utils.formatDateTime(value, 'YYYY-MM-DD')}`,
+                                };
+                              });
+                            }
                           }}
                           onBlur={() => form.setFieldTouched(field.name, true)}
                           enableCheckValid
@@ -721,20 +740,38 @@ function ModalEditIssue({
                             return { name: item.name, value: item.value };
                           })}
                           onValueChanged={(newValue) => {
+                            const { urgencyLevels, urgencyPoints } = AppData;
+
+                            // Find new urgency level and impact points
+                            const newUrgencyLevel = urgencyLevels.find(
+                              (ul) => ul.score == newValue
+                            );
+                            const newUrgencyPoint = urgencyPoints.find(
+                              (item) => item.value == newValue
+                            );
+                            const currentUrgencyPoint = urgencyPoints.find(
+                              (item) => item.value == issueItem?.['urgency_point']
+                            );
+                            const currentUrgencyLevel = urgencyLevels.find(
+                              (ul) => ul.value == issueItem?.['urgency_level']
+                            );
+
+                            // Set form field values
                             form.setFieldValue(field.name, newValue);
-                            setChangeObj((prev) => {
-                              return {
-                                ...prev,
-                                [`${t('UrgencyPoint')}`]: `${t(
-                                  AppData.urgencyPoints.find(
-                                    (item) => item.value === issueItem?.['urgency_point']
-                                  )?.name
-                                )} -> ${t(
-                                  AppData.urgencyPoints.find((item) => item.value === newValue)
-                                    ?.name
-                                )}`,
-                              };
-                            });
+                            formikProps
+                              .getFieldHelpers('urgencyLevel')
+                              .setValue(newUrgencyLevel?.value);
+
+                            // Update the change object
+                            setChangeObj((prev) => ({
+                              ...prev,
+                              [`${t('UrgencyPoint')}`]: `${t(currentUrgencyPoint?.name)} -> ${t(
+                                newUrgencyPoint?.name
+                              )}`,
+                              [`${t('UrgencyLevel')}`]: `${t(currentUrgencyLevel?.name)} -> ${t(
+                                newUrgencyLevel?.name
+                              )}`,
+                            }));
                           }}
                           disabled={current?.role === 'GUEST'}
                         />
@@ -1246,7 +1283,7 @@ function ModalEditIssue({
               </div>
 
               {/* EquipmentStatus */}
-              <div className="col-12">
+              {/* <div className="col-12">
                 <KTFormGroup
                   label={<>{t('EquipmentStatus')}</>}
                   inputName="productStatus"
@@ -1279,7 +1316,7 @@ function ModalEditIssue({
                     </FastField>
                   }
                 />
-              </div>
+              </div> */}
 
               {/* ExpDate */}
               <div className="col-12">
@@ -1292,17 +1329,20 @@ function ModalEditIssue({
                         <KTFormInput
                           {...field}
                           onChange={(value) => {
-                            form.setFieldValue(field.name, value);
-                            setChangeObj((prev) => {
-                              return {
-                                ...prev,
-                                [`${t('ExpDate')}`]: `${
-                                  issueItem?.mfg
-                                    ? Utils.formatDateTime(issueItem?.exp_date, 'YYYY-MM-DD')
-                                    : ''
-                                } -> ${Utils.formatDateTime(value, 'YYYY-MM-DD')}`,
-                              };
-                            });
+                            const isValidFormat = moment(value, 'YYYY-MM-DD', true).isValid();
+                            if (isValidFormat) {
+                              form.setFieldValue(field.name, value);
+                              setChangeObj((prev) => {
+                                return {
+                                  ...prev,
+                                  [`${t('ExpDate')}`]: `${
+                                    issueItem?.mfg
+                                      ? Utils.formatDateTime(issueItem?.exp_date, 'YYYY-MM-DD')
+                                      : ''
+                                  } -> ${Utils.formatDateTime(value, 'YYYY-MM-DD')}`,
+                                };
+                              });
+                            }
                           }}
                           onBlur={() => form.setFieldTouched(field.name, true)}
                           enableCheckValid
@@ -1331,17 +1371,23 @@ function ModalEditIssue({
                         <KTFormInput
                           {...field}
                           onChange={(value) => {
-                            form.setFieldValue(field.name, value);
-                            setChangeObj((prev) => {
-                              return {
-                                ...prev,
-                                [`${t('CompletionTime')}`]: `${
-                                  issueItem?.completion_time
-                                    ? Utils.formatDateTime(issueItem?.completion_time, 'YYYY-MM-DD')
-                                    : ''
-                                } -> ${Utils.formatDateTime(value, 'YYYY-MM-DD')}`,
-                              };
-                            });
+                            const isValidFormat = moment(value, 'YYYY-MM-DD', true).isValid();
+                            if (isValidFormat) {
+                              form.setFieldValue(field.name, value);
+                              setChangeObj((prev) => {
+                                return {
+                                  ...prev,
+                                  [`${t('CompletionTime')}`]: `${
+                                    issueItem?.completion_time
+                                      ? Utils.formatDateTime(
+                                          issueItem?.completion_time,
+                                          'YYYY-MM-DD'
+                                        )
+                                      : ''
+                                  } -> ${Utils.formatDateTime(value, 'YYYY-MM-DD')}`,
+                                };
+                              });
+                            }
                           }}
                           onBlur={() => form.setFieldTouched(field.name, true)}
                           enableCheckValid
@@ -1370,17 +1416,20 @@ function ModalEditIssue({
                         <KTFormInput
                           {...field}
                           onChange={(value) => {
-                            form.setFieldValue(field.name, value);
-                            setChangeObj((prev) => {
-                              return {
-                                ...prev,
-                                [`${t('HandlingTime')}`]: `${
-                                  issueItem?.handling_time
-                                    ? Utils.formatDateTime(issueItem?.handling_time, 'YYYY-MM-DD')
-                                    : ''
-                                } -> ${Utils.formatDateTime(value, 'YYYY-MM-DD')}`,
-                              };
-                            });
+                            const isValidFormat = moment(value, 'YYYY-MM-DD', true).isValid();
+                            if (isValidFormat) {
+                              form.setFieldValue(field.name, value);
+                              setChangeObj((prev) => {
+                                return {
+                                  ...prev,
+                                  [`${t('HandlingTime')}`]: `${
+                                    issueItem?.handling_time
+                                      ? Utils.formatDateTime(issueItem?.handling_time, 'YYYY-MM-DD')
+                                      : ''
+                                  } -> ${Utils.formatDateTime(value, 'YYYY-MM-DD')}`,
+                                };
+                              });
+                            }
                           }}
                           onBlur={() => form.setFieldTouched(field.name, true)}
                           enableCheckValid
@@ -1470,7 +1519,7 @@ function ModalEditIssue({
               </div>
 
               {/* RemainStatus */}
-              {/* <div className="col-12">
+              <div className="col-12">
                 <KTFormGroup
                   label={<>{t('RemainStatus')}</>}
                   inputName="remainStatus"
@@ -1490,7 +1539,33 @@ function ModalEditIssue({
                             };
                           })}
                           onValueChanged={(newValue) => {
+                            const { errorStatus, errorRemainStatus } = AppData;
+
+                            const currentRemainStatus = errorRemainStatus.find(
+                              (item) => item.value === issueItem?.['remain_status']
+                            );
+                            const newRemainStatus = errorRemainStatus.find(
+                              (item) => item.value == newValue
+                            );
+                            const newStatus = errorStatus.find(
+                              (item) => item.value === newRemainStatus?.status
+                            );
+                            const currentStatus = errorStatus.find(
+                              (item) => item.value === issueItem?.['status']
+                            );
+
                             form.setFieldValue(field.name, newValue);
+                            formikProps.getFieldHelpers('status').setValue(newStatus?.value);
+
+                            setChangeObj((prev) => ({
+                              ...prev,
+                              [`${t('ErrorStatus')}`]: `${t(currentStatus?.name)} -> ${t(
+                                newStatus?.name
+                              )}`,
+                              [`${t('RemainStatus')}`]: `${t(currentRemainStatus?.name)} -> ${t(
+                                newRemainStatus?.name
+                              )}`,
+                            }));
                           }}
                           disabled={current?.role === 'GUEST'}
                         />
@@ -1498,10 +1573,10 @@ function ModalEditIssue({
                     </FastField>
                   }
                 />
-              </div> */}
+              </div>
 
               {/* OverdueKpi */}
-              {/* <div className="col-12">
+              <div className="col-12">
                 <KTFormGroup
                   label={<>{t('OverdueKpi')}</>}
                   inputName="overdueKpi"
@@ -1520,6 +1595,19 @@ function ModalEditIssue({
                           ]}
                           onValueChanged={(newValue) => {
                             form.setFieldValue(field.name, newValue);
+                            setChangeObj((prev) => {
+                              const data = [
+                                { name: 'Yes', value: true },
+                                { name: 'No', value: false },
+                              ];
+                              return {
+                                ...prev,
+                                [`${t('OverdueKpi')}`]: `${t(
+                                  data.find((item) => item.value === issueItem?.['overdue_kpi'])
+                                    ?.name
+                                )} -> ${t(data.find((item) => item.value === newValue)?.name)}`,
+                              };
+                            });
                           }}
                           disabled={current?.role === 'GUEST'}
                         />
@@ -1527,7 +1615,7 @@ function ModalEditIssue({
                     </FastField>
                   }
                 />
-              </div> */}
+              </div>
 
               {/* WarrantyStatus */}
               <div className="col-12">

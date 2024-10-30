@@ -25,7 +25,6 @@ export const KTFormInputType = {
   date: 'date',
   year: 'year',
   month: 'month',
-  week: 'week',
   time: 'time',
   color: 'color',
   range: 'range',
@@ -54,7 +53,6 @@ export const KTFormInputGroupType = {
 export const KTFormInputBTDPickerType = {
   dateTime: 'date-time',
   date: 'date',
-  week: 'week',
   month: 'month',
   year: 'year',
   time: 'time',
@@ -377,6 +375,7 @@ function KTFormInput(props) {
           time: 'ki ki-clock',
           date: 'ki ki-calendar',
         },
+        calendarWeeks: true,
         // locale
         locale: btdPickerLocale,
         // default date
@@ -385,9 +384,7 @@ function KTFormInput(props) {
       if (btdPickerType === KTFormInputBTDPickerType.date) {
         options.format = 'YYYY-MM-DD';
       }
-      if (btdPickerType === KTFormInputBTDPickerType.week) {
-        options.format = "YYYY-'W'ww";
-      }
+
       if (btdPickerType === KTFormInputBTDPickerType.month) {
         options.format = 'YYYY-MM';
       }
@@ -412,8 +409,7 @@ function KTFormInput(props) {
         const formatMap = {
           [KTFormInputBTDPickerType.time]: 'HH:mm:ss',
           [KTFormInputBTDPickerType.dateTime]: 'YYYY-MM-DD HH:mm:ss',
-          [KTFormInputBTDPickerType.week]: "YYYY-'W'ww",
-          [KTFormInputBTDPickerType.week]: 'YYYY-MM',
+          [KTFormInputBTDPickerType.month]: 'YYYY-MM',
           [KTFormInputBTDPickerType.year]: 'YYYY',
         };
 

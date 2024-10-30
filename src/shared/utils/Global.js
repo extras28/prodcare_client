@@ -59,9 +59,22 @@ const Global = {
     projectId: JSON.parse(localStorage.getItem(PreferenceKeys.currentProject))?.id,
   },
 
+  gNeedToRefreshStatisticByQuarter: false,
+  gFiltersStatisticByQuarter: {
+    year: moment().format('YYYY'),
+    quarter: moment().quarter().toString(),
+    projectId: JSON.parse(localStorage.getItem(PreferenceKeys.currentProject))?.id,
+  },
+
   gNeedToRefreshStatisticByMonth: false,
   gFiltersStatisticByMonth: {
     month: moment().format('YYYY-MM'),
+    projectId: JSON.parse(localStorage.getItem(PreferenceKeys.currentProject))?.id,
+  },
+
+  gNeedToRefreshStatisticByWeek: false,
+  gFiltersStatisticByWeek: {
+    week: moment().format('YYYY-Www'),
     projectId: JSON.parse(localStorage.getItem(PreferenceKeys.currentProject))?.id,
   },
 };
