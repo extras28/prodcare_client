@@ -23,6 +23,7 @@ import Swal from 'sweetalert2';
 import ModalEditProduct from '../../components/ModalEditProduct';
 import ModalProductActivity from '../../components/ModalProductActivity';
 import { setPaginationPerPage, thunkGetListProduct } from '../../productSlice';
+import { thunkGetAllProduct } from 'app/appSlice';
 
 ProductHomePage.propTypes = {};
 
@@ -64,7 +65,7 @@ function ProductHomePage(props) {
         },
       },
       {
-        name: t('ProductName'),
+        name: t('EquipmentName'),
         sortable: false,
         cell: (row) => {
           return (
@@ -142,26 +143,23 @@ function ProductHomePage(props) {
               </a>
             </KTTooltip>
 
-            {current?.role != 'ADMIN' ? null : (
-              <KTTooltip text={t('Delete')}>
-                <a
-                  className="btn btn-icon btn-sm btn-danger btn-hover-danger ml-2"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleDeleteProduct(row);
-                  }}
-                >
-                  <i className="far fa-trash p-0 icon-1x" />
-                </a>
-              </KTTooltip>
-            )}
+            <KTTooltip text={t('Delete')}>
+              <a
+                className="btn btn-icon btn-sm btn-danger btn-hover-danger ml-2"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleDeleteProduct(row);
+                }}
+              >
+                <i className="far fa-trash p-0 icon-1x" />
+              </a>
+            </KTTooltip>
           </div>
         ),
       },
     ];
 
-    if (current?.role != 'ADMIN' && current?.role != 'USER')
-      return tableColumns.slice(0, tableColumns.length - 1);
+    if (current?.role === 'GUEST') return tableColumns.slice(0, tableColumns.length - 1);
     return tableColumns;
   }, [current, LanguageHelper.getCurrentLanguage(), projects, customers]);
   const [selectedProductItem, setSelectedProductItem] = useState(null);
@@ -234,6 +232,7 @@ function ProductHomePage(props) {
             setFilters({ ...filters });
             dispatch(thunkGetListComponent(Global.gFiltersComponentList));
             dispatch(thunkGetListIssue(Global.gFiltersIssueList));
+            dispatch(thunkGetAllProduct({ projectId: currentProject?.id }));
           }
         } catch (error) {
           console.log(`${sTag} delete faq error: ${error.message}`);
@@ -250,7 +249,7 @@ function ProductHomePage(props) {
   function handleDeleteProduct(product) {
     Swal.fire({
       title: t('Confirm'),
-      text: t('MessageConfirmDeleteProduct', { name: product?.id }),
+      text: t('MessageConfirmDeleteEquipment', { name: product?.name }),
       icon: 'question',
       showCancelButton: true,
       confirmButtonText: t('Yes'),
@@ -273,6 +272,7 @@ function ProductHomePage(props) {
             setFilters({ ...filters });
             dispatch(thunkGetListComponent(Global.gFiltersComponentList));
             dispatch(thunkGetListIssue(Global.gFiltersIssueList));
+            dispatch(thunkGetAllProduct());
           }
         } catch (error) {
           console.log(`Delete Product error: ${error?.message}`);
@@ -340,7 +340,7 @@ function ProductHomePage(props) {
   return (
     <div>
       <div className="card-title ">
-        <h1 className="card-label">{`${t('ProductList')} ${
+        <h1 className="card-label">{`${t('EquipmentList')} ${
           pagination?.total ? `(${pagination?.total})` : ''
         }`}</h1>
       </div>
@@ -370,7 +370,7 @@ function ProductHomePage(props) {
               }}
             />
           </div>
-          {current?.role === 'ADMIN' || current?.role === 'USER' ? (
+          {current?.role !== 'GUEST' ? (
             <div className="card-toolbar gap-2">
               <a
                 href="#"
@@ -385,19 +385,18 @@ function ProductHomePage(props) {
                 <i className="far fa-ban"></i>
                 {`${t('Delete')} (${selectedProducts.length})`}
               </a>
-              {
-                <a
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setModalEditProductShowing(true);
-                  }}
-                  className="btn btn-primary font-weight-bold d-flex align-items-center"
-                >
-                  <i className="far fa-plus"></i>
-                  {t('NewEquipment')}
-                </a>
-              }
+
+              <a
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setModalEditProductShowing(true);
+                }}
+                className="btn btn-primary font-weight-bold d-flex align-items-center"
+              >
+                <i className="far fa-plus"></i>
+                {t('NewEquipment')}
+              </a>
             </div>
           ) : null}
         </div>

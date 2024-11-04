@@ -194,7 +194,7 @@ function ModalEditProduct({
                           feedbackText={meta.error}
                           placeholder={`${_.capitalize(t('Serial'))}...`}
                           type={KTFormInputType.text}
-                          disabled={current?.role !== 'USER' && current?.role !== 'ADMIN'}
+                          disabled={current?.role === 'GUEST'}
                         />
                       )}
                     </FastField>
@@ -232,7 +232,7 @@ function ModalEditProduct({
                           feedbackText={meta.error}
                           placeholder={`${_.capitalize(t('EquipmentName'))}...`}
                           type={KTFormInputType.text}
-                          disabled={current?.role !== 'USER' && current?.role !== 'ADMIN'}
+                          disabled={current?.role === 'GUEST'}
                         />
                       )}
                     </FastField>
@@ -272,7 +272,7 @@ function ModalEditProduct({
                               };
                             });
                           }}
-                          disabled={current?.role !== 'USER' && current?.role !== 'ADMIN'}
+                          disabled={current?.role === 'GUEST'}
                         />
                       )}
                     </FastField>
@@ -314,7 +314,7 @@ function ModalEditProduct({
                           placeholder={`${_.capitalize(t('Mfg'))}...`}
                           type={KTFormInputType.btdPicker}
                           btdPickerType={KTFormInputBTDPickerType.date}
-                          disabled={current?.role !== 'USER' && current?.role !== 'ADMIN'}
+                          disabled={current?.role === 'GUEST'}
                         />
                       )}
                     </FastField>
@@ -359,7 +359,7 @@ function ModalEditProduct({
                           placeholder={`${_.capitalize(t('HandedOverTime'))}...`}
                           type={KTFormInputType.btdPicker}
                           btdPickerType={KTFormInputBTDPickerType.date}
-                          disabled={current?.role !== 'USER' && current?.role !== 'ADMIN'}
+                          disabled={current?.role === 'GUEST'}
                         />
                       )}
                     </FastField>
@@ -369,7 +369,7 @@ function ModalEditProduct({
             </div>
           </Modal.Body>
 
-          {current?.role !== 'ADMIN' && current?.role !== 'USER' ? null : (
+          {current?.role === 'GUEST' ? null : (
             <Modal.Footer>
               <div className="w-100 d-flex row">
                 <Button

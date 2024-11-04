@@ -1,5 +1,6 @@
 import { unwrapResult } from '@reduxjs/toolkit';
 import customerApi from 'api/customerApi';
+import { thunkGetAllCustomer } from 'app/appSlice';
 import customDataTableStyle from 'assets/styles/customDataTableStyle';
 import useRouter from 'hooks/useRouter';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -17,11 +18,7 @@ import ToastHelper from 'shared/helpers/ToastHelper';
 import Global from 'shared/utils/Global';
 import Swal from 'sweetalert2';
 import ModalEditCustomer from '../../components/ModalEditCustomer';
-import {
-  setPaginationPerPage,
-  thunkGetCustomerDetail,
-  thunkGetListCustomer,
-} from '../../customerSlice';
+import { setPaginationPerPage, thunkGetListCustomer } from '../../customerSlice';
 
 CustomerHomePage.propTypes = {};
 
@@ -261,6 +258,7 @@ function CustomerHomePage(props) {
             ToastHelper.showSuccess(t('Success'));
             Global.gFiltersCustomerList = { ...filters };
             setFilters({ ...filters });
+            dispatch(thunkGetAllCustomer());
           }
         } catch (error) {
           console.log(`${sTag} delete faq error: ${error.message}`);
@@ -298,6 +296,7 @@ function CustomerHomePage(props) {
             ToastHelper.showSuccess(t('Success'));
             Global.gFiltersCustomerList = { ...filters };
             setFilters({ ...filters });
+            dispatch(thunkGetAllCustomer());
           }
         } catch (error) {
           console.log(`Delete Customer error: ${error?.message}`);
@@ -350,7 +349,7 @@ function CustomerHomePage(props) {
               });
             }}
           />
-          {current?.role != 'ADMIN' ? null : (
+          {current?.role === 'GUEST' ? null : (
             <div className="card-toolbar gap-2">
               <a
                 href="#"

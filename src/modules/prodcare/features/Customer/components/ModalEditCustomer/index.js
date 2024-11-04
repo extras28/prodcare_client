@@ -85,6 +85,7 @@ function ModalEditCustomer({
         sign: Yup.string().required(t('Required')),
         name: Yup.string().required(t('Required')),
         militaryRegion: Yup.string().required(t('Required')),
+        phone: Yup.string().matches(/^[0-9]+$/, t('PhoneMustBeAllNumbers')),
       })}
       enableReinitialize
       onSubmit={(values) => {

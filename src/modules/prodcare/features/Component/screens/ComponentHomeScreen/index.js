@@ -1,7 +1,6 @@
 import { unwrapResult } from '@reduxjs/toolkit';
 import componentApi from 'api/componentApi';
-import productApi from 'api/productApi';
-import projectApi from 'api/projectApi';
+import { thunkGetAllComponent } from 'app/appSlice';
 import customDataTableStyle from 'assets/styles/customDataTableStyle';
 import useRouter from 'hooks/useRouter';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -14,15 +13,15 @@ import KTFormSelect from 'shared/components/OtherKeenComponents/Forms/KTFormSele
 import KeenSearchBarNoFormik from 'shared/components/OtherKeenComponents/KeenSearchBarNoFormik';
 import KTTooltip from 'shared/components/OtherKeenComponents/KTTooltip';
 import Pagination from 'shared/components/Pagination';
+import AppData from 'shared/constants/AppData';
 import AppResource from 'shared/constants/AppResource';
+import PreferenceKeys from 'shared/constants/PreferenceKeys';
 import LanguageHelper from 'shared/helpers/LanguageHelper';
 import ToastHelper from 'shared/helpers/ToastHelper';
 import Global from 'shared/utils/Global';
 import Swal from 'sweetalert2';
 import ModalEditComponent from '../../components/ModalEditComponent';
 import { setPaginationPerPage, thunkGetListComponent } from '../../componentSlice';
-import AppData from 'shared/constants/AppData';
-import PreferenceKeys from 'shared/constants/PreferenceKeys';
 
 ComponentHomePage.propTypes = {};
 
@@ -157,26 +156,23 @@ function ComponentHomePage(props) {
               </a>
             </KTTooltip>
 
-            {current?.role === 'ADMIN' ? (
-              <KTTooltip text={t('Delete')}>
-                <a
-                  className="btn btn-icon btn-sm btn-danger btn-hover-danger mr-2"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleDeleteComponent(row);
-                  }}
-                >
-                  <i className="far fa-trash p-0 icon-1x" />
-                </a>
-              </KTTooltip>
-            ) : null}
+            <KTTooltip text={t('Delete')}>
+              <a
+                className="btn btn-icon btn-sm btn-danger btn-hover-danger mr-2"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleDeleteComponent(row);
+                }}
+              >
+                <i className="far fa-trash p-0 icon-1x" />
+              </a>
+            </KTTooltip>
           </div>
         ),
       },
     ];
 
-    if (current?.role != 'ADMIN' && current?.role !== 'USER')
-      return tableColumns.slice(0, tableColumns.length - 1);
+    if (current?.role === 'GUEST') return tableColumns.slice(0, tableColumns.length - 1);
     return tableColumns;
   }, [current, LanguageHelper.getCurrentLanguage(), products, projects]);
   const [selectedComponentItem, setSelectedComponentItem] = useState(null);
@@ -240,6 +236,7 @@ function ComponentHomePage(props) {
             ToastHelper.showSuccess(t('Success'));
             Global.gFiltersComponentList = { ...filters };
             setFilters({ ...filters });
+            dispatch(thunkGetAllComponent({ projectId: currentProject?.id }));
           }
         } catch (error) {
           console.log(`${sTag} delete faq error: ${error.message}`);

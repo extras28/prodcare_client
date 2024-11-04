@@ -2,6 +2,8 @@ import { unwrapResult } from '@reduxjs/toolkit';
 import { Table } from 'antd';
 import Column from 'antd/es/table/Column';
 import ColumnGroup from 'antd/es/table/ColumnGroup';
+import ExcelJS from 'exceljs';
+import { saveAs } from 'file-saver';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
@@ -11,8 +13,8 @@ import KTFormInput, {
 } from 'shared/components/OtherKeenComponents/Forms/KTFormInput';
 import PreferenceKeys from 'shared/constants/PreferenceKeys';
 import Global from 'shared/utils/Global';
-import { thunkGetMonthReport } from '../../dashboardSlice';
 import Utils from 'shared/utils/Utils';
+import { thunkGetMonthReport } from '../../dashboardSlice';
 
 MonthReportTable.propTypes = {};
 
@@ -67,6 +69,165 @@ function MonthReportTable(props) {
     } catch (error) {
       console.error(error);
     }
+  }
+
+  async function exportToExcel() {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Data Sheet', {
+      views: [{ zoomScale: 85 }], // Set default zoom to 85%
+    });
+
+    // Add title spanning from A1 to U2 with yellow background
+    worksheet.mergeCells('A1:S2');
+    const titleCell = worksheet.getCell('A1');
+    titleCell.value = 'BÁO CÁO CÔNG TÁC ĐẢM BẢO KỸ THUẬT SẢN PHẨM VSI3 NĂM 2024';
+    titleCell.font = { name: 'Times New Roman', size: 14, bold: true };
+    titleCell.alignment = { vertical: 'middle', horizontal: 'center' };
+    titleCell.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FFFF00' }, // Yellow background
+    };
+
+    // Sample data starting from row 6
+    const data = [
+      [
+        t('Product'),
+        t('CurrentOperatingQuantity'),
+        t('MonthlyError'),
+        '',
+        '',
+
+        t('Remain'),
+        '',
+        '',
+
+        t('Cummulative'),
+        '',
+        '',
+        '',
+        t('TotalHandledThisMonth'),
+        t('MonthlyKPIEvaluation'),
+        '',
+
+        t('AverageFailureOccurrenceTime'),
+        '',
+        t('ErrorHandlingRateWithinKPI'),
+      ],
+      [
+        '',
+        '',
+        t('RecevedInYear'),
+        t('CriticalError'),
+        t('ModerateError'),
+        t('MinorError'),
+        t('StopFightingError'),
+        t('NotReadyForFightingError'),
+        t('ErrorsProcessedDuringTheYear'),
+        t('HandledReateInYear'),
+        t('UnprocessedErrorsForNextYear'),
+        t('CummulativeErrorsReceivedUpToTheEndOfYear', { year: filters?.year - 1 }),
+        t('TheTotalNumberOfErrorsProcessedByTheEndOfYear', {
+          year: filters?.year - 1,
+        }),
+        t('TheTotalErrorsProcessedInTheYear'),
+        t('TheTotalErrorsToBeProcessedInTheYear'),
+        t('HandledReateInYear'),
+        t('IssuesCarriedOverToYear', { year: filters?.year }),
+        t('NotReadyFightingError'),
+        t('AllError'),
+      ],
+      [
+        year?.project?.project_name,
+        year?.project?.customerCount,
+        year?.issueCounts?.receptionIssues,
+        year?.issueCounts?.criticalIssues,
+        year?.issueCounts?.moderateIssues,
+        year?.issueCounts?.minorIssues,
+        year?.issueCounts?.stopFightingIssues,
+        year?.issueCounts?.impactReadyFightingIssue,
+        year?.issueCounts?.processedIssuesInYear,
+        `${year?.issueCounts?.['%'] ? Utils.formatNumber(year?.issueCounts?.['%']) : 0} %`,
+        year?.issueCounts?.remainIssues,
+        year?.cummulative?.cummulativeIssues,
+        year?.cummulative?.processedIssues,
+        year?.cummulative?.processedIssuesInPrevYear,
+        year?.cummulative?.needToProcessInPrevYear,
+        year?.cummulative?.['%'] ? Utils.formatNumber(year?.cummulative?.['%']) : 0,
+        year?.cummulative?.remainIssues,
+        year?.issueCounts?.warrantyForImpactFightingIssue
+          ? Utils.formatNumber(year?.issueCounts?.warrantyForImpactFightingIssue)
+          : 0,
+        year?.issueCounts?.warrantyAllError
+          ? Utils.formatNumber(year?.issueCounts?.warrantyAllError)
+          : 0,
+      ],
+    ];
+
+    // Add data to worksheet starting from row 6
+    data.forEach((row, rowIndex) => {
+      const excelRow = worksheet.getRow(rowIndex + 6); // Start adding rows from row 6
+      row.forEach((value, colIndex) => {
+        const cell = excelRow.getCell(colIndex + 1); // Get each cell in the row
+        cell.value = value;
+        cell.alignment = {
+          vertical: 'middle',
+          horizontal: 'center',
+          wrapText: true,
+        };
+        cell.font = { name: 'Times New Roman', size: 11 }; // Set font family to Times New Roman and size to 11
+      });
+    });
+
+    // Merging cells for headers in row 6
+    worksheet.mergeCells('A6:A7'); // "Sản phẩm"
+    worksheet.mergeCells('B6:B7'); // "Số lượng trên tuyến hiện nay"
+    worksheet.mergeCells('C6:K6'); // "Lỗi phát sinh"
+    worksheet.mergeCells('L6:Q6'); // "Lỗi lũy kế đến hết năm 2023"
+    worksheet.mergeCells('R6:S6'); // "Thời gian bảo hành trung bình"
+
+    // Applying bold to specific header cells in row 6
+    worksheet.getRow(6).eachCell((cell, colNumber) => {
+      if (
+        [
+          t('Product'),
+          t('CurrentOperatingQuantity'),
+          t('IncidentalError'),
+          t('CummulativeErrorsUpToTheEndOfYear', { year: filters?.year - 1 }),
+          t('AverageWarrantyTime'),
+        ].includes(cell.value)
+      ) {
+        cell.font = { name: 'Times New Roman', size: 11, bold: true }; // Set font family to Times New Roman, size to 11, and make it bold
+      }
+    });
+
+    // Increase the row height for the title row
+    worksheet.getRow(1).height = 28; // Adjust the height value as needed
+    worksheet.getRow(6).height = 28; // Adjust the height value as needed
+
+    // Adding borders to all data cells
+    worksheet.eachRow((row, rowNumber) => {
+      row.eachCell((cell) => {
+        cell.border = {
+          top: { style: 'thin' },
+          left: { style: 'thin' },
+          bottom: { style: 'thin' },
+          right: { style: 'thin' },
+        };
+      });
+    });
+
+    // Adjust column width
+    worksheet.columns.forEach((column) => {
+      column.width = 10; // Adjust as necessary
+    });
+
+    // Generate Excel file as a Blob and save it using file-saver
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    });
+    saveAs(blob, `BÁO CÁO ĐBKT ${year?.project?.project_name} ${filters.year}.xlsx`);
   }
 
   // MARK: --- Hooks ---

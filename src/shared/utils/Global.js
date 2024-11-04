@@ -50,6 +50,7 @@ const Global = {
     q: '',
     status: '',
     errorType: '',
+    level: '',
     projectId: JSON.parse(localStorage.getItem(PreferenceKeys.currentProject))?.id,
   },
 

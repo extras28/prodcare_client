@@ -59,125 +59,6 @@ export const KTFormInputBTDPickerType = {
   dateRange: 'date-range',
 };
 
-KTFormInput.propTypes = {
-  // required
-  type: PropTypes.oneOf(Object.values(KTFormInputType)).isRequired,
-  name: PropTypes.string.isRequired,
-
-  // optional
-  value: PropTypes.string,
-  placeholder: PropTypes.string,
-  text: PropTypes.oneOfType([PropTypes.string, PropTypes.element]),
-  solidBackground: PropTypes.bool,
-  disabled: PropTypes.bool,
-  readonly: PropTypes.bool,
-  size: PropTypes.oneOf(Object.values(KTFormInputSize)),
-  isCustom: PropTypes.bool,
-  additionalInputClassName: PropTypes.string,
-
-  onChange: PropTypes.func,
-  onBlur: PropTypes.func,
-  onFocus: PropTypes.func,
-  enableCheckValid: PropTypes.bool,
-  showValidState: PropTypes.bool,
-  isTouched: PropTypes.bool,
-  isValid: PropTypes.bool,
-  feedbackText: PropTypes.string,
-
-  // max length
-  maxLength: PropTypes.number,
-  maxLengthWarningClass: PropTypes.string,
-  maxLengthReachedClass: PropTypes.string,
-  maxLengthCustomSeparator: PropTypes.string,
-  maxLengthCustomPreText: PropTypes.string,
-  maxLengthCustomPostText: PropTypes.string,
-
-  enableInputGroup: PropTypes.bool,
-  inputGroupType: PropTypes.oneOf(Object.values(KTFormInputGroupType)),
-  prependElements: PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, PropTypes.element])),
-  appendElements: PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, PropTypes.element])),
-
-  enableInputIcon: PropTypes.bool,
-  inputIconPosition: PropTypes.oneOf(Object.values(KTFormInputIconPosition)),
-  inputIconElement: PropTypes.element,
-
-  // tagify
-  tagifyDataBlackList: PropTypes.string,
-  tagifyDataWhiteList: PropTypes.string,
-  tagifyOutside: PropTypes.bool,
-  tagifyUserInput: PropTypes.bool,
-
-  // btd-picker
-  btdPickerType: PropTypes.oneOf(Object.values(KTFormInputBTDPickerType)),
-  btdPickerNoIcon: PropTypes.bool,
-  btdPickerLocale: PropTypes.string,
-  btdDisabledDates: PropTypes.arrayOf(PropTypes.string),
-  btdMinDate: PropTypes.string,
-
-  // date-range-picker
-  drpAutoUpdateInput: PropTypes.bool,
-  drpEnableTimePicker: PropTypes.bool,
-  drpSingleDatePicker: PropTypes.bool,
-  drpEnablePredefinedRange: PropTypes.bool,
-};
-
-KTFormInput.defaultProps = {
-  value: '',
-  placeholder: '',
-  text: '',
-  solidBackground: false,
-  disabled: false,
-  readonly: false,
-  size: KTFormInputSize.default,
-  isCustom: true,
-  additionalInputClassName: '',
-
-  onChange: null,
-  onBlur: null,
-  onFocus: null,
-  enableCheckValid: false,
-  showValidState: false,
-  isValid: true,
-  isTouched: false,
-  feedbackText: '',
-
-  // max length
-  maxLength: 0,
-  maxLengthWarningClass: 'label label-danger label-rounded label-inline',
-  maxLengthReachedClass: 'label label-primary label-rounded label-inline',
-  maxLengthCustomSeparator: '/',
-  maxLengthCustomPreText: '',
-  maxLengthCustomPostText: '',
-
-  enableInputGroup: false,
-  inputGroupType: KTFormInputGroupType.text,
-  prependElements: null,
-  appendElements: null,
-
-  enableInputIcon: false,
-  inputIconPosition: KTFormInputIconPosition.left,
-  inputIconElement: null,
-
-  // tagify
-  tagifyDataBlackList: '',
-  tagifyDataWhiteList: '',
-  tagifyOutside: false,
-  tagifyUserInput: true,
-
-  // btd-picker
-  btdPickerType: null,
-  btdPickerNoIcon: false,
-  btdPickerLocale: 'vi',
-  btdDisabledDates: null,
-  btdMinDate: null,
-
-  // date-range-picker
-  drpAutoUpdateInput: true,
-  drpEnableTimePicker: false,
-  drpSingleDatePicker: false,
-  drpEnablePredefinedRange: false,
-};
-
 /**
  *
  * @param {{
@@ -231,70 +112,68 @@ KTFormInput.defaultProps = {
  * }} props
  * @returns
  */
-function KTFormInput(props) {
+function KTFormInput({
+  type = 'text',
+  name = '',
+  value = '',
+  placeholder = '',
+  text = '',
+  solidBackground = false,
+  disabled = false,
+  readonly = false,
+  size = KTFormInputSize.default,
+  isCustom = true,
+  additionalInputClassName = '',
+  onChange = null,
+  onBlur = null,
+  onFocus = null,
+  enableCheckValid = false,
+  showValidState = false,
+  isValid = true,
+  isTouched = false,
+  feedbackText = '',
+
+  // max length
+  maxLength = 0,
+  maxLengthWarningClass = 'label label-danger label-rounded label-inline',
+  maxLengthReachedClass = 'label label-primary label-rounded label-inline',
+  maxLengthCustomSeparator = '/',
+  maxLengthCustomPreText = '',
+  maxLengthCustomPostText = '',
+
+  enableInputGroup = false,
+  inputGroupType = KTFormInputGroupType.text,
+  prependElements = null,
+  appendElements = null,
+
+  enableInputIcon = false,
+  inputIconPosition = KTFormInputIconPosition.left,
+  inputIconElement = null,
+
+  // tagify
+  tagifyDataBlackList = '',
+  tagifyDataWhiteList = '',
+  tagifyOutside = false,
+  tagifyUserInput = true,
+
+  // btd-picker
+  btdPickerType = null,
+  btdPickerNoIcon = false,
+  btdPickerLocale = 'vi',
+  btdDisabledDates = null,
+  btdMinDate = null,
+
+  // date-range-picker
+  drpAutoUpdateInput = true,
+  drpEnableTimePicker = false,
+  drpSingleDatePicker = false,
+  drpEnablePredefinedRange = false,
+
+  // number
+  minValue = null,
+  maxValue = null,
+}) {
   // MARK: --- Params ---
-  const {
-    type,
-    name,
-
-    value,
-    placeholder,
-    text,
-    solidBackground,
-    disabled,
-    readonly,
-    size,
-    isCustom,
-    additionalInputClassName,
-    onChange,
-    onBlur,
-    onFocus,
-    enableCheckValid,
-    showValidState,
-    isValid,
-    isTouched,
-    feedbackText,
-
-    // max length
-    maxLength,
-    maxLengthWarningClass,
-    maxLengthReachedClass,
-    maxLengthCustomSeparator,
-    maxLengthCustomPreText,
-    maxLengthCustomPostText,
-
-    enableInputGroup,
-    inputGroupType,
-    prependElements,
-    appendElements,
-
-    enableInputIcon,
-    inputIconPosition,
-    inputIconElement,
-
-    // tagify
-    tagifyDataBlackList,
-    tagifyDataWhiteList,
-    tagifyOutside,
-    tagifyUserInput,
-
-    // btd-picker
-    btdPickerType,
-    btdPickerNoIcon,
-    btdPickerLocale,
-    btdDisabledDates,
-    btdMinDate,
-
-    // date-range-picker
-    drpAutoUpdateInput,
-    drpEnableTimePicker,
-    drpSingleDatePicker,
-    drpEnablePredefinedRange,
-
-    // number
-    minValue,
-    maxValue,
-  } = props;
   const { t } = useTranslation();
   const refTagify = useRef(null);
   const currentLanguage = i18n.language;
@@ -623,5 +502,67 @@ function KTFormInput(props) {
     </div>
   );
 }
+
+KTFormInput.propTypes = {
+  // required
+  type: PropTypes.oneOf(Object.values(KTFormInputType)).isRequired,
+  name: PropTypes.string.isRequired,
+
+  // optional
+  value: PropTypes.string,
+  placeholder: PropTypes.string,
+  text: PropTypes.oneOfType([PropTypes.string, PropTypes.element]),
+  solidBackground: PropTypes.bool,
+  disabled: PropTypes.bool,
+  readonly: PropTypes.bool,
+  size: PropTypes.oneOf(Object.values(KTFormInputSize)),
+  isCustom: PropTypes.bool,
+  additionalInputClassName: PropTypes.string,
+
+  onChange: PropTypes.func,
+  onBlur: PropTypes.func,
+  onFocus: PropTypes.func,
+  enableCheckValid: PropTypes.bool,
+  showValidState: PropTypes.bool,
+  isTouched: PropTypes.bool,
+  isValid: PropTypes.bool,
+  feedbackText: PropTypes.string,
+
+  // max length
+  maxLength: PropTypes.number,
+  maxLengthWarningClass: PropTypes.string,
+  maxLengthReachedClass: PropTypes.string,
+  maxLengthCustomSeparator: PropTypes.string,
+  maxLengthCustomPreText: PropTypes.string,
+  maxLengthCustomPostText: PropTypes.string,
+
+  enableInputGroup: PropTypes.bool,
+  inputGroupType: PropTypes.oneOf(Object.values(KTFormInputGroupType)),
+  prependElements: PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, PropTypes.element])),
+  appendElements: PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, PropTypes.element])),
+
+  enableInputIcon: PropTypes.bool,
+  inputIconPosition: PropTypes.oneOf(Object.values(KTFormInputIconPosition)),
+  inputIconElement: PropTypes.element,
+
+  // tagify
+  tagifyDataBlackList: PropTypes.string,
+  tagifyDataWhiteList: PropTypes.string,
+  tagifyOutside: PropTypes.bool,
+  tagifyUserInput: PropTypes.bool,
+
+  // btd-picker
+  btdPickerType: PropTypes.oneOf(Object.values(KTFormInputBTDPickerType)),
+  btdPickerNoIcon: PropTypes.bool,
+  btdPickerLocale: PropTypes.string,
+  btdDisabledDates: PropTypes.arrayOf(PropTypes.string),
+  btdMinDate: PropTypes.string,
+
+  // date-range-picker
+  drpAutoUpdateInput: PropTypes.bool,
+  drpEnableTimePicker: PropTypes.bool,
+  drpSingleDatePicker: PropTypes.bool,
+  drpEnablePredefinedRange: PropTypes.bool,
+};
 
 export default KTFormInput;

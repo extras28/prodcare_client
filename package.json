@@ -17,6 +17,8 @@
     "buffer": "^6.0.3",
     "ckeditor5-custom-build": "^0.0.6",
     "daterangepicker": "^3.1.0",
+    "exceljs": "^4.4.0",
+    "file-saver": "^2.0.5",
     "formik": "^2.4.6",
     "i18next": "^23.15.1",
     "i18next-browser-languagedetector": "^8.0.0",
@@ -42,7 +44,6 @@
     "sweetalert2": "^11.14.0",
     "tempusdominus-bootstrap-4": "^5.39.2",
     "web-vitals": "^2.1.4",
-    "xlsx": "^0.18.5",
     "yup": "^1.4.0"
   },
   "scripts": {

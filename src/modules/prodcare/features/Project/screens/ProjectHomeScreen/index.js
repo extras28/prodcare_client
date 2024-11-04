@@ -41,7 +41,7 @@ function ProjectHomePage(props) {
   const columns = useMemo(() => {
     const tableColumns = [
       {
-        name: t('EquipmentId'),
+        name: t('ProductId'),
         sortable: false,
         // minWidth: '120px',
         cell: (row) => {
@@ -56,7 +56,7 @@ function ProjectHomePage(props) {
         },
       },
       {
-        name: t('EquipmentName'),
+        name: t('ProductName'),
         sortable: false,
         cell: (row) => {
           return (

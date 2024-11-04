@@ -2,7 +2,7 @@ import componentApi from 'api/componentApi';
 import { FastField, Field, Formik } from 'formik';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Button, Modal } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
@@ -109,11 +109,12 @@ function ModalEditComponent({
     }
   }
 
-  async function getListComponentParent(level) {
+  async function getListComponentParent(level, productId) {
     try {
       const res = await componentApi.getListComponent({
         level,
         projectId: JSON.parse(localStorage.getItem(PreferenceKeys.currentProject))?.id,
+        productId,
       });
       if (res.result == 'success') {
         setComponentParents(res.components);
@@ -122,6 +123,12 @@ function ModalEditComponent({
       console.error(error);
     }
   }
+
+  useEffect(() => {
+    if (Number(componentItem?.['level'] > 1)) {
+      getListComponentParent(componentItem?.level - 1);
+    }
+  }, [componentItem]);
 
   return (
     <Formik
@@ -175,79 +182,45 @@ function ModalEditComponent({
 
             <Modal.Body className="overflow-auto" style={{ maxHeight: '70vh' }}>
               <div className="row">
-                {/* id */}
-                {/* <div className="col-12">
+                {/* ComponentName */}
+                <div className="col-12">
                   <KTFormGroup
                     label={
                       <>
-                        {t('ID')} <span className="text-danger">*</span>
+                        {t('ComponentName')} <span className="text-danger">*</span>
                       </>
                     }
-                    inputName="componentId"
+                    inputName="name"
                     inputElement={
-                      <FastField name="componentId">
+                      <FastField name="name">
                         {({ field, form, meta }) => (
                           <KTFormInput
                             {...field}
-                            onChange={(value) => form.setFieldValue(field.name, value)}
+                            onChange={(value) => {
+                              form.setFieldValue(field.name, value);
+                              setChangeObj((prev) => {
+                                return {
+                                  ...prev,
+                                  [`${t('ComponentName')}`]: `${
+                                    componentItem?.name ?? ''
+                                  } -> ${value}`,
+                                };
+                              });
+                            }}
                             onBlur={() => form.setFieldTouched(field.name, true)}
                             enableCheckValid
                             isValid={_.isEmpty(meta.error)}
                             isTouched={meta.touched}
                             feedbackText={meta.error}
-                            placeholder={`${_.capitalize(t('ID'))}...`}
+                            placeholder={`${_.capitalize(t('ComponentName'))}...`}
                             type={KTFormInputType.text}
-                            disabled={
-                              (current?.role !== 'USER' && current?.role !== 'ADMIN') || isEditMode
-                            }
+                            disabled={current?.role === 'GUEST'}
                           />
                         )}
                       </FastField>
                     }
                   />
-                </div> */}
-
-                {/* ComponentName */}
-                {
-                  <div className="col-12">
-                    <KTFormGroup
-                      label={
-                        <>
-                          {t('ComponentName')} <span className="text-danger">*</span>
-                        </>
-                      }
-                      inputName="name"
-                      inputElement={
-                        <FastField name="name">
-                          {({ field, form, meta }) => (
-                            <KTFormInput
-                              {...field}
-                              onChange={(value) => {
-                                form.setFieldValue(field.name, value);
-                                setChangeObj((prev) => {
-                                  return {
-                                    ...prev,
-                                    [`${t('ComponentName')}`]: `${
-                                      componentItem?.name ?? ''
-                                    } -> ${value}`,
-                                  };
-                                });
-                              }}
-                              onBlur={() => form.setFieldTouched(field.name, true)}
-                              enableCheckValid
-                              isValid={_.isEmpty(meta.error)}
-                              isTouched={meta.touched}
-                              feedbackText={meta.error}
-                              placeholder={`${_.capitalize(t('ComponentName'))}...`}
-                              type={KTFormInputType.text}
-                              disabled={current?.role !== 'USER' && current?.role !== 'ADMIN'}
-                            />
-                          )}
-                        </FastField>
-                      }
-                    />
-                  </div>
-                }
+                </div>
 
                 {/* serial */}
                 <div className="col-12">
@@ -279,7 +252,7 @@ function ModalEditComponent({
                             feedbackText={meta.error}
                             placeholder={`${_.capitalize(t('Serial'))}...`}
                             type={KTFormInputType.text}
-                            disabled={current?.role !== 'USER' && current?.role !== 'ADMIN'}
+                            disabled={current?.role === 'GUEST'}
                           />
                         )}
                       </FastField>
@@ -315,6 +288,11 @@ function ModalEditComponent({
                             })}
                             onValueChanged={(newValue) => {
                               form.setFieldValue(field.name, newValue);
+                              getListComponentParent(
+                                formikProps.getFieldProps('level').value - 1,
+                                newValue
+                              );
+                              formikProps.getFieldHelpers('parentId').setValue('');
                               setChangeObj((prev) => {
                                 const prevProd = products.find(
                                   (item) => item.id == componentItem?.product_id
@@ -330,7 +308,7 @@ function ModalEditComponent({
                                 };
                               });
                             }}
-                            disabled={current?.role !== 'USER' && current?.role !== 'ADMIN'}
+                            disabled={current?.role === 'GUEST'}
                           />
                         )}
                       </FastField>
@@ -374,7 +352,7 @@ function ModalEditComponent({
                                 };
                               });
                             }}
-                            disabled={current?.role !== 'USER' && current?.role !== 'ADMIN'}
+                            disabled={current?.role === 'GUEST'}
                           />
                         )}
                       </FastField>
@@ -411,7 +389,7 @@ function ModalEditComponent({
                               feedbackText={meta.error}
                               placeholder={`${_.capitalize(t('Version'))}...`}
                               type={KTFormInputType.text}
-                              disabled={current?.role !== 'USER' && current?.role !== 'ADMIN'}
+                              disabled={current?.role === 'GUEST'}
                             />
                           )}
                         </FastField>
@@ -428,28 +406,61 @@ function ModalEditComponent({
                     inputElement={
                       <Field name="level">
                         {({ field, form, meta }) => (
-                          <KTFormInput
-                            {...field}
-                            onChange={(value) => {
-                              getListComponentParent(value - 1);
-                              form.setFieldValue(field.name, value);
-                              setChangeObj((prev) => {
-                                return {
-                                  ...prev,
-                                  [`${t('ComponentLevel')}`]: `${
-                                    componentItem?.level ?? ''
-                                  } -> ${value}`,
-                                };
-                              });
+                          // <KTFormInput
+                          //   {...field}
+                          //   onChange={(value) => {
+                          //     getListComponentParent(value - 1);
+                          //     form.setFieldValue(field.name, value);
+                          //     setChangeObj((prev) => {
+                          //       return {
+                          //         ...prev,
+                          //         [`${t('ComponentLevel')}`]: `${
+                          //           componentItem?.level ?? ''
+                          //         } -> ${value}`,
+                          //       };
+                          //     });
+                          //   }}
+                          //   onBlur={() => form.setFieldTouched(field.name, true)}
+                          //   enableCheckValid
+                          //   isValid={_.isEmpty(meta.error)}
+                          //   isTouched={meta.touched}
+                          //   feedbackText={meta.error}
+                          //   placeholder={`${_.capitalize(t('ComponentLevel'))}...`}
+                          //   type={KTFormInputType.number}
+                          //   disabled={current?.role === "GUEST"}
+                          // />
+                          <KeenSelectOption
+                            // searchable={true}
+                            fieldProps={field}
+                            fieldHelpers={formikProps.getFieldHelpers(field.name)}
+                            fieldMeta={meta}
+                            name={field.name}
+                            options={AppData.urgencyPoints.map((item) => {
+                              return { name: item.name, value: item.value };
+                            })}
+                            onValueChanged={(newValue) => {
+                              getListComponentParent(newValue - 1);
+                              const { componentLevel } = AppData;
+
+                              // Find new urgency level and impact points
+                              const newLevel = componentLevel.find((lv) => lv.value == newValue);
+                              const curentLevel = componentLevel.find(
+                                (lv) => lv.value == componentItem?.['level']
+                              );
+
+                              // Set form field values
+                              form.setFieldValue(field.name, newValue);
+
+                              // Update the change object
+                              setChangeObj((prev) => ({
+                                ...prev,
+
+                                [`${t('ComponentLevel')}`]: `${t(curentLevel?.name)} -> ${t(
+                                  newLevel?.name
+                                )}`,
+                              }));
                             }}
-                            onBlur={() => form.setFieldTouched(field.name, true)}
-                            enableCheckValid
-                            isValid={_.isEmpty(meta.error)}
-                            isTouched={meta.touched}
-                            feedbackText={meta.error}
-                            placeholder={`${_.capitalize(t('ComponentLevel'))}...`}
-                            type={KTFormInputType.number}
-                            disabled={current?.role !== 'USER' && current?.role !== 'ADMIN'}
+                            disabled={current?.role === 'GUEST'}
                           />
                         )}
                       </Field>
@@ -481,7 +492,7 @@ function ModalEditComponent({
                                   name: `${item['name']} ${
                                     item?.serial ? '(' + item?.serial + ')' : ''
                                   }`,
-                                  value: item.id,
+                                  value: item?.id,
                                 };
                               })}
                               onValueChanged={(newValue) => {
@@ -493,6 +504,18 @@ function ModalEditComponent({
                                   const nextPar = componentParents.find(
                                     (item) => item.id == newValue
                                   );
+                                  if (!formikProps.getFieldProps('productId').value) {
+                                    const newParent = componentParents.find(
+                                      (np) => np?.id == newValue
+                                    );
+                                    const newProduct = products.find(
+                                      (np) => np.id == newParent?.product_id
+                                    );
+
+                                    formikProps
+                                      .getFieldHelpers('productId')
+                                      .setValue(newProduct?.id);
+                                  }
                                   return {
                                     ...prev,
                                     [`${t('ComponentParent')}`]: `${prevPar?.['name']} ${
@@ -503,7 +526,7 @@ function ModalEditComponent({
                                   };
                                 });
                               }}
-                              disabled={current?.role !== 'USER' && current?.role !== 'ADMIN'}
+                              disabled={current?.role === 'GUEST'}
                             />
                           )}
                         </Field>
@@ -539,7 +562,7 @@ function ModalEditComponent({
                             isTouched={meta.touched}
                             feedbackText={meta.error}
                             placeholder={`${_.capitalize(t('Description'))}...`}
-                            disabled={current?.role !== 'USER' && current?.role !== 'ADMIN'}
+                            disabled={current?.role === 'GUEST'}
                           />
                         )}
                       </FastField>
@@ -549,7 +572,7 @@ function ModalEditComponent({
               </div>
             </Modal.Body>
 
-            {current?.role === 'ADMIN' || current?.role === 'USER' ? (
+            {current?.role !== 'GUEST' ? (
               <Modal.Footer>
                 <div className="w-100 d-flex row">
                   <Button

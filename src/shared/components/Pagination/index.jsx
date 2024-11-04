@@ -25,8 +25,8 @@ function Pagination({
   }
 
   const arrButtons = [];
-  let firstIndex = currentPage - 3 > 0 ? Math.min(currentPage - 3, totalPages - 5) : 0;
-  let lastIndex = currentPage + 1 > totalPages - 1 ? totalPages - 1 : Math.max(currentPage + 1, 4);
+  let firstIndex = currentPage - 3 > 0 ? Math.min(currentPage - 3, totalPages - 5) >=0 ?Math.min(currentPage - 3, totalPages - 5) : 0 : 0;
+  let lastIndex = currentPage + 1 > totalPages - 1 ? totalPages - 1 : Math.max(currentPage + 1, 2);
 
   for (let i = firstIndex; i <= lastIndex; i++) {
     arrButtons.push(

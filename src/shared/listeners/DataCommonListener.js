@@ -24,7 +24,6 @@ function DataCommonListener(props) {
   useEffect(() => {
     if (!_.isEmpty(currentUser) && AccountHelper.checkAccessTokenValid()) {
       dispatch(thunkGetAllProject());
-      dispatch(thunkGetAllCustomer());
     }
   }, [currentUser, projects]);
 
@@ -32,6 +31,7 @@ function DataCommonListener(props) {
     if (!_.isEmpty(currentUser) && AccountHelper.checkAccessTokenValid() && !!currentProject?.id) {
       dispatch(thunkGetAllProduct({ projectId: currentProject?.id }));
       dispatch(thunkGetAllComponent({ projectId: currentProject?.id }));
+      dispatch(thunkGetAllCustomer());
     }
   }, [currentUser, currentProject]);
 

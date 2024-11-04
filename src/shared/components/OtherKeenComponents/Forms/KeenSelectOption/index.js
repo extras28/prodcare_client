@@ -93,7 +93,7 @@ function KeenSelectOption({
           dropdownValue
       );
     }
-  }, [value]);
+  }, [value, options]);
 
   function handleOptionChanged(e) {
     fieldHelpers?.setValue(e);

@@ -615,19 +615,17 @@ function IssueHomePage(props) {
               </a>
             </KTTooltip>
 
-            {current?.role === 'ADMIN' ? (
-              <KTTooltip text={t('Delete')}>
-                <a
-                  className="btn btn-icon btn-sm btn-danger btn-hover-danger ml-2"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleDeleteIssue(row);
-                  }}
-                >
-                  <i className="far fa-trash p-0 icon-1x" />
-                </a>
-              </KTTooltip>
-            ) : null}
+            <KTTooltip text={t('Delete')}>
+              <a
+                className="btn btn-icon btn-sm btn-danger btn-hover-danger ml-2"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleDeleteIssue(row);
+                }}
+              >
+                <i className="far fa-trash p-0 icon-1x" />
+              </a>
+            </KTTooltip>
           </div>
         ),
       },
@@ -978,8 +976,35 @@ function IssueHomePage(props) {
                 }}
               />
             </div>
+            <div className="d-flex flex-wrap align-items-center">
+              <label className="mr-2 mb-0" htmlFor="status">
+                {_.capitalize(t('ErrorLevel'))}
+              </label>
+              <KTFormSelect
+                name="level"
+                isCustom
+                options={[
+                  { name: 'All', value: '' },
+                  ...AppData.errorLevel.map((item) => {
+                    return { name: item.name, value: item.value };
+                  }),
+                ]}
+                value={Global.gFiltersIssueList.level}
+                onChange={(newValue) => {
+                  needToRefreshData.current = true;
+                  Global.gFiltersIssueList = {
+                    ...filters,
+                    page: 0,
+                    level: newValue,
+                  };
+                  setFilters({
+                    ...Global.gFiltersIssueList,
+                  });
+                }}
+              />
+            </div>
           </div>
-          {current?.role != 'ADMIN' && current?.role !== 'USER' ? null : (
+          {current?.role === 'GUEST' ? null : (
             <div className="card-toolbar gap-2">
               <a
                 href="#"

@@ -6,6 +6,7 @@ import { Button, Modal } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import KTImageInput from 'shared/components/OtherKeenComponents/FileUpload/KTImageInput';
+import KeenSelectOption from 'shared/components/OtherKeenComponents/Forms/KeenSelectOption';
 import KTFormGroup from 'shared/components/OtherKeenComponents/Forms/KTFormGroup';
 import KTFormInput, {
   KTFormInputBTDPickerType,
@@ -19,15 +20,8 @@ import Global from 'shared/utils/Global';
 import Utils from 'shared/utils/Utils';
 import * as Yup from 'yup';
 import { thunkGetListUser } from '../../userSlice';
-import KeenSelectOption from 'shared/components/OtherKeenComponents/Forms/KeenSelectOption';
 
-function ModalEditUser({
-  show = false,
-  onClose = null,
-  onRefreshUserList = null,
-  userItem = null,
-  onExistDone = null,
-}) {
+function ModalEditUser({ show = false, onClose = null, userItem = null, onExistDone = null }) {
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const { current } = useSelector((state) => state?.auth);
@@ -100,7 +94,9 @@ function ModalEditUser({
               .required(t('Required'))
               .min(6, t('ThePasswordMustContainAtLeast6Characters'))
               .matches(/^\S*$/, t('ThePasswordMustNotContainWhitespace')),
-        phone: Yup.string().required(t('Required')),
+        phone: Yup.string()
+          .matches(/^[0-9]+$/, t('PhoneMustBeAllNumbers'))
+          .required(t('Required')),
       })}
       enableReinitialize
       onSubmit={(values) => {
@@ -137,11 +133,6 @@ function ModalEditUser({
               {/* Avatar */}
               <div className="col-12 ">
                 <KTFormGroup
-                  // label={
-                  //   <>
-                  //     {t('Avatar')} <span className="text-danger">*</span>
-                  //   </>
-                  // }
                   inputName="avatarLink"
                   inputElement={
                     <FastField name="avatarLink">
