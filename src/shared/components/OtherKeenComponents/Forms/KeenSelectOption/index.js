@@ -125,7 +125,7 @@ function KeenSelectOption({
           <Dropdown.Toggle
             id={name}
             disabled={disabled}
-            className={`cursor-pointer border shadow-none d-flex align-items-center justify-content-between ${
+            className={`overflow-hidden cursor-pointer border shadow-none d-flex align-items-center justify-content-between ${
               showError ? 'is-invalid' : ''
             } w-100`}
             multiple={fieldProps?.multiple}

@@ -15,6 +15,8 @@ import PreferenceKeys from 'shared/constants/PreferenceKeys';
 import Global from 'shared/utils/Global';
 import Utils from 'shared/utils/Utils';
 import { thunkGetYearReport } from '../../dashboardSlice';
+import _ from 'lodash';
+import AppData from 'shared/constants/AppData';
 const { Column, ColumnGroup } = Table;
 
 YearReportTable.propTypes = {};
@@ -30,9 +32,10 @@ function YearReportTable(props) {
   });
   const { year, isGettingYearReport } = useSelector((state) => state?.dashboard);
   const { currentProject } = useSelector((state) => state?.app);
+  const { products, customers, components, reasons } = useSelector((state) => state?.app);
 
-  const data = useMemo(() => {
-    return [
+  const data = useMemo(
+    () => [
       {
         product: year?.project?.project_name,
         customerCount: year?.project?.customerCount,
@@ -62,8 +65,9 @@ function YearReportTable(props) {
           ? Utils.formatNumber(year?.issueCounts?.warrantyAllError)
           : 0,
       },
-    ];
-  }, [year]);
+    ],
+    [year]
+  );
 
   // MARK: --- Functions ---
   async function getStatisticByYear() {
@@ -76,17 +80,17 @@ function YearReportTable(props) {
 
   async function exportToExcel() {
     const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet('Data Sheet', {
+    const worksheet1 = workbook.addWorksheet(t('General'), {
       views: [{ zoomScale: 85 }], // Set default zoom to 85%
     });
 
     // Add title spanning from A1 to U2 with yellow background
-    worksheet.mergeCells('A1:S2');
-    const titleCell = worksheet.getCell('A1');
-    titleCell.value = 'BÁO CÁO CÔNG TÁC ĐẢM BẢO KỸ THUẬT SẢN PHẨM VSI3 NĂM 2024';
-    titleCell.font = { name: 'Times New Roman', size: 14, bold: true };
-    titleCell.alignment = { vertical: 'middle', horizontal: 'center' };
-    titleCell.fill = {
+    worksheet1.mergeCells('A1:S2');
+    const titleCell1 = worksheet1.getCell('A1');
+    titleCell1.value = `BÁO CÁO CÔNG TÁC ĐẢM BẢO KỸ THUẬT SẢN PHẨM ${year?.project?.project_name} NĂM ${filters.year}`;
+    titleCell1.font = { name: 'Times New Roman', size: 14, bold: true };
+    titleCell1.alignment = { vertical: 'middle', horizontal: 'center' };
+    titleCell1.fill = {
       type: 'pattern',
       pattern: 'solid',
       fgColor: { argb: 'FFFF00' }, // Yellow background
@@ -165,9 +169,9 @@ function YearReportTable(props) {
       ],
     ];
 
-    // Add data to worksheet starting from row 6
+    // Add data to worksheet1 starting from row 6
     data.forEach((row, rowIndex) => {
-      const excelRow = worksheet.getRow(rowIndex + 6); // Start adding rows from row 6
+      const excelRow = worksheet1.getRow(rowIndex + 6); // Start adding rows from row 6
       row.forEach((value, colIndex) => {
         const cell = excelRow.getCell(colIndex + 1); // Get each cell in the row
         cell.value = value;
@@ -181,14 +185,14 @@ function YearReportTable(props) {
     });
 
     // Merging cells for headers in row 6
-    worksheet.mergeCells('A6:A7'); // "Sản phẩm"
-    worksheet.mergeCells('B6:B7'); // "Số lượng trên tuyến hiện nay"
-    worksheet.mergeCells('C6:K6'); // "Lỗi phát sinh"
-    worksheet.mergeCells('L6:Q6'); // "Lỗi lũy kế đến hết năm 2023"
-    worksheet.mergeCells('R6:S6'); // "Thời gian bảo hành trung bình"
+    worksheet1.mergeCells('A6:A7'); // "Sản phẩm"
+    worksheet1.mergeCells('B6:B7'); // "Số lượng trên tuyến hiện nay"
+    worksheet1.mergeCells('C6:K6'); // "Lỗi phát sinh"
+    worksheet1.mergeCells('L6:Q6'); // "Lỗi lũy kế đến hết năm 2023"
+    worksheet1.mergeCells('R6:S6'); // "Thời gian bảo hành trung bình"
 
     // Applying bold to specific header cells in row 6
-    worksheet.getRow(6).eachCell((cell, colNumber) => {
+    worksheet1.getRow(6).eachCell((cell, colNumber) => {
       if (
         [
           t('Product'),
@@ -203,11 +207,11 @@ function YearReportTable(props) {
     });
 
     // Increase the row height for the title row
-    worksheet.getRow(1).height = 28; // Adjust the height value as needed
-    worksheet.getRow(6).height = 28; // Adjust the height value as needed
+    worksheet1.getRow(1).height = 28; // Adjust the height value as needed
+    worksheet1.getRow(6).height = 28; // Adjust the height value as needed
 
     // Adding borders to all data cells
-    worksheet.eachRow((row, rowNumber) => {
+    worksheet1.eachRow((row, rowNumber) => {
       row.eachCell((cell) => {
         cell.border = {
           top: { style: 'thin' },
@@ -219,16 +223,379 @@ function YearReportTable(props) {
     });
 
     // Adjust column width
-    worksheet.columns.forEach((column) => {
+    worksheet1.columns.forEach((column) => {
       column.width = 10; // Adjust as necessary
     });
+
+    const worksheet2 = workbook.addWorksheet(t('IncidentalError'), {
+      views: [{ zoomScale: 85 }], // Set default zoom to 85%
+    });
+    const listData2 = [
+      [
+        t('STT'),
+        t('Status'),
+        t('Customer'),
+        t('Equipment'),
+        t('Component'),
+        t('DescriptionByCustomer'),
+        t('ErrorType'),
+        t('ErrorLevel'),
+        t('KPI_h'),
+        t('HandlingMeasures'),
+        t('RepairPart'),
+        t('Amount'),
+        t('UnitCount'),
+        t('S/N'),
+        t('EquipmentStatus'),
+        t('ExpDate'),
+        t('ReceptionTime'),
+        t('CompletionTime'),
+        t('HandlingTime'),
+        t('ResponsibleHandlingUnit'),
+        t('ReportingPerson'),
+        t('RemainStatus'),
+        t('OverdueKpi'),
+        t('WarrantyStatus'),
+        t('OverdueKpiReason'),
+        t('SSCDImpact'),
+        t('StopFighting'),
+        t('UnhandleReason'),
+        t('LetterSendVmc'),
+        t('MaterialStatus'),
+        t('HandlingPlan'),
+        // t('ErrorAlert'),
+      ],
+      ...year?.issueInYears?.map((row, index) => {
+        const ct = customers.find((c) => c.id === row['customer_id']);
+        const pd = products.find((p) => p.id == row?.product_id);
+        return [
+          index + 1,
+          t(_.capitalize(row?.status)),
+          ct ? `${ct?.['military_region']} - ${ct?.['name']}` : '',
+          `${pd?.name} ${pd?.serial ? '(' + pd?.serial + ')' : ''}`,
+          components?.find((item) => item.id == row?.component_id)?.name || '',
+          row?.description || '',
+          t(
+            AppData.responsibleType.find((item) => item.value === row?.responsible_type)?.name || ''
+          ),
+          t(_.capitalize(AppData.errorLevel.find((item) => item.value === row?.level)?.name || '')),
+          row?.kpi_h || '',
+          t(
+            AppData.handlingMeasures.find((item) => item.value === row?.['handling_measures'])
+              ?.name || ''
+          ),
+          row?.repair_part || '',
+          row?.repair_part_count || '',
+          row?.unit || '',
+          customers.find((item) => item.id == row?.customer_id)?.code_number || '',
+          t(AppData.productStatus.find((item) => item.value === row?.product_status)?.name) || '',
+          row?.exp_date ? Utils.formatDateTime(row?.exp_date, 'YYYY-MM-DD') : '',
+          row?.reception_time ? Utils.formatDateTime(row?.reception_time, 'YYYY-MM-DD') : '',
+          row?.completion_time ? Utils.formatDateTime(row?.completion_time, 'YYYY-MM-DD') : '',
+          row?.handling_time || '',
+          row?.responsible_handling_unit || '',
+          row?.reporting_person || '',
+          t(
+            AppData.errorRemainStatus.find((item) => item.value === row?.['remain_status'])?.name ||
+              ''
+          ),
+          t(_.capitalize(row?.overdue_kpi ? 'Yes' : 'No')),
+          t(
+            row?.warranty_status === 'UNDER'
+              ? 'UnderWarranty'
+              : row?.warranty_status === 'OVER'
+              ? 'OutOfWarranty'
+              : ''
+          ),
+          t(
+            AppData.overdueKpiReasons.find((item) => item.value === row?.['overdue_kpi_reason'])
+              ?.name
+          ) || '',
+          t(`${_.capitalize(row?.impact || '')}`),
+          t(`${_.capitalize(row?.stop_fighting ? 'Yes' : 'No')}`),
+          t(
+            AppData.errorUnhandleReason.find((item) => item.value == row?.unhandle_reason)?.name ||
+              ''
+          ),
+          row?.letter_send_vmc || '',
+          // row?.date ? Utils.formatDateTime(row?.date, 'YYYY-MM-DD') : '',
+          row?.material_status || '',
+          row?.handling_plan || '',
+          // row?.error_alert || '',
+        ];
+      }),
+    ];
+
+    listData2.forEach((row, rowIndex) => {
+      const excelRow = worksheet2.getRow(rowIndex + 1);
+      row.forEach((value, colIndex) => {
+        const cell = excelRow.getCell(colIndex + 1);
+        cell.value = value;
+        cell.alignment = { vertical: 'middle', wrapText: true };
+        cell.font = { name: 'Times New Roman', size: 11 };
+      });
+
+      // Set row color based on status
+      if (row[1] === t(_.capitalize('PROCESSING'))) {
+        // Assuming 'Status' is at index 1
+        excelRow.eachCell((cell) => {
+          cell.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FFEB9C' }, // Yellow color
+          };
+        });
+      } else if (row[1] === t(_.capitalize('UNPROCESSED'))) {
+        // Assuming 'Status' is at index 1
+        excelRow.eachCell((cell) => {
+          cell.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FFC7CE' }, // Red color
+          };
+        });
+      } else if (row[1] === t(_.capitalize('PROCESSED'))) {
+        // Assuming 'Status' is at index 1
+        excelRow.eachCell((cell) => {
+          cell.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'C6EFCE' }, // Green color
+          };
+        });
+      }
+    });
+
+    // Apply background color to cells from A1 to AE1
+    const headerRow2 = worksheet2.getRow(1); // First row
+
+    headerRow2.eachCell((cell, colIndex) => {
+      if (colIndex >= 1 && colIndex <= 31) {
+        // Columns A to AE (31 columns)
+        cell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: '92D050' }, // Light green color
+        };
+      }
+    });
+
+    // Adding borders to list sheet cells
+    worksheet2.eachRow((row) => {
+      row.eachCell((cell) => {
+        cell.border = {
+          top: { style: 'thin' },
+          left: { style: 'thin' },
+          bottom: { style: 'thin' },
+          right: { style: 'thin' },
+        };
+      });
+    });
+
+    worksheet2.getColumn(1).width = 6;
+    worksheet2.getColumn(2).width = 12;
+    worksheet2.getColumn(3).width = 15;
+    worksheet2.getColumn(4).width = 30;
+    worksheet2.getColumn(6).width = 30;
+    worksheet2.getColumn(7).width = 14;
+    worksheet2.getColumn(15).width = 14;
+    worksheet2.getColumn(16).width = 12;
+    worksheet2.getColumn(17).width = 12;
+    worksheet2.getColumn(18).width = 12;
+    worksheet2.getColumn(31).width = 40;
+
+    const worksheet3 = workbook.addWorksheet(
+      t('CummulativeErrorsUpToTheEndOfYear', { year: filters?.year - 1 }),
+      {
+        views: [{ zoomScale: 85 }], // Set default zoom to 85%
+      }
+    );
+    const listData3 = [
+      [
+        t('STT'),
+        t('Status'),
+        t('Customer'),
+        t('Equipment'),
+        t('Component'),
+        t('DescriptionByCustomer'),
+        t('ErrorType'),
+        t('ErrorLevel'),
+        t('KPI_h'),
+        t('HandlingMeasures'),
+        t('RepairPart'),
+        t('Amount'),
+        t('UnitCount'),
+        t('S/N'),
+        t('EquipmentStatus'),
+        t('ExpDate'),
+        t('ReceptionTime'),
+        t('CompletionTime'),
+        t('HandlingTime'),
+        t('ResponsibleHandlingUnit'),
+        t('ReportingPerson'),
+        t('RemainStatus'),
+        t('OverdueKpi'),
+        t('WarrantyStatus'),
+        t('OverdueKpiReason'),
+        t('SSCDImpact'),
+        t('StopFighting'),
+        t('UnhandleReason'),
+        t('LetterSendVmc'),
+        t('MaterialStatus'),
+        t('HandlingPlan'),
+        // t('ErrorAlert'),
+      ],
+      ...year?.cummulativeIssues?.map((row, index) => {
+        const ct = customers.find((c) => c.id === row['customer_id']);
+        const pd = products.find((p) => p.id == row?.product_id);
+        return [
+          index + 1,
+          t(_.capitalize(row?.status)),
+          ct ? `${ct?.['military_region']} - ${ct?.['name']}` : '',
+          `${pd?.name} ${pd?.serial ? '(' + pd?.serial + ')' : ''}`,
+          components?.find((item) => item.id == row?.component_id)?.name || '',
+          row?.description || '',
+          t(
+            AppData.responsibleType.find((item) => item.value === row?.responsible_type)?.name || ''
+          ),
+          t(_.capitalize(AppData.errorLevel.find((item) => item.value === row?.level)?.name || '')),
+          row?.kpi_h || '',
+          t(
+            AppData.handlingMeasures.find((item) => item.value === row?.['handling_measures'])
+              ?.name || ''
+          ),
+          row?.repair_part || '',
+          row?.repair_part_count || '',
+          row?.unit || '',
+          customers.find((item) => item.id == row?.customer_id)?.code_number || '',
+          t(AppData.productStatus.find((item) => item.value === row?.product_status)?.name) || '',
+          row?.exp_date ? Utils.formatDateTime(row?.exp_date, 'YYYY-MM-DD') : '',
+          row?.reception_time ? Utils.formatDateTime(row?.reception_time, 'YYYY-MM-DD') : '',
+          row?.completion_time ? Utils.formatDateTime(row?.completion_time, 'YYYY-MM-DD') : '',
+          row?.handling_time || '',
+          row?.responsible_handling_unit || '',
+          row?.reporting_person || '',
+          t(
+            AppData.errorRemainStatus.find((item) => item.value === row?.['remain_status'])?.name ||
+              ''
+          ),
+          t(_.capitalize(row?.overdue_kpi ? 'Yes' : 'No')),
+          t(
+            row?.warranty_status === 'UNDER'
+              ? 'UnderWarranty'
+              : row?.warranty_status === 'OVER'
+              ? 'OutOfWarranty'
+              : ''
+          ),
+          t(
+            AppData.overdueKpiReasons.find((item) => item.value === row?.['overdue_kpi_reason'])
+              ?.name
+          ) || '',
+          t(`${_.capitalize(row?.impact || '')}`),
+          t(`${_.capitalize(row?.stop_fighting ? 'Yes' : 'No')}`),
+          t(
+            AppData.errorUnhandleReason.find((item) => item.value == row?.unhandle_reason)?.name ||
+              ''
+          ),
+          row?.letter_send_vmc || '',
+          // row?.date ? Utils.formatDateTime(row?.date, 'YYYY-MM-DD') : '',
+          row?.material_status || '',
+          row?.handling_plan || '',
+          // row?.error_alert || '',
+        ];
+      }),
+    ];
+
+    listData3.forEach((row, rowIndex) => {
+      const excelRow = worksheet3.getRow(rowIndex + 1);
+      row.forEach((value, colIndex) => {
+        const cell = excelRow.getCell(colIndex + 1);
+        cell.value = value;
+        cell.alignment = { vertical: 'middle', wrapText: true };
+        cell.font = { name: 'Times New Roman', size: 11 };
+      });
+
+      // Set row color based on status
+      if (row[1] === t(_.capitalize('PROCESSING'))) {
+        // Assuming 'Status' is at index 1
+        excelRow.eachCell((cell) => {
+          cell.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FFEB9C' }, // Yellow color
+          };
+        });
+      } else if (row[1] === t(_.capitalize('UNPROCESSED'))) {
+        // Assuming 'Status' is at index 1
+        excelRow.eachCell((cell) => {
+          cell.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FFC7CE' }, // Red color
+          };
+        });
+      } else if (row[1] === t(_.capitalize('PROCESSED'))) {
+        // Assuming 'Status' is at index 1
+        excelRow.eachCell((cell) => {
+          cell.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'C6EFCE' }, // Green color
+          };
+        });
+      }
+    });
+
+    // Apply background color to cells from A1 to AE1
+    const headerRow3 = worksheet3.getRow(1); // First row
+
+    headerRow3.eachCell((cell, colIndex) => {
+      if (colIndex >= 1 && colIndex <= 31) {
+        // Columns A to AE (31 columns)
+        cell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: '92D050' }, // Light green color
+        };
+      }
+    });
+
+    // Adding borders to list sheet cells
+    worksheet3.eachRow((row) => {
+      row.eachCell((cell) => {
+        cell.border = {
+          top: { style: 'thin' },
+          left: { style: 'thin' },
+          bottom: { style: 'thin' },
+          right: { style: 'thin' },
+        };
+      });
+    });
+
+    worksheet3.getColumn(1).width = 6;
+    worksheet3.getColumn(2).width = 12;
+    worksheet3.getColumn(3).width = 15;
+    worksheet3.getColumn(4).width = 30;
+    worksheet3.getColumn(6).width = 30;
+    worksheet3.getColumn(7).width = 14;
+    worksheet3.getColumn(15).width = 14;
+    worksheet3.getColumn(16).width = 12;
+    worksheet3.getColumn(17).width = 12;
+    worksheet3.getColumn(18).width = 12;
+    worksheet3.getColumn(31).width = 40;
 
     // Generate Excel file as a Blob and save it using file-saver
     const buffer = await workbook.xlsx.writeBuffer();
     const blob = new Blob([buffer], {
       type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     });
-    saveAs(blob, `BÁO CÁO ĐBKT ${year?.project?.project_name} ${filters.year}.xlsx`);
+    saveAs(
+      blob,
+      `BÁO CÁO ĐBKT ${year?.project?.project_name} ${filters.year} (${Utils.formatDateTime(
+        moment(),
+        'YYYY-MM-DD'
+      )}).xlsx`
+    );
   }
 
   // MARK: --- Hooks ---

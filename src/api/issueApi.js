@@ -34,6 +34,10 @@ const issueApi = {
     const url = `/issue/detail/${params.issueId}`;
     return axiosClient.get(url);
   },
+  getListReason: (params) => {
+    const url = `/issue/reason`;
+    return axiosClient.get(url, { params });
+  },
 };
 
 export default issueApi;

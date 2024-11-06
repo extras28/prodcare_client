@@ -78,9 +78,9 @@ function MonthReportTable(props) {
     });
 
     // Add title spanning from A1 to U2 with yellow background
-    worksheet.mergeCells('A1:S2');
+    worksheet.mergeCells('A1:T2');
     const titleCell = worksheet.getCell('A1');
-    titleCell.value = 'BÁO CÁO CÔNG TÁC ĐẢM BẢO KỸ THUẬT SẢN PHẨM VSI3 NĂM 2024';
+    titleCell.value = `BÁO CÁO CÔNG TÁC ĐẢM BẢO KỸ THUẬT SẢN PHẨM VSI3 THÁNG ${filters.month}`;
     titleCell.font = { name: 'Times New Roman', size: 14, bold: true };
     titleCell.alignment = { vertical: 'middle', horizontal: 'center' };
     titleCell.fill = {
@@ -97,11 +97,9 @@ function MonthReportTable(props) {
         t('MonthlyError'),
         '',
         '',
-
         t('Remain'),
         '',
         '',
-
         t('Cummulative'),
         '',
         '',
@@ -109,7 +107,8 @@ function MonthReportTable(props) {
         t('TotalHandledThisMonth'),
         t('MonthlyKPIEvaluation'),
         '',
-
+        '',
+        '',
         t('AverageFailureOccurrenceTime'),
         '',
         t('ErrorHandlingRateWithinKPI'),
@@ -117,50 +116,70 @@ function MonthReportTable(props) {
       [
         '',
         '',
-        t('RecevedInYear'),
-        t('CriticalError'),
-        t('ModerateError'),
-        t('MinorError'),
+        t('Reception'),
+        t('Handled'),
+        t('NotReadyFightingError'),
+        t('RemainCount'),
+        t('MonthlyHandled'),
+        t('TotalErrorsHandled'),
+        t('CumulativeRemain'),
+        t('Handled'),
+        t('ImpactOnReadyFightingError'),
         t('StopFightingError'),
-        t('NotReadyForFightingError'),
-        t('ErrorsProcessedDuringTheYear'),
-        t('HandledReateInYear'),
-        t('UnprocessedErrorsForNextYear'),
-        t('CummulativeErrorsReceivedUpToTheEndOfYear', { year: filters?.year - 1 }),
-        t('TheTotalNumberOfErrorsProcessedByTheEndOfYear', {
-          year: filters?.year - 1,
-        }),
-        t('TheTotalErrorsProcessedInTheYear'),
-        t('TheTotalErrorsToBeProcessedInTheYear'),
-        t('HandledReateInYear'),
-        t('IssuesCarriedOverToYear', { year: filters?.year }),
+        '',
+        t('AverageWarrantyTime'),
+        '',
+        t('NotReadyFightingError'),
+        '',
         t('NotReadyFightingError'),
         t('AllError'),
+        '',
       ],
       [
-        year?.project?.project_name,
-        year?.project?.customerCount,
-        year?.issueCounts?.receptionIssues,
-        year?.issueCounts?.criticalIssues,
-        year?.issueCounts?.moderateIssues,
-        year?.issueCounts?.minorIssues,
-        year?.issueCounts?.stopFightingIssues,
-        year?.issueCounts?.impactReadyFightingIssue,
-        year?.issueCounts?.processedIssuesInYear,
-        `${year?.issueCounts?.['%'] ? Utils.formatNumber(year?.issueCounts?.['%']) : 0} %`,
-        year?.issueCounts?.remainIssues,
-        year?.cummulative?.cummulativeIssues,
-        year?.cummulative?.processedIssues,
-        year?.cummulative?.processedIssuesInPrevYear,
-        year?.cummulative?.needToProcessInPrevYear,
-        year?.cummulative?.['%'] ? Utils.formatNumber(year?.cummulative?.['%']) : 0,
-        year?.cummulative?.remainIssues,
-        year?.issueCounts?.warrantyForImpactFightingIssue
-          ? Utils.formatNumber(year?.issueCounts?.warrantyForImpactFightingIssue)
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        t('NotReadyFightingError'),
+        t('AllError'),
+        t('Kcd'),
+        t('Kkt'),
+        '',
+        '',
+        '',
+      ],
+      [
+        month?.project?.project_name,
+        month?.project?.customerCount,
+        month?.issueCount?.receptionIssues,
+        month?.issueCount?.processedIssues,
+        month?.issueCount?.notReadyFightingIssues,
+        month?.remain?.count,
+        month?.remain?.handleInMonth,
+        month?.remain?.totalProcessedIssue,
+        month?.cummulative?.cummulativeIssues,
+        month?.cummulative?.processedIssuesCount,
+        month?.cummulative?.impactReadyFightingIssue,
+        month?.cummulative?.stopFightingIssues,
+        month?.totalHandledInMonth,
+        Utils.formatNumber(month?.warranty?.notReadyFightingWarrantyTime),
+        Utils.formatNumber(month?.warranty?.allErrorWarrantyTime),
+        `${month?.warranty?.kcd}%`,
+        `${month?.warranty?.kkt}%`,
+        Utils.formatNumber(month?.averageTimeError?.notReadyFightingError),
+        month?.averageTimeError?.allError
+          ? Utils.formatNumber(month?.averageTimeError?.allError)
           : 0,
-        year?.issueCounts?.warrantyAllError
-          ? Utils.formatNumber(year?.issueCounts?.warrantyAllError)
-          : 0,
+        month?.warranty?.handlingRate,
       ],
     ];
 
@@ -180,11 +199,29 @@ function MonthReportTable(props) {
     });
 
     // Merging cells for headers in row 6
-    worksheet.mergeCells('A6:A7'); // "Sản phẩm"
-    worksheet.mergeCells('B6:B7'); // "Số lượng trên tuyến hiện nay"
-    worksheet.mergeCells('C6:K6'); // "Lỗi phát sinh"
-    worksheet.mergeCells('L6:Q6'); // "Lỗi lũy kế đến hết năm 2023"
-    worksheet.mergeCells('R6:S6'); // "Thời gian bảo hành trung bình"
+    worksheet.mergeCells('A6:A8');
+    worksheet.mergeCells('B6:B8');
+    worksheet.mergeCells('C6:E6');
+    worksheet.mergeCells('F6:H6');
+    worksheet.mergeCells('I6:L6');
+    worksheet.mergeCells('M6:M8');
+    worksheet.mergeCells('N6:Q6');
+    worksheet.mergeCells('R6:S6');
+    worksheet.mergeCells('C7:C8');
+    worksheet.mergeCells('D7:D8');
+    worksheet.mergeCells('E7:E8');
+    worksheet.mergeCells('F7:F8');
+    worksheet.mergeCells('G7:G8');
+    worksheet.mergeCells('H7:H8');
+    worksheet.mergeCells('I7:I8');
+    worksheet.mergeCells('J7:J8');
+    worksheet.mergeCells('K7:K8');
+    worksheet.mergeCells('L7:L8');
+    worksheet.mergeCells('N7:O7');
+    worksheet.mergeCells('P7:Q7');
+    worksheet.mergeCells('R7:R8');
+    worksheet.mergeCells('S7:S8');
+    worksheet.mergeCells('T6:T8');
 
     // Applying bold to specific header cells in row 6
     worksheet.getRow(6).eachCell((cell, colNumber) => {
@@ -192,9 +229,13 @@ function MonthReportTable(props) {
         [
           t('Product'),
           t('CurrentOperatingQuantity'),
-          t('IncidentalError'),
-          t('CummulativeErrorsUpToTheEndOfYear', { year: filters?.year - 1 }),
-          t('AverageWarrantyTime'),
+          t('MonthlyError'),
+          t('Remain'),
+          t('Cummulative'),
+          t('TotalHandledThisMonth'),
+          t('MonthlyKPIEvaluation'),
+          t('AverageFailureOccurrenceTime'),
+          t('ErrorHandlingRateWithinKPI'),
         ].includes(cell.value)
       ) {
         cell.font = { name: 'Times New Roman', size: 11, bold: true }; // Set font family to Times New Roman, size to 11, and make it bold
@@ -227,7 +268,7 @@ function MonthReportTable(props) {
     const blob = new Blob([buffer], {
       type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     });
-    saveAs(blob, `BÁO CÁO ĐBKT ${year?.project?.project_name} ${filters.year}.xlsx`);
+    saveAs(blob, `BÁO CÁO ĐBKT ${month?.project?.project_name} ${filters.month}.xlsx`);
   }
 
   // MARK: --- Hooks ---
@@ -256,7 +297,7 @@ function MonthReportTable(props) {
 
   return (
     <div>
-      <div className="m-4" style={{ width: 'fit-content' }}>
+      <div className="m-4 d-flex flex-wrap justify-content-between">
         <KTFormInput
           name="report_month"
           value={filters.month.toString()}
@@ -280,6 +321,18 @@ function MonthReportTable(props) {
           type={KTFormInputType.btdPicker}
           btdPickerType={KTFormInputBTDPickerType.month}
         />
+
+        {/* <a
+          href="#"
+          onClick={(e) => {
+            e.preventDefault();
+            exportToExcel();
+          }}
+          className="btn btn-success font-weight-bold d-flex align-items-center"
+        >
+          <i className="fa-regular fa-file-export"></i>
+          {t('ExportReport')}
+        </a> */}
       </div>
       <div className="p-4">
         <div className="overflow-auto">

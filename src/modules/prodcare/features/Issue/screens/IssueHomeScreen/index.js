@@ -1,5 +1,6 @@
 import { unwrapResult } from '@reduxjs/toolkit';
 import issueApi from 'api/issueApi';
+import { thunkGetAllComponent, thunkGetAllCustomer, thunkGetAllProduct } from 'app/appSlice';
 import customDataTableStyle from 'assets/styles/customDataTableStyle';
 import useRouter from 'hooks/useRouter';
 import _ from 'lodash';
@@ -21,10 +22,9 @@ import Global from 'shared/utils/Global';
 import Utils from 'shared/utils/Utils';
 import Swal from 'sweetalert2';
 import ModalEditIssue from '../../components/ModalEditIssue';
+import ModalEvaluateIssue from '../../components/ModalEvaluateIssue';
 import ModalUploadIssueFile from '../../components/ModalUploadIssueFile';
 import { setPaginationPerPage, thunkGetListIssue } from '../../issueSlice';
-import { thunkGetAllComponent, thunkGetAllCustomer, thunkGetAllProduct } from 'app/appSlice';
-import ModalEvaluateIssue from '../../components/ModalEvaluateIssue';
 
 IssueHomePage.propTypes = {};
 
@@ -49,11 +49,11 @@ function IssueHomePage(props) {
   const needToRefreshData = useRef(issues?.length === 0);
   const refLoading = useRef(false);
   const { currentProject, projects } = useSelector((state) => state?.app);
-  const { products, customers, components } = useSelector((state) => state?.app);
+  const { products, customers, components, reasons } = useSelector((state) => state?.app);
   const columns = useMemo(() => {
     const tableColumns = [
       {
-        name: t('ErrorStatus'),
+        name: t('Status'),
         sortable: false,
         // minWidth: '250px',
         cell: (row) => {
@@ -92,32 +92,43 @@ function IssueHomePage(props) {
         cell: (row) => {
           const pd = products.find((item) => item.id == row?.product_id);
           return (
-            <div
-              data-tag="allowRowEvents"
-              className="text-dark-75 font-weight-bold m-0 text-maxline-5 d-flex align-items-center"
-            >
-              {`${pd?.name} ${pd?.serial ? '(' + pd?.serial + ')' : ''}`}
-            </div>
+            <KTTooltip text={t('Equipment')}>
+              <a
+                className=""
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (row?.componentPath) {
+                    router.navigate(`/prodcare/operating/component/detail/${row?.component_id}`);
+                  } else {
+                    router.navigate(`/prodcare/operating/product/detail/${row?.product_id}`);
+                  }
+                }}
+              >
+                {`${pd?.name} ${pd?.serial ? '(' + pd?.serial + ')' : ''} ${
+                  row?.componentPath || ''
+                }`}
+              </a>
+            </KTTooltip>
           );
         },
       },
+      // {
+      //   name: t('Component'),
+      //   sortable: false,
+      //   // minWidth: '150px',
+      //   cell: (row) => {
+      //     return (
+      //       <p
+      //         data-tag="allowRowEvents"
+      //         className="text-dark-75 font-weight-normal m-0 text-maxline-5 mr-4"
+      //       >
+      //         {components?.find((item) => item.id == row?.component_id)?.name}
+      //       </p>
+      //     );
+      //   },
+      // },
       {
-        name: t('Component'),
-        sortable: false,
-        // minWidth: '150px',
-        cell: (row) => {
-          return (
-            <p
-              data-tag="allowRowEvents"
-              className="text-dark-75 font-weight-normal m-0 text-maxline-5 mr-4"
-            >
-              {components?.find((item) => item.id == row?.component_id)?.name}
-            </p>
-          );
-        },
-      },
-      {
-        name: t('Description'),
+        name: t('DescriptionByCustomer'),
         sortable: false,
         // minWidth: '250px',
         cell: (row) => {
@@ -797,6 +808,18 @@ function IssueHomePage(props) {
       Global.gFiltersIssueList = commonFilters;
       Global.gNeedToRefreshIssueList = true;
     }
+    return () => {
+      Global.gNeedToRefreshIssueList = false;
+      Global.gFiltersIssueList = {
+        page: 0,
+        limit: 30,
+        q: '',
+        status: '',
+        errorType: '',
+        level: '',
+        projectId: JSON.parse(localStorage.getItem(PreferenceKeys.currentProject))?.id,
+      };
+    };
   }, [currentProject, productDetail, componentDetail]);
 
   return (
@@ -924,7 +947,7 @@ function IssueHomePage(props) {
             )}
             <div className="d-flex flex-wrap align-items-center">
               <label className="mr-2 mb-0" htmlFor="status">
-                {_.capitalize(t('ErrorStatus'))}
+                {_.capitalize(t('Status'))}
               </label>
               <KTFormSelect
                 name="status"
@@ -1139,6 +1162,7 @@ function IssueHomePage(props) {
           setSelectedIssueItem(null);
           getIssueList();
         }}
+        reasons={reasons}
       />
 
       <ModalEvaluateIssue
@@ -1150,6 +1174,7 @@ function IssueHomePage(props) {
           setSelectedIssueItem(null);
         }}
         issueItem={selectedIssueItem}
+        reasons={reasons}
       />
 
       <ModalUploadIssueFile

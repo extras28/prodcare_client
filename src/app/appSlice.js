@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import componentApi from 'api/componentApi';
 import customerApi from 'api/customerApi';
+import issueApi from 'api/issueApi';
 import productApi from 'api/productApi';
 import projectApi from 'api/projectApi';
 import PreferenceKeys from 'shared/constants/PreferenceKeys';
@@ -26,6 +27,11 @@ export const thunkGetAllComponent = createAsyncThunk('app/component', async (par
   return res;
 });
 
+export const thunkGetAllReason = createAsyncThunk('app/reason', async (params, thunkApi) => {
+  const res = await issueApi.getListReason(params);
+  return res;
+});
+
 export const appSlice = createSlice({
   name: 'app',
   initialState: {
@@ -35,6 +41,7 @@ export const appSlice = createSlice({
     customers: [],
     products: [],
     components: [],
+    reasons: [],
   },
   reducers: {
     setEnvironment: (state, action) => {
@@ -84,6 +91,13 @@ export const appSlice = createSlice({
       const { result, components } = action.payload;
       if (result === 'success') {
         state.components = components;
+      }
+    });
+
+    builder.addCase(thunkGetAllReason.fulfilled, (state, action) => {
+      const { result, reasons } = action.payload;
+      if (result === 'success') {
+        state.reasons = reasons;
       }
     });
   },

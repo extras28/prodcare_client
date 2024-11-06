@@ -25,8 +25,8 @@ function ModalProductActivity({
   const { t } = useTranslation();
   const [filters, setFilters] = useState({
     subType: '',
-    page: 0,
-    limit: 20,
+    // page: 0,
+    // limit: 20,
     productId: productItem?.id,
   });
   const { events, isGettingEvent } = useSelector((state) => state?.event);

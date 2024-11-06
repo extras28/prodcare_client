@@ -2,6 +2,8 @@ import { unwrapResult } from '@reduxjs/toolkit';
 import { Table } from 'antd';
 import Column from 'antd/es/table/Column';
 import ColumnGroup from 'antd/es/table/ColumnGroup';
+import ExcelJS from 'exceljs';
+import { saveAs } from 'file-saver';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
@@ -10,12 +12,12 @@ import KTFormInput, {
   KTFormInputGroupType,
   KTFormInputType,
 } from 'shared/components/OtherKeenComponents/Forms/KTFormInput';
-import PreferenceKeys from 'shared/constants/PreferenceKeys';
-import Global from 'shared/utils/Global';
-import { thunkGetQuarterReport } from '../../dashboardSlice';
-import Utils from 'shared/utils/Utils';
 import KTFormSelect from 'shared/components/OtherKeenComponents/Forms/KTFormSelect';
 import AppData from 'shared/constants/AppData';
+import PreferenceKeys from 'shared/constants/PreferenceKeys';
+import Global from 'shared/utils/Global';
+import Utils from 'shared/utils/Utils';
+import { thunkGetQuarterReport } from '../../dashboardSlice';
 
 QuarterReportTable.propTypes = {};
 
@@ -87,9 +89,9 @@ function QuarterReportTable(props) {
     });
 
     // Add title spanning from A1 to U2 with yellow background
-    worksheet.mergeCells('A1:S2');
+    worksheet.mergeCells('A1:AA2');
     const titleCell = worksheet.getCell('A1');
-    titleCell.value = 'BÁO CÁO CÔNG TÁC ĐẢM BẢO KỸ THUẬT SẢN PHẨM VSI3 NĂM 2024';
+    titleCell.value = `BÁO CÁO CÔNG TÁC ĐẢM BẢO KỸ THUẬT SẢN PHẨM ${quarter?.project?.['project_name']} QUÝ ${filters.quarter} ${filters.year}`;
     titleCell.font = { name: 'Times New Roman', size: 14, bold: true };
     titleCell.alignment = { vertical: 'middle', horizontal: 'center' };
     titleCell.fill = {
@@ -121,54 +123,103 @@ function QuarterReportTable(props) {
         '',
         '',
         t('TotalHandledThisQuarter'),
+        t('QuarterlyKPIEvaluation'),
+        '',
+        '',
+        '',
+        t('AverageFailureOccurrenceTime'),
+        '',
+        t('ErrorHandlingRateWithinKPI'),
       ],
       [
         '',
         '',
-        t('RecevedInYear'),
+        t('Reception'),
+        t('Handled'),
         t('CriticalError'),
         t('ModerateError'),
         t('MinorError'),
         t('StopFightingError'),
-        t('NotReadyForFightingError'),
-        t('ErrorsProcessedDuringTheYear'),
-        t('HandledReateInYear'),
-        t('UnprocessedErrorsForNextYear'),
-        t('CummulativeErrorsReceivedUpToTheEndOfYear', { year: filters?.year - 1 }),
-        t('TheTotalNumberOfErrorsProcessedByTheEndOfYear', {
-          year: filters?.year - 1,
-        }),
-        t('TheTotalErrorsProcessedInTheYear'),
-        t('TheTotalErrorsToBeProcessedInTheYear'),
-        t('HandledReateInYear'),
-        t('IssuesCarriedOverToYear', { year: filters?.year }),
+        t('StopFightingTime'),
+        t('StopFightingTime'),
+        t('RemainCount'),
+        t('CriticalError'),
+        t('ModerateError'),
+        t('MinorError'),
+        t('QuarterlyHandled'),
+        t('TotalErrorsHandled'),
+        t('CumulativeRemain'),
+        t('Handled'),
+        t('ImpactOnReadyFightingError'),
+        '',
+        t('AverageWarrantyTime'),
+        '',
+        t('NotReadyFightingError'),
+        '',
         t('NotReadyFightingError'),
         t('AllError'),
+        '',
       ],
       [
-        year?.project?.project_name,
-        year?.project?.customerCount,
-        year?.issueCounts?.receptionIssues,
-        year?.issueCounts?.criticalIssues,
-        year?.issueCounts?.moderateIssues,
-        year?.issueCounts?.minorIssues,
-        year?.issueCounts?.stopFightingIssues,
-        year?.issueCounts?.impactReadyFightingIssue,
-        year?.issueCounts?.processedIssuesInYear,
-        `${year?.issueCounts?.['%'] ? Utils.formatNumber(year?.issueCounts?.['%']) : 0} %`,
-        year?.issueCounts?.remainIssues,
-        year?.cummulative?.cummulativeIssues,
-        year?.cummulative?.processedIssues,
-        year?.cummulative?.processedIssuesInPrevYear,
-        year?.cummulative?.needToProcessInPrevYear,
-        year?.cummulative?.['%'] ? Utils.formatNumber(year?.cummulative?.['%']) : 0,
-        year?.cummulative?.remainIssues,
-        year?.issueCounts?.warrantyForImpactFightingIssue
-          ? Utils.formatNumber(year?.issueCounts?.warrantyForImpactFightingIssue)
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        t('NotReadyFightingError'),
+        t('AllError'),
+        t('Kcd'),
+        t('Kkt'),
+        '',
+        '',
+        '',
+      ],
+      [
+        quarter?.project?.project_name,
+        quarter?.project?.customerCount,
+        quarter?.issueCount?.receptionIssues,
+        quarter?.issueCount?.processedIssues,
+        quarter?.issueCount?.notReadyFightingIssues,
+        quarter?.remain?.count,
+        quarter?.remain?.handleInQuarter,
+        quarter?.remain?.totalProcessedIssue,
+        quarter?.cummulative?.cummulativeIssues,
+        quarter?.issueCount?.criticalIssue,
+        quarter?.issueCount?.stopFightingIssue,
+        quarter?.issueCount?.moderateIssue,
+        quarter?.issueCount?.minorIssue,
+        quarter?.issueCount?.stopFightingTime,
+
+        quarter?.cummulative?.processedIssuesCount,
+        quarter?.cummulative?.impactReadyFightingIssue,
+        quarter?.remainIssue?.criticalIssue,
+        quarter?.remainIssue?.moderateIssue,
+        quarter?.remainIssue?.minorIssue,
+        quarter?.totalHandledInQuarter,
+        Utils.formatNumber(quarter?.warranty?.notReadyFightingWarrantyTime),
+        Utils.formatNumber(quarter?.warranty?.allErrorWarrantyTime),
+        `${quarter?.warranty?.kcd}%`,
+        `${quarter?.warranty?.kkt}%`,
+        Utils.formatNumber(quarter?.averageTimeError?.notReadyFightingError),
+        quarter?.averageTimeError?.allError
+          ? Utils.formatNumber(quarter?.averageTimeError?.allError)
           : 0,
-        year?.issueCounts?.warrantyAllError
-          ? Utils.formatNumber(year?.issueCounts?.warrantyAllError)
-          : 0,
+        quarter?.warranty?.handlingRate,
       ],
     ];
 
@@ -188,11 +239,36 @@ function QuarterReportTable(props) {
     });
 
     // Merging cells for headers in row 6
-    worksheet.mergeCells('A6:A7'); // "Sản phẩm"
-    worksheet.mergeCells('B6:B7'); // "Số lượng trên tuyến hiện nay"
-    worksheet.mergeCells('C6:K6'); // "Lỗi phát sinh"
-    worksheet.mergeCells('L6:Q6'); // "Lỗi lũy kế đến hết năm 2023"
-    worksheet.mergeCells('R6:S6'); // "Thời gian bảo hành trung bình"
+    worksheet.mergeCells('A6:A8');
+    worksheet.mergeCells('B6:B8');
+    worksheet.mergeCells('C6:J6');
+    worksheet.mergeCells('K6:P6');
+    worksheet.mergeCells('Q6:S6');
+    worksheet.mergeCells('U6:X6');
+    worksheet.mergeCells('Y6:Z6');
+    worksheet.mergeCells('T6:T8');
+    worksheet.mergeCells('C7:C8');
+    worksheet.mergeCells('D7:D8');
+    worksheet.mergeCells('E7:E8');
+    worksheet.mergeCells('F7:F8');
+    worksheet.mergeCells('G7:G8');
+    worksheet.mergeCells('H7:H8');
+    worksheet.mergeCells('I7:I8');
+    worksheet.mergeCells('J7:J8');
+    worksheet.mergeCells('K7:K8');
+    worksheet.mergeCells('L7:L8');
+    worksheet.mergeCells('M7:M8');
+    worksheet.mergeCells('N7:N8');
+    worksheet.mergeCells('O7:O8');
+    worksheet.mergeCells('P7:P8');
+    worksheet.mergeCells('Q7:Q8');
+    worksheet.mergeCells('R7:R8');
+    worksheet.mergeCells('S7:S8');
+    worksheet.mergeCells('U7:V7');
+    worksheet.mergeCells('W7:X7');
+    worksheet.mergeCells('Y7:Y8');
+    worksheet.mergeCells('Z7:Z8');
+    worksheet.mergeCells('AA6:AA8');
 
     // Applying bold to specific header cells in row 6
     worksheet.getRow(6).eachCell((cell, colNumber) => {
@@ -200,9 +276,13 @@ function QuarterReportTable(props) {
         [
           t('Product'),
           t('CurrentOperatingQuantity'),
-          t('IncidentalError'),
-          t('CummulativeErrorsUpToTheEndOfYear', { year: filters?.year - 1 }),
-          t('AverageWarrantyTime'),
+          t('QuarterlyError'),
+          t('Remain'),
+          t('Cummulative'),
+          t('TotalHandledThisQuarter'),
+          t('QuarterlyKPIEvaluation'),
+          t('AverageFailureOccurrenceTime'),
+          t('ErrorHandlingRateWithinKPI'),
         ].includes(cell.value)
       ) {
         cell.font = { name: 'Times New Roman', size: 11, bold: true }; // Set font family to Times New Roman, size to 11, and make it bold
@@ -235,7 +315,10 @@ function QuarterReportTable(props) {
     const blob = new Blob([buffer], {
       type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     });
-    saveAs(blob, `BÁO CÁO ĐBKT ${year?.project?.project_name} ${filters.year}.xlsx`);
+    saveAs(
+      blob,
+      `BÁO CÁO ĐBKT ${quarter?.project?.project_name} QUÝ ${filters.quarter} ${filters.year}.xlsx`
+    );
   }
 
   // MARK: --- Hooks ---
@@ -264,58 +347,71 @@ function QuarterReportTable(props) {
 
   return (
     <div>
-      <div className="m-4 d-flex flex-wrap gap-4" style={{ width: 'fit-content' }}>
-        <KTFormInput
-          name="report_year"
-          value={filters.year.toString()}
-          onChange={(value) => {
-            const isValidYear = moment(value, 'YYYY', true).isValid();
+      <div className="m-4 d-flex flex-wrap gap-4 justify-content-between">
+        <div className="d-flex flex-wrap gap-4">
+          <KTFormInput
+            name="report_year"
+            value={filters.year.toString()}
+            onChange={(value) => {
+              const isValidYear = moment(value, 'YYYY', true).isValid();
 
-            if (isValidYear) {
-              setFilters({
-                ...filters,
-                projectId: JSON.parse(localStorage.getItem(PreferenceKeys.currentProject))?.id,
-                year: value,
-              });
+              if (isValidYear) {
+                setFilters({
+                  ...filters,
+                  projectId: JSON.parse(localStorage.getItem(PreferenceKeys.currentProject))?.id,
+                  year: value,
+                });
+                Global.gFiltersStatisticByQuarter = {
+                  ...filters,
+                  projectId: JSON.parse(localStorage.getItem(PreferenceKeys.currentProject))?.id,
+                  year: value,
+                };
+                Global.gNeedToRefreshStatisticByQuarter = true;
+              } else {
+                console.error("Invalid year format. Please enter a year in the 'YYYY' format.");
+              }
+            }}
+            placeholder={`${_.capitalize(t('Year'))}...`}
+            type={KTFormInputType.btdPicker}
+            btdPickerType={KTFormInputBTDPickerType.year}
+            inputGroupType={KTFormInputGroupType.button}
+          />
+          <KTFormSelect
+            name="quarter"
+            isCustom
+            options={[
+              ...AppData.quarters.map((item) => {
+                return {
+                  name: `${t('Quarter')} ${item.name}`,
+                  value: item.value,
+                };
+              }),
+            ]}
+            value={filters.quarter}
+            onChange={(newValue) => {
+              Global.gNeedToRefreshStatisticByQuarter = true;
+
               Global.gFiltersStatisticByQuarter = {
                 ...filters,
-                projectId: JSON.parse(localStorage.getItem(PreferenceKeys.currentProject))?.id,
-                year: value,
+                quarter: newValue,
               };
-              Global.gNeedToRefreshStatisticByQuarter = true;
-            } else {
-              console.error("Invalid year format. Please enter a year in the 'YYYY' format.");
-            }
+              setFilters({
+                ...Global.gFiltersStatisticByQuarter,
+              });
+            }}
+          />
+        </div>
+        {/* <a
+          href="#"
+          onClick={(e) => {
+            e.preventDefault();
+            exportToExcel();
           }}
-          placeholder={`${_.capitalize(t('Year'))}...`}
-          type={KTFormInputType.btdPicker}
-          btdPickerType={KTFormInputBTDPickerType.year}
-          inputGroupType={KTFormInputGroupType.button}
-        />
-        <KTFormSelect
-          name="quarter"
-          isCustom
-          options={[
-            ...AppData.quarters.map((item) => {
-              return {
-                name: `${t('Quarter')} ${item.name}`,
-                value: item.value,
-              };
-            }),
-          ]}
-          value={filters.quarter}
-          onChange={(newValue) => {
-            Global.gNeedToRefreshStatisticByQuarter = true;
-
-            Global.gFiltersStatisticByQuarter = {
-              ...filters,
-              quarter: newValue,
-            };
-            setFilters({
-              ...Global.gFiltersStatisticByQuarter,
-            });
-          }}
-        />
+          className="btn btn-success font-weight-bold d-flex align-items-center"
+        >
+          <i className="fa-regular fa-file-export"></i>
+          {t('ExportReport')}
+        </a> */}
       </div>
       <div className="p-4">
         <div className="overflow-auto">

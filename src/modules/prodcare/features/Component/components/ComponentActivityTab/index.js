@@ -21,8 +21,8 @@ function ComponentActivityTab(props) {
   const { t } = useTranslation();
   const [filters, setFilters] = useState({
     subType: '',
-    page: 0,
-    limit: 20,
+    // page: 0,
+    // limit: 20,
     componentId: componentDetail?.id,
   });
   const { events, isGettingEvent } = useSelector((state) => state?.event);

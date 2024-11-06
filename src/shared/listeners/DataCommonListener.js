@@ -3,8 +3,8 @@ import {
   thunkGetAllCustomer,
   thunkGetAllProduct,
   thunkGetAllProject,
+  thunkGetAllReason,
 } from 'app/appSlice';
-import useRouter from 'hooks/useRouter';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import AccountHelper from 'shared/helpers/AccountHelper';
@@ -31,6 +31,7 @@ function DataCommonListener(props) {
     if (!_.isEmpty(currentUser) && AccountHelper.checkAccessTokenValid() && !!currentProject?.id) {
       dispatch(thunkGetAllProduct({ projectId: currentProject?.id }));
       dispatch(thunkGetAllComponent({ projectId: currentProject?.id }));
+      dispatch(thunkGetAllReason({ projectId: currentProject?.id }));
       dispatch(thunkGetAllCustomer());
     }
   }, [currentUser, currentProject]);

@@ -406,31 +406,7 @@ function ModalEditComponent({
                     inputElement={
                       <Field name="level">
                         {({ field, form, meta }) => (
-                          // <KTFormInput
-                          //   {...field}
-                          //   onChange={(value) => {
-                          //     getListComponentParent(value - 1);
-                          //     form.setFieldValue(field.name, value);
-                          //     setChangeObj((prev) => {
-                          //       return {
-                          //         ...prev,
-                          //         [`${t('ComponentLevel')}`]: `${
-                          //           componentItem?.level ?? ''
-                          //         } -> ${value}`,
-                          //       };
-                          //     });
-                          //   }}
-                          //   onBlur={() => form.setFieldTouched(field.name, true)}
-                          //   enableCheckValid
-                          //   isValid={_.isEmpty(meta.error)}
-                          //   isTouched={meta.touched}
-                          //   feedbackText={meta.error}
-                          //   placeholder={`${_.capitalize(t('ComponentLevel'))}...`}
-                          //   type={KTFormInputType.number}
-                          //   disabled={current?.role === "GUEST"}
-                          // />
                           <KeenSelectOption
-                            // searchable={true}
                             fieldProps={field}
                             fieldHelpers={formikProps.getFieldHelpers(field.name)}
                             fieldMeta={meta}
@@ -439,7 +415,10 @@ function ModalEditComponent({
                               return { name: item.name, value: item.value };
                             })}
                             onValueChanged={(newValue) => {
-                              getListComponentParent(newValue - 1);
+                              getListComponentParent(
+                                newValue - 1,
+                                formikProps.getFieldProps('productId').value
+                              );
                               const { componentLevel } = AppData;
 
                               // Find new urgency level and impact points
@@ -535,10 +514,10 @@ function ModalEditComponent({
                   </div>
                 ) : null}
 
-                {/* Description */}
+                {/* DescriptionByCustomer */}
                 <div className="col-12">
                   <KTFormGroup
-                    label={<>{t('Description')}</>}
+                    label={<>{t('DescriptionByCustomer')}</>}
                     inputName="description"
                     inputElement={
                       <FastField name="description">
@@ -550,7 +529,7 @@ function ModalEditComponent({
                               setChangeObj((prev) => {
                                 return {
                                   ...prev,
-                                  [`${t('Description')}`]: `${
+                                  [`${t('DescriptionByCustomer')}`]: `${
                                     componentItem?.description ?? ''
                                   } -> ${value}`,
                                 };
@@ -561,7 +540,7 @@ function ModalEditComponent({
                             isValid={_.isEmpty(meta.error)}
                             isTouched={meta.touched}
                             feedbackText={meta.error}
-                            placeholder={`${_.capitalize(t('Description'))}...`}
+                            placeholder={`${_.capitalize(t('DescriptionByCustomer'))}...`}
                             disabled={current?.role === 'GUEST'}
                           />
                         )}

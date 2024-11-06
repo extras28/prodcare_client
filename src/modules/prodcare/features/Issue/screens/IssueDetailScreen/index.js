@@ -19,10 +19,11 @@ function IssueDetailScreen(props) {
   const dispatch = useDispatch();
   const { t } = useTranslation();
   const [modalIssueEditShowing, setModalEditIssueShowing] = useState(false);
+  const { reasons } = useSelector((state) => state?.app);
 
   const rows = useMemo(() => {
     return [
-      { label: t('ErrorStatus'), value: t(_.capitalize(issueDetail?.status)) ?? '' },
+      { label: t('Status'), value: t(_.capitalize(issueDetail?.status)) ?? '' },
       {
         label: t('Customer'),
         value: issueDetail?.customer?.name
@@ -40,7 +41,7 @@ function IssueDetailScreen(props) {
         value: issueDetail?.component?.name ?? '',
       },
       {
-        label: t('Description'),
+        label: t('DescriptionByCustomer'),
         value: issueDetail?.description ?? '',
       },
       {
@@ -98,7 +99,11 @@ function IssueDetailScreen(props) {
       },
       {
         label: t('HandlingMeasures'),
-        value: issueDetail?.handling_measures ?? '',
+        value:
+          t(
+            AppData.handlingMeasures.find((item) => item.value === issueDetail?.handling_measures)
+              ?.name
+          ) ?? '',
       },
       {
         label: t('RepairPart'),
@@ -309,6 +314,7 @@ function IssueDetailScreen(props) {
           dispatch(thunkGetIssueDetail({ issueId: router.query.issueId }));
         }}
         issueItem={issueDetail}
+        reasons={reasons}
       />
     </div>
   );

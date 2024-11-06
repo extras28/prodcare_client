@@ -55,10 +55,10 @@ function ProductActivityTab(props) {
   // MARK: --- Hooks ---
 
   useEffect(() => {
-    if (!!productDetail) {
+    if (!!productDetail.id) {
       getListEvent();
     }
-  }, [productDetail]);
+  }, [productDetail.id]);
 
   return (
     <div className="bg-white p-4 rounded">

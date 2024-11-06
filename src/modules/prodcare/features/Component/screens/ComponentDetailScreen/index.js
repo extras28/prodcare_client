@@ -30,6 +30,10 @@ function ComponentDetailScreen(props) {
         value: `${componentDetail?.product?.name} ${
           componentDetail?.product?.serial ? '(' + componentDetail?.product?.serial + ')' : ''
         }`,
+        onClick: () => {
+          router.navigate(`/prodcare/operating/product/detail/${componentDetail?.product_id}`);
+        },
+        className: 'text-primary cursor-pointer',
       },
       { label: t('ComponentLevel'), value: componentDetail?.level ?? '' },
     ];
@@ -70,12 +74,11 @@ function ComponentDetailScreen(props) {
             <div
               key={index}
               className={`${
-                current?.role !== 'USER' && current?.role !== 'ADMIN' && index === rows?.length - 1
-                  ? ''
-                  : 'border-bottom'
-              } py-2`}
+                current?.role === 'GUEST' && index === rows?.length - 1 ? '' : 'border-bottom'
+              } py-2 ${item?.className}`}
+              onClick={item?.onClick}
             >
-              <p className="font-weight-bolder mb-1">{item?.label}</p>
+              <p className="font-weight-bolder mb-1 text-dark-75">{item?.label}</p>
               <p className={`${index === 0 ? 'text-primary' : ''} m-0`}>
                 {item?.value || <>&nbsp;</>}
               </p>

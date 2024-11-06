@@ -26,8 +26,8 @@ const Global = {
 
   gNeedToRefreshEventList: false,
   gFiltersEventList: {
-    page: 0,
-    limit: 30,
+    // page: 0,
+    // limit: 30,
     q: '',
     productId: '',
     projectId: JSON.parse(localStorage.getItem(PreferenceKeys.currentProject))?.id ?? '',

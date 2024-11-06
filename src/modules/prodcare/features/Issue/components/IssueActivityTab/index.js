@@ -23,8 +23,8 @@ function IssueActivityTab(props) {
   const refFormik = useRef();
   const [filters, setFilters] = useState({
     subType: '',
-    page: 0,
-    limit: 20,
+    // page: 0,
+    // limit: 20,
     issueId: issueDetail?.id,
   });
   const { events, isGettingEvent } = useSelector((state) => state?.event);
