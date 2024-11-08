@@ -4,6 +4,7 @@ import customerApi from 'api/customerApi';
 import issueApi from 'api/issueApi';
 import productApi from 'api/productApi';
 import projectApi from 'api/projectApi';
+import userApi from 'api/userApi';
 import PreferenceKeys from 'shared/constants/PreferenceKeys';
 
 // MARK: --- Thunks ---
@@ -32,6 +33,11 @@ export const thunkGetAllReason = createAsyncThunk('app/reason', async (params, t
   return res;
 });
 
+export const thunkGetAllUser = createAsyncThunk('app/user', async (params, thunkApi) => {
+  const res = await userApi.getListUser(params);
+  return res;
+});
+
 export const appSlice = createSlice({
   name: 'app',
   initialState: {
@@ -42,6 +48,7 @@ export const appSlice = createSlice({
     products: [],
     components: [],
     reasons: [],
+    users: [],
   },
   reducers: {
     setEnvironment: (state, action) => {
@@ -98,6 +105,13 @@ export const appSlice = createSlice({
       const { result, reasons } = action.payload;
       if (result === 'success') {
         state.reasons = reasons;
+      }
+    });
+
+    builder.addCase(thunkGetAllUser.fulfilled, (state, action) => {
+      const { result, users } = action.payload;
+      if (result === 'success') {
+        state.users = users;
       }
     });
   },

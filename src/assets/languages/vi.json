@@ -279,5 +279,6 @@
   "ReasonDescription": "Mô tả nguyên nhân",
   "General": "Tổng quan",
   "Status": "Trạng thái",
-  "DescriptionByCustomer": "Khách hàng mô tả"
+  "DescriptionByCustomer": "Khách hàng mô tả",
+  "Handler": "Người xử lý"
 }

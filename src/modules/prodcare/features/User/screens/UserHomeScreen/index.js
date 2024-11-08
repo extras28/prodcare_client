@@ -250,6 +250,10 @@ function UserHomePage(props) {
     setModalEditUserShowing(true);
   }
 
+  function handleViewUserDetail(row) {
+    router.navigate(`/prodcare/admin/user/detail/${row?.employee_id}`);
+  }
+
   function handleDeleteMultiUsers() {
     const arrIdsToDelete = selectedUsers.map((item) => item['employee_id']);
     const arrAvatarsToDelete = selectedUsers.map((item) => item['avatar']);
@@ -463,7 +467,8 @@ function UserHomePage(props) {
             onSelectedRowsChange={handleSelectedUsersChanged}
             clearSelectedRows={toggledClearUsers}
             onRowClicked={(row) => {
-              handleEditUser(row);
+              // handleEditUser(row);
+              handleViewUserDetail(row);
             }}
             pointerOnHover
             highlightOnHover

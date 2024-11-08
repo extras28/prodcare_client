@@ -34,6 +34,7 @@ function ModalEditIssue({
   onExistDone = null,
   productId = null,
   reasons = [],
+  users = [],
 }) {
   const { t } = useTranslation();
   const dispatch = useDispatch();
@@ -240,6 +241,7 @@ function ModalEditIssue({
         productId: issueItem?.product_id ? issueItem?.product_id : productId ? productId : '',
         customerId: issueItem?.customer_id?.toString() || '',
         componentId: issueItem?.component_id || '',
+        accountId: issueItem?.account_id || '',
         description: issueItem?.description || '',
         responsibleType: issueItem?.responsible_type || 'USER',
         level: issueItem?.level || 'MINOR',
@@ -723,6 +725,43 @@ function ModalEditIssue({
                           />
                         )}
                       </Field>
+                    }
+                  />
+                </div>
+
+                {/* Handler */}
+                <div className="col-lg-4 col-md-6">
+                  <KTFormGroup
+                    label={<>{t('Handler')}</>}
+                    inputName="accountId"
+                    inputElement={
+                      <FastField name="accountId">
+                        {({ field, form, meta }) => (
+                          <KeenSelectOption
+                            // searchable={true}
+                            fieldProps={field}
+                            fieldHelpers={formikProps.getFieldHelpers(field.name)}
+                            fieldMeta={meta}
+                            name={field.name}
+                            options={users.map((item) => {
+                              return { name: item.name, value: item.email };
+                            })}
+                            onValueChanged={(newValue) => {
+                              form.setFieldValue(field.name, newValue);
+                              setChangeObj((prev) => {
+                                return {
+                                  ...prev,
+                                  [`${t('Handler')}`]: `${t(
+                                    users.find((item) => item.value === issueItem?.['account_id'])
+                                      ?.name
+                                  )} -> ${t(users.find((item) => item.value === newValue)?.name)}`,
+                                };
+                              });
+                            }}
+                            disabled={current?.role === 'GUEST'}
+                          />
+                        )}
+                      </FastField>
                     }
                   />
                 </div>
@@ -2239,6 +2278,7 @@ ModalEditIssue.propTypes = {
   onRefreshIssueList: PropTypes.func,
   issueItem: PropTypes.object,
   onExistDone: PropTypes.func,
+  users: PropTypes.array,
 };
 
 export default ModalEditIssue;

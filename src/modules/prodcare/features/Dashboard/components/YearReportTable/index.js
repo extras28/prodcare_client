@@ -236,7 +236,7 @@ function YearReportTable(props) {
         t('Status'),
         t('Customer'),
         t('Equipment'),
-        t('Component'),
+        // t('Component'),
         t('DescriptionByCustomer'),
         t('ErrorType'),
         t('ErrorLevel'),
@@ -272,8 +272,9 @@ function YearReportTable(props) {
           index + 1,
           t(_.capitalize(row?.status)),
           ct ? `${ct?.['military_region']} - ${ct?.['name']}` : '',
-          `${pd?.name} ${pd?.serial ? '(' + pd?.serial + ')' : ''}`,
-          components?.find((item) => item.id == row?.component_id)?.name || '',
+          // `${pd?.name} ${pd?.serial ? '(' + pd?.serial + ')' : ''}`,
+          // components?.find((item) => item.id == row?.component_id)?.name || '',
+          `${pd?.name} ${pd?.serial ? '(' + pd?.serial + ')' : ''} ${row?.componentPath || ''}`,
           row?.description || '',
           t(
             AppData.responsibleType.find((item) => item.value === row?.responsible_type)?.name || ''
@@ -396,13 +397,13 @@ function YearReportTable(props) {
     worksheet2.getColumn(2).width = 12;
     worksheet2.getColumn(3).width = 15;
     worksheet2.getColumn(4).width = 30;
-    worksheet2.getColumn(6).width = 30;
-    worksheet2.getColumn(7).width = 14;
-    worksheet2.getColumn(15).width = 14;
+    worksheet2.getColumn(5).width = 30;
+    worksheet2.getColumn(6).width = 14;
+    worksheet2.getColumn(14).width = 14;
+    worksheet2.getColumn(15).width = 12;
     worksheet2.getColumn(16).width = 12;
     worksheet2.getColumn(17).width = 12;
-    worksheet2.getColumn(18).width = 12;
-    worksheet2.getColumn(31).width = 40;
+    worksheet2.getColumn(30).width = 40;
 
     const worksheet3 = workbook.addWorksheet(
       t('CummulativeErrorsUpToTheEndOfYear', { year: filters?.year - 1 }),
@@ -416,7 +417,7 @@ function YearReportTable(props) {
         t('Status'),
         t('Customer'),
         t('Equipment'),
-        t('Component'),
+        // t('Component'),
         t('DescriptionByCustomer'),
         t('ErrorType'),
         t('ErrorLevel'),
@@ -452,8 +453,9 @@ function YearReportTable(props) {
           index + 1,
           t(_.capitalize(row?.status)),
           ct ? `${ct?.['military_region']} - ${ct?.['name']}` : '',
-          `${pd?.name} ${pd?.serial ? '(' + pd?.serial + ')' : ''}`,
-          components?.find((item) => item.id == row?.component_id)?.name || '',
+          // `${pd?.name} ${pd?.serial ? '(' + pd?.serial + ')' : ''}`,
+          // components?.find((item) => item.id == row?.component_id)?.name || '',
+          `${pd?.name} ${pd?.serial ? '(' + pd?.serial + ')' : ''} ${row?.componentPath || ''}`,
           row?.description || '',
           t(
             AppData.responsibleType.find((item) => item.value === row?.responsible_type)?.name || ''
@@ -576,13 +578,13 @@ function YearReportTable(props) {
     worksheet3.getColumn(2).width = 12;
     worksheet3.getColumn(3).width = 15;
     worksheet3.getColumn(4).width = 30;
-    worksheet3.getColumn(6).width = 30;
-    worksheet3.getColumn(7).width = 14;
-    worksheet3.getColumn(15).width = 14;
+    worksheet3.getColumn(5).width = 30;
+    worksheet3.getColumn(6).width = 14;
+    worksheet3.getColumn(14).width = 14;
+    worksheet3.getColumn(15).width = 12;
     worksheet3.getColumn(16).width = 12;
     worksheet3.getColumn(17).width = 12;
-    worksheet3.getColumn(18).width = 12;
-    worksheet3.getColumn(31).width = 40;
+    worksheet3.getColumn(30).width = 40;
 
     // Generate Excel file as a Blob and save it using file-saver
     const buffer = await workbook.xlsx.writeBuffer();

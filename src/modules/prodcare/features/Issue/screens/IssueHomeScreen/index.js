@@ -4,6 +4,7 @@ import { thunkGetAllComponent, thunkGetAllCustomer, thunkGetAllProduct } from 'a
 import customDataTableStyle from 'assets/styles/customDataTableStyle';
 import useRouter from 'hooks/useRouter';
 import _ from 'lodash';
+import moment from 'moment';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import DataTable from 'react-data-table-component';
 import { useTranslation } from 'react-i18next';
@@ -25,6 +26,7 @@ import ModalEditIssue from '../../components/ModalEditIssue';
 import ModalEvaluateIssue from '../../components/ModalEvaluateIssue';
 import ModalUploadIssueFile from '../../components/ModalUploadIssueFile';
 import { setPaginationPerPage, thunkGetListIssue } from '../../issueSlice';
+import AppDateRangePicker from 'shared/components/AppDateRangePicker';
 
 IssueHomePage.propTypes = {};
 
@@ -32,7 +34,7 @@ const sTag = '[IssueHomePage]';
 
 function IssueHomePage(props) {
   // MARK: --- Params ---
-  const { productId, componentId } = props;
+  const { productId, componentId, email } = props;
   const router = useRouter();
   const { t } = useTranslation();
   const dispatch = useDispatch();
@@ -41,6 +43,8 @@ function IssueHomePage(props) {
     projectId: JSON.parse(localStorage.getItem(PreferenceKeys.currentProject))?.id,
     productId: productId,
     componentId: componentId,
+    accountId: email,
+    receptionTime: moment().format('YYYY-MM-DD'),
   });
   const [selectedIssues, setSelectedIssues] = useState([]);
   const [toggledClearIssues, setToggledClearIssues] = useState(true);
@@ -48,8 +52,9 @@ function IssueHomePage(props) {
   const { current } = useSelector((state) => state.auth);
   const needToRefreshData = useRef(issues?.length === 0);
   const refLoading = useRef(false);
-  const { currentProject, projects } = useSelector((state) => state?.app);
-  const { products, customers, components, reasons } = useSelector((state) => state?.app);
+  const { products, customers, components, reasons, currentProject, projects, users } = useSelector(
+    (state) => state?.app
+  );
   const columns = useMemo(() => {
     const tableColumns = [
       {
@@ -651,6 +656,7 @@ function IssueHomePage(props) {
   const [modalIssueUploadShowing, setModalUploadIssueShowing] = useState(false);
   const { componentDetail } = useSelector((state) => state.component);
   const { productDetail } = useSelector((state) => state.product);
+  const { userDetail } = useSelector((state) => state.user);
 
   // MARK: --- Functions ---
   // Get Issue list
@@ -772,7 +778,7 @@ function IssueHomePage(props) {
     if (!shouldRefreshData) return;
 
     const isDetailPage = router.pathname.includes('detail');
-    const hasDetailId = productDetail?.id || componentDetail?.id;
+    const hasDetailId = productDetail?.id || componentDetail?.id || userDetail?.email;
 
     if (isDetailPage && !hasDetailId) return;
 
@@ -792,11 +798,14 @@ function IssueHomePage(props) {
     };
 
     if (router.pathname.includes('detail')) {
-      if (productDetail?.id || componentDetail?.id) {
+      if (productDetail?.id || componentDetail?.id || userDetail?.email) {
         const detailFilters = {
           ...commonFilters,
+          page: 0,
+          limit: 30,
           productId: productDetail?.id,
           componentId: componentDetail?.id,
+          accountId: userDetail?.email,
         };
 
         setFilters(detailFilters);
@@ -820,7 +829,7 @@ function IssueHomePage(props) {
         projectId: JSON.parse(localStorage.getItem(PreferenceKeys.currentProject))?.id,
       };
     };
-  }, [currentProject, productDetail, componentDetail]);
+  }, [currentProject, productDetail, componentDetail, userDetail]);
 
   return (
     <div>
@@ -881,6 +890,7 @@ function IssueHomePage(props) {
                 }}
               />
             </div> */}
+
             {!!productId || !!componentId ? null : (
               <div className="d-flex flex-wrap align-items-center">
                 <label className="mr-2 mb-0" htmlFor="customer">
@@ -1026,6 +1036,77 @@ function IssueHomePage(props) {
                 }}
               />
             </div>
+            {/* <div className="d-flex flex-wrap align-items-center">
+              <label className="mr-2 mb-0" htmlFor="receptionTime">
+                {_.capitalize(t('ReceptionTime'))}
+              </label>
+              <KTFormInput
+                name="receptionTime"
+                value={filters?.receptionTime}
+                onChange={(value) => {
+                  const isValidFormat = moment(value, 'YYYY-MM-DD', true).isValid();
+                  if (isValidFormat) {
+                  }
+                }}
+                placeholder={`${_.capitalize(t('ReceptionTime'))}...`}
+                type={KTFormInputType.dateRangePicker}
+                drpAutoUpdateInput={true}
+                drpEnableTimePicker={true}
+                drpSingleDatePicker={true}
+                drpEnablePredefinedRange={true}
+              />
+            </div> */}
+            {!!email ? null : (
+              <div className="d-flex flex-wrap align-items-center">
+                <label className="mr-2 mb-0" htmlFor="account">
+                  {_.capitalize(t('Handler'))}
+                </label>
+                <KTFormSelect
+                  name="account"
+                  isCustom
+                  options={[
+                    { name: 'All', value: '' },
+                    ...users.map((item) => {
+                      return {
+                        name: item?.['name'],
+                        value: item.email,
+                      };
+                    }),
+                  ]}
+                  value={Global.gFiltersIssueList.accountId}
+                  onChange={(newValue) => {
+                    needToRefreshData.current = true;
+                    Global.gFiltersIssueList = {
+                      ...filters,
+                      page: 0,
+                      accountId: newValue,
+                    };
+                    setFilters({
+                      ...Global.gFiltersIssueList,
+                    });
+                  }}
+                />
+              </div>
+            )}
+            <div className="d-flex flex-wrap align-items-center">
+              {' '}
+              <label className="mr-2 mb-0" htmlFor="receptionTime">
+                {_.capitalize(t('ReceptionTime'))}
+              </label>
+              <AppDateRangePicker
+                onApply={(startTime, endTime) => {
+                  needToRefreshData.current = true;
+                  Global.gFiltersIssueList = {
+                    ...filters,
+                    startTime,
+                    endTime,
+                  };
+                  setFilters({
+                    ...Global.gFiltersIssueList,
+                  });
+                }}
+              />
+            </div>
           </div>
           {current?.role === 'GUEST' ? null : (
             <div className="card-toolbar gap-2">
@@ -1163,6 +1244,7 @@ function IssueHomePage(props) {
           getIssueList();
         }}
         reasons={reasons}
+        users={users}
       />
 
       <ModalEvaluateIssue

@@ -32,6 +32,10 @@ const userApi = {
       },
     });
   },
+  getUserDetail: (params) => {
+    const url = `/user/detail/${params.employeeId}`;
+    return axiosClient.get(url);
+  },
 };
 
 export default userApi;
