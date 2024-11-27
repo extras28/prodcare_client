@@ -9,6 +9,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import DataTable from 'react-data-table-component';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
+import AppDateRangePicker from 'shared/components/AppDateRangePicker';
 import Empty from 'shared/components/Empty';
 import Loading from 'shared/components/Loading';
 import KTFormSelect from 'shared/components/OtherKeenComponents/Forms/KTFormSelect';
@@ -26,7 +27,6 @@ import ModalEditIssue from '../../components/ModalEditIssue';
 import ModalEvaluateIssue from '../../components/ModalEvaluateIssue';
 import ModalUploadIssueFile from '../../components/ModalUploadIssueFile';
 import { setPaginationPerPage, thunkGetListIssue } from '../../issueSlice';
-import AppDateRangePicker from 'shared/components/AppDateRangePicker';
 
 IssueHomePage.propTypes = {};
 
@@ -91,13 +91,13 @@ function IssueHomePage(props) {
         },
       },
       {
-        name: t('Equipment'),
+        name: t('Product'),
         sortable: false,
         // minWidth: '150px',
         cell: (row) => {
           const pd = products.find((item) => item.id == row?.product_id);
           return (
-            <KTTooltip text={t('Equipment')}>
+            <KTTooltip text={t('Product')}>
               <a
                 className=""
                 onClick={(e) => {
@@ -109,7 +109,7 @@ function IssueHomePage(props) {
                   }
                 }}
               >
-                {`${pd?.name} ${pd?.serial ? '(' + pd?.serial + ')' : ''} ${
+                {`${pd?.name} ${pd?.serial ? '(' + pd?.serial + ')' : ''} / ${
                   row?.componentPath || ''
                 }`}
               </a>
@@ -494,21 +494,21 @@ function IssueHomePage(props) {
       //     );
       //   },
       // },
-      // {
-      //   name: t('StopFighting'),
-      //   sortable: false,
-      //   // minWidth: '120px',
-      //   cell: (row) => {
-      //     return (
-      //       <p
-      //         data-tag="allowRowEvents"
-      //         className="text-dark-75 font-weight-normal m-0 text-maxline-5 mr-4"
-      //       >
-      //         {t(`${_.capitalize(row?.stop_fighting ? 'Yes' : 'No')}`)}
-      //       </p>
-      //     );
-      //   },
-      // },
+      {
+        name: t('StopFighting'),
+        sortable: false,
+        // minWidth: '120px',
+        cell: (row) => {
+          return (
+            <p
+              data-tag="allowRowEvents"
+              className="text-dark-75 font-weight-normal m-0 text-maxline-5 mr-4"
+            >
+              {t(`${_.capitalize(row?.stop_fighting ? 'Yes' : 'No')}`)}
+            </p>
+          );
+        },
+      },
       // {
       //   name: t('UnhandleReason'),
       //   sortable: false,
@@ -1094,12 +1094,12 @@ function IssueHomePage(props) {
                 {_.capitalize(t('ReceptionTime'))}
               </label>
               <AppDateRangePicker
-                onApply={(startTime, endTime) => {
+                getDateRange={(dateRange) => {
                   needToRefreshData.current = true;
                   Global.gFiltersIssueList = {
                     ...filters,
-                    startTime,
-                    endTime,
+                    startTime: dateRange.startDate,
+                    endTime: dateRange.endDate,
                   };
                   setFilters({
                     ...Global.gFiltersIssueList,

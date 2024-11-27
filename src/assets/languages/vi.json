@@ -280,5 +280,12 @@
   "General": "Tổng quan",
   "Status": "Trạng thái",
   "DescriptionByCustomer": "Khách hàng mô tả",
-  "Handler": "Người xử lý"
+  "Handler": "Người xử lý",
+  "ThisWeek": "Tuần này",
+  "Last7Days": "7 ngày gần đây",
+  "Last30Days": "30 ngày gần đây",
+  "LastMonth": "Tháng trước",
+  "ThisMonth": "Tháng này",
+  "Customize": "Tùy chỉnh",
+  "Information": "Thông tin"
 }

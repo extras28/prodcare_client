@@ -24,6 +24,10 @@ import ModalEditProduct from '../../components/ModalEditProduct';
 import ModalProductActivity from '../../components/ModalProductActivity';
 import { setPaginationPerPage, thunkGetListProduct } from '../../productSlice';
 import { thunkGetAllProduct } from 'app/appSlice';
+import { TreeTable } from 'primereact/treetable';
+import { Column } from 'primereact/column';
+
+import 'primereact/resources/themes/lara-light-cyan/theme.css';
 
 ProductHomePage.propTypes = {};
 
@@ -167,6 +171,121 @@ function ProductHomePage(props) {
   const [modalProductActivityShowing, setModalActivityProductShowing] = useState(false);
   const { customerDetail } = useSelector((state) => state?.customer);
 
+  const table = useMemo(
+    () => (
+      <TreeTable
+        showGridlines={true}
+        rowHover={true}
+        loading={isGettingProductList}
+        emptyMessage={
+          <div className="pt-12">
+            <Empty
+              text={t('NoData')}
+              visible={false}
+              imageEmpty={AppResource.icons.icEmptyState}
+              imageEmptyPercentWidth={10}
+            />
+          </div>
+        }
+        onRowClick={(row) => {
+          showProductIssue(row);
+        }}
+        value={products}
+      >
+        <Column
+          body={(row) => {
+            return (
+              <span data-tag="allowRowEvents" className="font-weight-bolder font-weight-normal">
+                {row?.data?.name}
+              </span>
+            );
+          }}
+          field="name"
+          header={t('EquipmentName')}
+          expander
+        ></Column>
+        <Column
+          body={(row) => {
+            return (
+              <span data-tag="allowRowEvents" className="font-weight-bolder font-weight-normal">
+                {row?.data?.serial}
+              </span>
+            );
+          }}
+          field="serial"
+          header={t('Serial')}
+        ></Column>
+        <Column
+          body={(row) => {
+            const ct = customers.find((item) => item.id === row?.data?.['customer_id']);
+            return (
+              <span data-tag="allowRowEvents" className="font-weight-normal  text-maxline-3">
+                {ct ? `${ct?.['military_region']} - ${ct?.['name']}` : ''}
+              </span>
+            );
+          }}
+          header={t('Customer')}
+        ></Column>
+        <Column
+          body={(row) => {
+            return (
+              <p data-tag="allowRowEvents" className="font-weight-normal ">
+                {row?.data?.mfg ? Utils.formatDateTime(row?.data?.mfg, 'YYYY-MM-DD') : ''}
+              </p>
+            );
+          }}
+          header={t('Mfg')}
+        ></Column>
+        <Column
+          body={(row) => {
+            return (
+              <span data-tag="allowRowEvents" className="font-weight-normal ">
+                {row?.data?.handed_over_time
+                  ? Utils.formatDateTime(row?.data?.handed_over_time, 'YYYY-MM-DD')
+                  : ''}
+              </span>
+            );
+          }}
+          header={t('HandedOverTime')}
+        ></Column>
+        <Column
+          style={{ width: '120px' }}
+          body={(row) => {
+            return (
+              <div className="d-flex align-items-center">
+                <KTTooltip text={t('Edit')}>
+                  <a
+                    className="btn btn-icon btn-sm btn-primary btn-hover-primary"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleEditProduct(row);
+                    }}
+                  >
+                    <i className="fa-regular fa-pen p-0 icon-1x" />
+                  </a>
+                </KTTooltip>
+
+                <KTTooltip text={t('Delete')}>
+                  <a
+                    className="btn btn-icon btn-sm btn-danger btn-hover-danger ml-2"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleDeleteProduct(row);
+                    }}
+                  >
+                    <i className="far fa-trash p-0 icon-1x" />
+                  </a>
+                </KTTooltip>
+              </div>
+            );
+          }}
+          header={t('Action')}
+        ></Column>
+      </TreeTable>
+    ),
+    [current, LanguageHelper.getCurrentLanguage(), projects, customers, products]
+  );
+
   // MARK: --- Functions ---
   // Get Product list
   async function getProductList() {
@@ -281,21 +400,8 @@ function ProductHomePage(props) {
     });
   }
 
-  // async function getListCustomer(params) {
-  //   try {
-  //     const res = await customerApi.getListCustomer();
-  //     if ((res.result = 'success')) {
-  //       setCustomers(res.customers);
-  //     }
-  //   } catch (error) {
-  //     console.error(error);
-  //   }
-  // }
-
   function showProductIssue(row) {
-    // Global.gFiltersIssueList = { ...Global.gFiltersProductList, productId: row?.id };
-    // dispatch(thunkGetProductDetail({ productId: row?.id }));
-    router.navigate(`/prodcare/operating/product/detail/${row?.id}`);
+    router.navigate(`/prodcare/operating/product/detail/${row?.node?.data?.id}`);
   }
 
   // MARK: --- Hooks ---
@@ -403,7 +509,8 @@ function ProductHomePage(props) {
 
         {/* card body */}
         <div className="card-body pt-0">
-          <DataTable
+          {table}
+          {/* <DataTable
             // fixedHeader
             // fixedHeaderScrollHeight="60vh"
             columns={columns}
@@ -434,7 +541,7 @@ function ProductHomePage(props) {
             pointerOnHover
             highlightOnHover
             selectableRowsHighlight
-          />
+          /> */}
 
           {/* Pagination */}
           {pagination && products?.length > 0 && (

@@ -6,9 +6,17 @@ import Global from 'shared/utils/Global';
 
 // MARK ---- thunks ---
 export const thunkGetListProduct = createAsyncThunk('product/list', async (params, thunkApi) => {
-  const res = await productApi.getListProduct(params);
+  const res = await productApi.getListProductInTree(params);
   return res;
 });
+
+export const thunkGetListProductInTree = createAsyncThunk(
+  'product/list-in-tree',
+  async (params, thunkApi) => {
+    const res = await productApi.getListProductInTree(params);
+    return res;
+  }
+);
 
 export const thunkGetProductDetail = createAsyncThunk(
   'product/detail',

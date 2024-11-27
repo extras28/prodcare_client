@@ -26,6 +26,10 @@ const productApi = {
     const url = `/product/detail/${params.productId}`;
     return axiosClient.get(url);
   },
+  getListProductInTree: (params) => {
+    const url = '/product/list';
+    return axiosClient.get(url, { params });
+  },
 };
 
 export default productApi;

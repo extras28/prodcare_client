@@ -30,7 +30,7 @@ function KT01Sidebar(props) {
       { type: 'section', text: 'OperatingProductions' },
       {
         type: 'item',
-        text: 'Equipment',
+        text: 'Product',
         icon: 'fa-regular fa-boxes-stacked',
         path: '/prodcare/operating/product',
       },
@@ -81,7 +81,7 @@ function KT01Sidebar(props) {
       },
       {
         type: 'item',
-        text: 'Product',
+        text: 'Information',
         icon: 'fa-regular fa-diagram-project',
         path: '/prodcare/admin/project',
       },

@@ -286,7 +286,7 @@ body {
 //   color: #24262d;
 // }
 
-.btn.btn-clean{
+.btn.btn-clean {
   color: #ffffff;
 }
 
@@ -313,6 +313,12 @@ body {
   border-style: dashed !important;
 }
 
-.tooltip{
+.tooltip {
   padding: 0 !important;
+}
+
+.p-treetable-tbody > tr {
+  border-bottom: 1px;
+  border-style: dashed !important;
+  border-color: #ebedf3;
 }
