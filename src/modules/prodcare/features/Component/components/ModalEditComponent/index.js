@@ -142,6 +142,8 @@ function ModalEditComponent({
         category: componentItem ? componentItem.category : '',
         level: componentItem ? String(componentItem.level) : '1',
         name: componentItem ? componentItem.name : '',
+        version: componentItem ? componentItem.version : '',
+        status: componentItem ? componentItem.status : 'USING',
       }}
       validationSchema={Yup.object({
         name: Yup.string().required(t('Required')),
@@ -171,7 +173,11 @@ function ModalEditComponent({
             enforceFocus={false}
           >
             <Modal.Header className="px-5 py-5">
-              <Modal.Title>{componentItem ? t('EditComponent') : t('NewComponent')}</Modal.Title>
+              <Modal.Title>
+                {componentItem
+                  ? t('EditComponent', { name: componentItem?.name })
+                  : t('NewComponent')}
+              </Modal.Title>
               <div
                 className="btn btn-xs btn-icon btn-light btn-hover-secondary cursor-pointer"
                 onClick={handleClose}
@@ -260,12 +266,12 @@ function ModalEditComponent({
                   />
                 </div>
 
-                {/* Equipment */}
+                {/* Product */}
                 <div className="col-12">
                   <KTFormGroup
                     label={
                       <>
-                        {t('Equipment')} <span className="text-danger">*</span>
+                        {t('Product')} <span className="text-danger">*</span>
                       </>
                     }
                     inputName="productId"
@@ -300,7 +306,7 @@ function ModalEditComponent({
                                 const nextProd = products.find((item) => item.id == newValue);
                                 return {
                                   ...prev,
-                                  [`${t('Equipment')}`]: `${prevProd?.['name']} ${
+                                  [`${t('Product')}`]: `${prevProd?.['name']} ${
                                     prevProd?.serial ? '(' + prevProd?.serial + ')' : ''
                                   } -> ${nextProd?.['name']} ${
                                     nextProd?.serial ? '(' + nextProd?.serial + ')' : ''
@@ -360,43 +366,42 @@ function ModalEditComponent({
                   />
                 </div>
 
-                {/* Version */}
-                {formikProps.getFieldProps('type').value === 'SOFTWARE' ? (
-                  <div className="col-12">
-                    <KTFormGroup
-                      label={<>{t('Version')}</>}
-                      inputName="version"
-                      inputElement={
-                        <FastField name="version">
-                          {({ field, form, meta }) => (
-                            <KTFormInput
-                              {...field}
-                              onChange={(value) => {
-                                form.setFieldValue(field.name, value);
-                                setChangeObj((prev) => {
-                                  return {
-                                    ...prev,
-                                    [`${t('Version')}`]: `${
-                                      componentItem?.version ?? ''
-                                    } -> ${value}`,
-                                  };
-                                });
-                              }}
-                              onBlur={() => form.setFieldTouched(field.name, true)}
-                              enableCheckValid
-                              isValid={_.isEmpty(meta.error)}
-                              isTouched={meta.touched}
-                              feedbackText={meta.error}
-                              placeholder={`${_.capitalize(t('Version'))}...`}
-                              type={KTFormInputType.text}
-                              disabled={current?.role === 'GUEST'}
-                            />
-                          )}
-                        </FastField>
-                      }
-                    />
-                  </div>
-                ) : null}
+                {/* SoftwareVersion */}
+
+                <div className="col-12">
+                  <KTFormGroup
+                    label={<>{t('SoftwareVersion')}</>}
+                    inputName="version"
+                    inputElement={
+                      <FastField name="version">
+                        {({ field, form, meta }) => (
+                          <KTFormInput
+                            {...field}
+                            onChange={(value) => {
+                              form.setFieldValue(field.name, value);
+                              setChangeObj((prev) => {
+                                return {
+                                  ...prev,
+                                  [`${t('SoftwareVersion')}`]: `${
+                                    componentItem?.version ?? ''
+                                  } -> ${value}`,
+                                };
+                              });
+                            }}
+                            onBlur={() => form.setFieldTouched(field.name, true)}
+                            enableCheckValid
+                            isValid={_.isEmpty(meta.error)}
+                            isTouched={meta.touched}
+                            feedbackText={meta.error}
+                            placeholder={`${_.capitalize(t('SoftwareVersion'))}...`}
+                            type={KTFormInputType.text}
+                            disabled={current?.role === 'GUEST'}
+                          />
+                        )}
+                      </FastField>
+                    }
+                  />
+                </div>
 
                 {/* level */}
                 <div className="col-12">
@@ -514,10 +519,55 @@ function ModalEditComponent({
                   </div>
                 ) : null}
 
-                {/* DescriptionByCustomer */}
+                {/* status */}
                 <div className="col-12">
                   <KTFormGroup
-                    label={<>{t('DescriptionByCustomer')}</>}
+                    label={<>{t('CurrentStatus')}</>}
+                    inputName="status"
+                    inputElement={
+                      <FastField name="status">
+                        {({ field, form, meta }) => (
+                          <KeenSelectOption
+                            searchable={false}
+                            fieldProps={field}
+                            fieldHelpers={formikProps.getFieldHelpers(field.name)}
+                            fieldMeta={meta}
+                            name={field.name}
+                            options={AppData.productCurrentStatus?.map((item) => {
+                              return {
+                                name: t(item.name),
+                                value: item.value,
+                              };
+                            })}
+                            onValueChanged={(newValue) => {
+                              form.setFieldValue(field.name, newValue);
+                              setChangeObj((prev) => {
+                                return {
+                                  ...prev,
+                                  [`${t('CurrentStatus')}`]: `${
+                                    AppData.productCurrentStatus.find(
+                                      (item) => item.value == componentItem?.status
+                                    )?.name ?? ''
+                                  } -> ${
+                                    AppData.productCurrentStatus.find(
+                                      (item) => item.value == newValue
+                                    )?.name
+                                  }`,
+                                };
+                              });
+                            }}
+                            disabled={current?.role === 'GUEST'}
+                          />
+                        )}
+                      </FastField>
+                    }
+                  />
+                </div>
+
+                {/* Description */}
+                <div className="col-12">
+                  <KTFormGroup
+                    label={<>{t('Description')}</>}
                     inputName="description"
                     inputElement={
                       <FastField name="description">
@@ -529,7 +579,7 @@ function ModalEditComponent({
                               setChangeObj((prev) => {
                                 return {
                                   ...prev,
-                                  [`${t('DescriptionByCustomer')}`]: `${
+                                  [`${t('Description')}`]: `${
                                     componentItem?.description ?? ''
                                   } -> ${value}`,
                                 };
@@ -540,7 +590,7 @@ function ModalEditComponent({
                             isValid={_.isEmpty(meta.error)}
                             isTouched={meta.touched}
                             feedbackText={meta.error}
-                            placeholder={`${_.capitalize(t('DescriptionByCustomer'))}...`}
+                            placeholder={`${_.capitalize(t('Description'))}...`}
                             disabled={current?.role === 'GUEST'}
                           />
                         )}

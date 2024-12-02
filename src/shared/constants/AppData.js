@@ -211,6 +211,11 @@ const AppData = {
     { name: '3', value: '3' },
     { name: '4', value: '4' },
   ],
+
+  productCurrentStatus: [
+    { name: 'Using', value: 'USING' },
+    { name: 'Stored', value: 'STORED' },
+  ],
 };
 
 export default AppData;

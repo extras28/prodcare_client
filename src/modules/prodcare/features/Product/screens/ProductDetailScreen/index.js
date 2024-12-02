@@ -8,13 +8,14 @@ import Utils from 'shared/utils/Utils';
 import ModalEditProduct from '../../components/ModalEditProduct';
 import ProductActivityTab from '../../components/ProductActivityTab';
 import { clearProductDetail, thunkGetProductDetail } from '../../productSlice';
+import AppData from 'shared/constants/AppData';
 
 ProductDetailScreen.propTypes = {};
 
 function ProductDetailScreen(props) {
   // MARK: --- Params ---
   const router = useRouter();
-  const { productDetail } = useSelector((state) => state.product);
+  const { productDetail, issues } = useSelector((state) => state.product);
   const dispatch = useDispatch();
   const { t } = useTranslation();
   const [modalProductEditShowing, setModalEditProductShowing] = useState(false);
@@ -31,6 +32,23 @@ function ProductDetailScreen(props) {
           ? `${productDetail?.customer?.military_region} - ${productDetail?.customer?.name}`
           : '',
       },
+      { label: t('SoftwareVersion'), value: productDetail?.version ?? '' },
+      {
+        label: t('CurrentStatus'),
+        value: productDetail?.status
+          ? t(
+              AppData.productCurrentStatus.find((item) => item?.value === productDetail?.status)
+                ?.name
+            )
+          : '',
+        className: `badge badge-${productDetail?.status === 'USING' ? 'primary' : 'warning'}`,
+      },
+      {
+        label: t('Status'),
+        value: issues?.length > 0 ? t('Broken') : t('Active'),
+        className: `badge badge-${issues?.length > 0 ? 'danger' : 'success'}`,
+      },
+      { label: t('WarrantyStatus'), value: productDetail?.warranty_status ?? '' },
       {
         label: t('Mfg'),
         value: productDetail?.mfg ? Utils.formatDateTime(productDetail?.mfg, 'YYYY-MM-DD') : '',
@@ -42,7 +60,7 @@ function ProductDetailScreen(props) {
           : '',
       },
     ];
-  }, [productDetail]);
+  }, [productDetail, issues]);
 
   // MARK: --- Functions ---
 
@@ -76,10 +94,10 @@ function ProductDetailScreen(props) {
                 current?.role !== 'USER' && current?.role !== 'ADMIN' && index === rows?.length - 1
                   ? ''
                   : 'border-bottom'
-              } py-2`}
+              } py-2 `}
             >
               <p className="font-weight-bolder mb-1">{item?.label}</p>
-              <p className={`${index === 0 ? 'text-primary' : ''} m-0`}>
+              <p className={`${index === 0 ? 'text-primary' : ''} m-0 ${item.className}`}>
                 {item?.value || <>&nbsp;</>}
               </p>
             </div>
@@ -103,7 +121,7 @@ function ProductDetailScreen(props) {
       <div className="col-8">
         <div className="bg-white rounded">
           <div className="p-4">
-            <IssueHomePage productId={productDetail?.id} />
+            <IssueHomePage name={productDetail?.name} productId={productDetail?.id} />
           </div>
         </div>
       </div>

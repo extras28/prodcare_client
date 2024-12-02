@@ -34,7 +34,7 @@ const sTag = '[IssueHomePage]';
 
 function IssueHomePage(props) {
   // MARK: --- Params ---
-  const { productId, componentId, email } = props;
+  const { productId, componentId, email, name } = props;
   const router = useRouter();
   const { t } = useTranslation();
   const dispatch = useDispatch();
@@ -834,9 +834,11 @@ function IssueHomePage(props) {
   return (
     <div>
       <div className="card-title ">
-        <h1 className="card-label">{`${t('IssueList')} ${
-          pagination?.total ? `(${pagination?.total})` : ''
-        }`}</h1>
+        <h1 className="card-label">{`${
+          name
+            ? t('DetailIssueList', { name: name })
+            : t('IssueList', { name: currentProject?.project_name })
+        } ${pagination?.total ? `(${pagination?.total})` : ''}`}</h1>
       </div>
 
       <div className="card card-custom border">
@@ -1010,7 +1012,7 @@ function IssueHomePage(props) {
               />
             </div>
             <div className="d-flex flex-wrap align-items-center">
-              <label className="mr-2 mb-0" htmlFor="status">
+              <label className="mr-2 mb-0" htmlFor="level">
                 {_.capitalize(t('ErrorLevel'))}
               </label>
               <KTFormSelect

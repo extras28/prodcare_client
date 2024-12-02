@@ -40,7 +40,7 @@ function ComponentDetailScreen(props) {
   }, [componentDetail]);
 
   const issueList = useMemo(
-    () => <IssueHomePage componentId={componentDetail?.id} />,
+    () => <IssueHomePage name={componentDetail?.name} componentId={componentDetail?.id} />,
     [componentDetail]
   );
 

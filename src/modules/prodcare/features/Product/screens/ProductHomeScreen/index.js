@@ -1,15 +1,15 @@
 import { unwrapResult } from '@reduxjs/toolkit';
 import productApi from 'api/productApi';
-import customDataTableStyle from 'assets/styles/customDataTableStyle';
+import { thunkGetAllProduct } from 'app/appSlice';
 import useRouter from 'hooks/useRouter';
 import { thunkGetListComponent } from 'modules/prodcare/features/Component/componentSlice';
 import { thunkGetListIssue } from 'modules/prodcare/features/Issue/issueSlice';
+import { Column } from 'primereact/column';
+import { TreeTable } from 'primereact/treetable';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import DataTable from 'react-data-table-component';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import Empty from 'shared/components/Empty';
-import Loading from 'shared/components/Loading';
 import KTTooltip from 'shared/components/OtherKeenComponents/KTTooltip';
 import KeenSearchBarNoFormik from 'shared/components/OtherKeenComponents/KeenSearchBarNoFormik';
 import Pagination from 'shared/components/Pagination';
@@ -23,11 +23,12 @@ import Swal from 'sweetalert2';
 import ModalEditProduct from '../../components/ModalEditProduct';
 import ModalProductActivity from '../../components/ModalProductActivity';
 import { setPaginationPerPage, thunkGetListProduct } from '../../productSlice';
-import { thunkGetAllProduct } from 'app/appSlice';
-import { TreeTable } from 'primereact/treetable';
-import { Column } from 'primereact/column';
 
+import ModalEditComponent from 'modules/prodcare/features/Component/components/ModalEditComponent';
 import 'primereact/resources/themes/lara-light-cyan/theme.css';
+import DateRangePickerInput from 'shared/components/AppDateRangePicker';
+import KTFormSelect from 'shared/components/OtherKeenComponents/Forms/KTFormSelect';
+import AppData from 'shared/constants/AppData';
 
 ProductHomePage.propTypes = {};
 
@@ -52,124 +53,12 @@ function ProductHomePage(props) {
   const refLoading = useRef(false);
   const { customers } = useSelector((state) => state?.app);
   const { currentProject, projects } = useSelector((state) => state?.app);
-  const columns = useMemo(() => {
-    const tableColumns = [
-      {
-        name: t('Serial'),
-        sortable: false,
-        cell: (row) => {
-          return (
-            <p
-              data-tag="allowRowEvents"
-              className="font-weight-bolder font-weight-normal m-0 text-maxline-3 mr-4"
-            >
-              {row?.serial}
-            </p>
-          );
-        },
-      },
-      {
-        name: t('EquipmentName'),
-        sortable: false,
-        cell: (row) => {
-          return (
-            <p
-              data-tag="allowRowEvents"
-              className="font-weight-bolder font-weight-normal m-0 text-maxline-3 mr-4"
-            >
-              {row?.name}
-            </p>
-          );
-        },
-      },
-      {
-        name: t('Product'),
-        sortable: false,
-        cell: (row) => {
-          return (
-            <p data-tag="allowRowEvents" className="font-weight-normal m-0 text-maxline-3 mr-4">
-              {projects.find((item) => item.id === row['project_id'])?.['project_name']}
-            </p>
-          );
-        },
-      },
-      {
-        name: t('Customer'),
-        sortable: false,
-        cell: (row) => {
-          const ct = customers.find((item) => item.id === row['customer_id']);
-          return (
-            <p data-tag="allowRowEvents" className="font-weight-normal m-0 text-maxline-3 mr-4">
-              {ct ? `${ct?.['military_region']} - ${ct?.['name']}` : ''}
-            </p>
-          );
-        },
-      },
-      {
-        name: t('Mfg'),
-        sortable: false,
-        cell: (row) => {
-          return (
-            <p data-tag="allowRowEvents" className="font-weight-normal m-0 text-maxline-3 mr-4">
-              {row?.mfg ? Utils.formatDateTime(row?.mfg, 'YYYY-MM-DD') : ''}
-            </p>
-          );
-        },
-      },
-      {
-        name: t('HandedOverTime'),
-        sortable: false,
-        cell: (row) => {
-          return (
-            <p data-tag="allowRowEvents" className="font-weight-normal m-0 text-maxline-3 mr-4">
-              {row?.handed_over_time
-                ? Utils.formatDateTime(row?.handed_over_time, 'YYYY-MM-DD')
-                : ''}
-            </p>
-          );
-        },
-      },
-      {
-        name: t('Action'),
-        center: 'true',
-        width: '120px',
-        cell: (row) => (
-          <div className="d-flex align-items-center">
-            <KTTooltip text={t('Edit')}>
-              <a
-                className="btn btn-icon btn-sm btn-primary btn-hover-primary"
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleEditProduct(row);
-                }}
-              >
-                <i className="fa-regular fa-pen p-0 icon-1x" />
-              </a>
-            </KTTooltip>
-
-            <KTTooltip text={t('Delete')}>
-              <a
-                className="btn btn-icon btn-sm btn-danger btn-hover-danger ml-2"
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleDeleteProduct(row);
-                }}
-              >
-                <i className="far fa-trash p-0 icon-1x" />
-              </a>
-            </KTTooltip>
-          </div>
-        ),
-      },
-    ];
-
-    if (current?.role === 'GUEST') return tableColumns.slice(0, tableColumns.length - 1);
-    return tableColumns;
-  }, [current, LanguageHelper.getCurrentLanguage(), projects, customers]);
   const [selectedProductItem, setSelectedProductItem] = useState(null);
   const [modalProductEditShowing, setModalEditProductShowing] = useState(false);
   const [modalProductActivityShowing, setModalActivityProductShowing] = useState(false);
   const { customerDetail } = useSelector((state) => state?.customer);
+  const [modalComponentEditShowing, setModalEditComponentShowing] = useState(false);
+  const [selectedComponentItem, setSelectedComponentItem] = useState(null);
 
   const table = useMemo(
     () => (
@@ -193,6 +82,7 @@ function ProductHomePage(props) {
         value={products}
       >
         <Column
+          style={{ width: '200px' }}
           body={(row) => {
             return (
               <span data-tag="allowRowEvents" className="font-weight-bolder font-weight-normal">
@@ -201,10 +91,11 @@ function ProductHomePage(props) {
             );
           }}
           field="name"
-          header={t('EquipmentName')}
+          header={t('ProductName')}
           expander
         ></Column>
         <Column
+          style={{ width: '200px' }}
           body={(row) => {
             return (
               <span data-tag="allowRowEvents" className="font-weight-bolder font-weight-normal">
@@ -216,6 +107,7 @@ function ProductHomePage(props) {
           header={t('Serial')}
         ></Column>
         <Column
+          style={{ width: '200px' }}
           body={(row) => {
             const ct = customers.find((item) => item.id === row?.data?.['customer_id']);
             return (
@@ -227,6 +119,54 @@ function ProductHomePage(props) {
           header={t('Customer')}
         ></Column>
         <Column
+          style={{ width: '90px' }}
+          body={(row) => {
+            return (
+              <span data-tag="allowRowEvents" className="font-weight-normal">
+                {row?.data?.version}
+              </span>
+            );
+          }}
+          field="version"
+          header={t('SoftwareVersion')}
+        ></Column>
+        <Column
+          style={{ width: '120px' }}
+          body={(row) => {
+            return (
+              <span
+                data-tag="allowRowEvents"
+                className={`badge badge-${row?.data?.status === 'USING' ? 'primary' : 'warning'}`}
+              >
+                {row?.data?.status
+                  ? t(
+                      AppData.productCurrentStatus.find((item) => item?.value === row?.data?.status)
+                        ?.name
+                    )
+                  : ''}
+              </span>
+            );
+          }}
+          field="status"
+          header={t('CurrentStatus')}
+        ></Column>
+        <Column
+          style={{ width: '100px' }}
+          body={(row) => {
+            const breakdown = row?.data?.issues?.length > 0 ? true : false;
+            return (
+              <span
+                data-tag="allowRowEvents"
+                className={`badge badge-${breakdown ? 'danger' : 'success'}`}
+              >
+                {row?.data?.issues?.length > 0 ? t('Broken') : t('Active')}
+              </span>
+            );
+          }}
+          field="status"
+          header={t('Status')}
+        ></Column>
+        {/* <Column
           body={(row) => {
             return (
               <p data-tag="allowRowEvents" className="font-weight-normal ">
@@ -235,8 +175,9 @@ function ProductHomePage(props) {
             );
           }}
           header={t('Mfg')}
-        ></Column>
+        ></Column> */}
         <Column
+          style={{ width: '100px' }}
           body={(row) => {
             return (
               <span data-tag="allowRowEvents" className="font-weight-normal ">
@@ -258,7 +199,7 @@ function ProductHomePage(props) {
                     className="btn btn-icon btn-sm btn-primary btn-hover-primary"
                     onClick={(e) => {
                       e.preventDefault();
-                      handleEditProduct(row);
+                      handleEditProduct(row?.data);
                     }}
                   >
                     <i className="fa-regular fa-pen p-0 icon-1x" />
@@ -270,10 +211,10 @@ function ProductHomePage(props) {
                     className="btn btn-icon btn-sm btn-danger btn-hover-danger ml-2"
                     onClick={(e) => {
                       e.preventDefault();
-                      handleDeleteProduct(row);
+                      handleDeleteProduct(row?.data);
                     }}
                   >
-                    <i className="far fa-trash p-0 icon-1x" />
+                    <i className="fa-regular fa-trash p-0 icon-1x" />
                   </a>
                 </KTTooltip>
               </div>
@@ -298,24 +239,21 @@ function ProductHomePage(props) {
     refLoading.current = false;
   }
 
-  function handleSelectedProductsChanged(state) {
-    const selectedProducts = state.selectedRows;
-    setSelectedProducts(selectedProducts);
-  }
-
   function clearSelectedProducts() {
     setSelectedProducts([]);
     setToggledClearProducts(!toggledClearProducts);
   }
 
   function handleEditProduct(product) {
-    setSelectedProductItem(product);
-    setModalEditProductShowing(true);
-  }
+    const isComponent = product?.hasOwnProperty('product_id');
 
-  function handleShowProductActivity(product) {
-    setSelectedProductItem(product);
-    setModalActivityProductShowing(true);
+    if (isComponent) {
+      setSelectedComponentItem(product);
+      setModalEditComponentShowing(true);
+    } else {
+      setSelectedProductItem(product);
+      setModalEditProductShowing(true);
+    }
   }
 
   function handleDeleteMultiProducts() {
@@ -368,7 +306,7 @@ function ProductHomePage(props) {
   function handleDeleteProduct(product) {
     Swal.fire({
       title: t('Confirm'),
-      text: t('MessageConfirmDeleteEquipment', { name: product?.name }),
+      text: t('MessageConfirmDeleteProduct', { name: product?.name }),
       icon: 'question',
       showCancelButton: true,
       confirmButtonText: t('Yes'),
@@ -401,7 +339,15 @@ function ProductHomePage(props) {
   }
 
   function showProductIssue(row) {
-    router.navigate(`/prodcare/operating/product/detail/${row?.node?.data?.id}`);
+    const isAction = /btn|fa-regular/.test(row?.originalEvent?.target?.className || '');
+
+    if (isAction) return;
+
+    if (row?.node?.data?.hasOwnProperty('product_id')) {
+      router.navigate(`/prodcare/operating/component/detail/${row?.node?.data?.id}`);
+    } else {
+      router.navigate(`/prodcare/operating/product/detail/${row?.node?.data?.id}`);
+    }
   }
 
   // MARK: --- Hooks ---
@@ -446,9 +392,9 @@ function ProductHomePage(props) {
   return (
     <div>
       <div className="card-title ">
-        <h1 className="card-label">{`${t('EquipmentList')} ${
-          pagination?.total ? `(${pagination?.total})` : ''
-        }`}</h1>
+        <h1 className="card-label">{`${t('ListOfProductsHasBeenImplemented', {
+          project: currentProject?.project_name,
+        })} ${pagination?.total ? `(${pagination?.total})` : ''}`}</h1>
       </div>
 
       <div className="card card-custom border">
@@ -475,6 +421,85 @@ function ProductHomePage(props) {
                 });
               }}
             />
+            <div className="d-flex flex-wrap align-items-center">
+              <label className="mr-2 mb-0" htmlFor="customer">
+                {_.capitalize(t('Customer'))}
+              </label>
+              <KTFormSelect
+                name="customer"
+                isCustom
+                options={[
+                  { name: 'All', value: '' },
+                  ...customers.map((item) => {
+                    return {
+                      name: `${item?.['military_region']} - ${item?.['name']}`,
+                      value: item.id.toString(),
+                    };
+                  }),
+                ]}
+                value={Global.gFiltersProductList.customerId}
+                onChange={(newValue) => {
+                  needToRefreshData.current = true;
+                  Global.gFiltersProductList = {
+                    ...filters,
+                    page: 0,
+                    customerId: newValue,
+                  };
+                  setFilters({
+                    ...Global.gFiltersProductList,
+                  });
+                }}
+              />
+            </div>
+            <div className="d-flex flex-wrap align-items-center">
+              <label className="mr-2 mb-0" htmlFor="status">
+                {_.capitalize(t('CurrentStatus'))}
+              </label>
+              <KTFormSelect
+                name="status"
+                isCustom
+                options={[
+                  { name: 'All', value: '' },
+                  ...AppData.productCurrentStatus.map((item) => {
+                    return {
+                      name: t(item?.name),
+                      value: item.value,
+                    };
+                  }),
+                ]}
+                value={Global.gFiltersProductList.status}
+                onChange={(newValue) => {
+                  needToRefreshData.current = true;
+                  Global.gFiltersProductList = {
+                    ...filters,
+                    page: 0,
+                    status: newValue,
+                  };
+                  setFilters({
+                    ...Global.gFiltersProductList,
+                  });
+                }}
+              />
+            </div>
+            <div className="d-flex flex-wrap align-items-center">
+              {' '}
+              <label className="mr-2 mb-0" htmlFor="handedOverTime">
+                {_.capitalize(t('HandedOverTime'))}
+              </label>
+              <DateRangePickerInput
+                getDateRange={(dateRange) => {
+                  needToRefreshData.current = true;
+                  Global.gFiltersProductList = {
+                    ...filters,
+                    startTime: dateRange.startDate,
+                    endTime: dateRange.endDate,
+                  };
+                  setFilters({
+                    ...Global.gFiltersProductList,
+                  });
+                }}
+              />
+            </div>
           </div>
           {current?.role !== 'GUEST' ? (
             <div className="card-toolbar gap-2">
@@ -501,7 +526,7 @@ function ProductHomePage(props) {
                 className="btn btn-primary font-weight-bold d-flex align-items-center"
               >
                 <i className="far fa-plus"></i>
-                {t('NewEquipment')}
+                {t('NewProduct')}
               </a>
             </div>
           ) : null}
@@ -510,38 +535,6 @@ function ProductHomePage(props) {
         {/* card body */}
         <div className="card-body pt-0">
           {table}
-          {/* <DataTable
-            // fixedHeader
-            // fixedHeaderScrollHeight="60vh"
-            columns={columns}
-            data={products}
-            customStyles={customDataTableStyle}
-            responsive={true}
-            noHeader
-            // selectableRows={current?.role != 'ADMIN' ? false : true}
-            // striped
-            noDataComponent={
-              <div className="pt-12">
-                <Empty
-                  text={t('NoData')}
-                  visible={false}
-                  imageEmpty={AppResource.icons.icEmptyState}
-                  imageEmptyPercentWidth={90}
-                />
-              </div>
-            }
-            progressPending={isGettingProductList}
-            progressComponent={<Loading showBackground={false} message={`${t('Loading')}...`} />}
-            onSelectedRowsChange={handleSelectedProductsChanged}
-            clearSelectedRows={toggledClearProducts}
-            onRowClicked={(row) => {
-              // handleShowProductActivity(row);
-              showProductIssue(row);
-            }}
-            pointerOnHover
-            highlightOnHover
-            selectableRowsHighlight
-          /> */}
 
           {/* Pagination */}
           {pagination && products?.length > 0 && (
@@ -611,6 +604,22 @@ function ProductHomePage(props) {
         onRefreshProductList={() => {
           setSelectedProductItem(null);
           getProductList();
+        }}
+      />
+
+      <ModalEditComponent
+        products={products}
+        show={modalComponentEditShowing}
+        onClose={() => {
+          setModalEditComponentShowing(false);
+        }}
+        onExistDone={() => {
+          setSelectedComponentItem(null);
+        }}
+        componentItem={selectedComponentItem}
+        onRefreshComponentList={() => {
+          setSelectedComponentItem(null);
+          getComponentList();
         }}
       />
     </div>

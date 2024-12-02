@@ -20,6 +20,7 @@ import Utils from 'shared/utils/Utils';
 import * as Yup from 'yup';
 import { thunkGetListProduct } from '../../productSlice';
 import { thunkGetAllProduct } from 'app/appSlice';
+import AppData from 'shared/constants/AppData';
 
 function ModalEditProduct({
   customerId = null,
@@ -68,7 +69,7 @@ function ModalEditProduct({
         createEvent({
           subType: 'CREATE',
           productId: res?.product?.id,
-          content: t('NewEquipment'),
+          content: t('NewProduct'),
         });
         ToastHelper.showSuccess(t('Success'));
         dispatch(thunkGetListProduct(Global.gFiltersProductList));
@@ -92,7 +93,7 @@ function ModalEditProduct({
         createEvent({
           subType: 'EDIT',
           productId: values.productId,
-          content: JSON.stringify({ title: t('EditEquipment'), ...changeObj }),
+          content: JSON.stringify({ title: t('EditProduct'), ...changeObj }),
         });
         ToastHelper.showSuccess(t('Success'));
         dispatch(thunkGetListProduct(Global.gFiltersProductList));
@@ -121,7 +122,8 @@ function ModalEditProduct({
           JSON.parse(localStorage.getItem(PreferenceKeys.currentProject))?.id,
         // productionBatchesId: productItem?.production_batches_id || '',
         version: productItem?.version || '',
-        // status: productItem?.status || '',
+        status: productItem?.status || '',
+        warrantyStatus: productItem?.warranty_status || '',
         mfg: productItem?.mfg ? Utils.formatDateTime(productItem?.mfg, 'YYYY-MM-DD') : '',
         handedOverTime: productItem?.handed_over_time
           ? Utils.formatDateTime(productItem?.handed_over_time, 'YYYY-MM-DD')
@@ -153,7 +155,7 @@ function ModalEditProduct({
           enforceFocus={false}
         >
           <Modal.Header className="px-5 py-5">
-            <Modal.Title>{productItem ? t('EditEquipment') : t('NewEquipment')}</Modal.Title>
+            <Modal.Title>{productItem ? t('EditProduct') : t('NewProduct')}</Modal.Title>
             <div
               className="btn btn-xs btn-icon btn-light btn-hover-secondary cursor-pointer"
               onClick={handleClose}
@@ -202,12 +204,12 @@ function ModalEditProduct({
                 />
               </div>
 
-              {/* EquipmentName */}
+              {/* ProductName */}
               <div className="col-12">
                 <KTFormGroup
                   label={
                     <>
-                      {t('EquipmentName')} <span className="text-danger">*</span>
+                      {t('ProductName')} <span className="text-danger">*</span>
                     </>
                   }
                   inputName="name"
@@ -221,7 +223,7 @@ function ModalEditProduct({
                             setChangeObj((prev) => {
                               return {
                                 ...prev,
-                                [`${t('EquipmentName')}`]: `${productItem?.name ?? ''} -> ${value}`,
+                                [`${t('ProductName')}`]: `${productItem?.name ?? ''} -> ${value}`,
                               };
                             });
                           }}
@@ -230,7 +232,7 @@ function ModalEditProduct({
                           isValid={_.isEmpty(meta.error)}
                           isTouched={meta.touched}
                           feedbackText={meta.error}
-                          placeholder={`${_.capitalize(t('EquipmentName'))}...`}
+                          placeholder={`${_.capitalize(t('ProductName'))}...`}
                           type={KTFormInputType.text}
                           disabled={current?.role === 'GUEST'}
                         />
@@ -272,6 +274,123 @@ function ModalEditProduct({
                               };
                             });
                           }}
+                          disabled={current?.role === 'GUEST'}
+                        />
+                      )}
+                    </FastField>
+                  }
+                />
+              </div>
+
+              {/* SoftwareVersion */}
+              <div className="col-12">
+                <KTFormGroup
+                  label={<>{t('SoftwareVersion')}</>}
+                  inputName="version"
+                  inputElement={
+                    <FastField name="version">
+                      {({ field, form, meta }) => (
+                        <KTFormInput
+                          {...field}
+                          onChange={(value) => {
+                            form.setFieldValue(field.name, value);
+                            setChangeObj((prev) => {
+                              return {
+                                ...prev,
+                                [`${t('SoftwareVersion')}`]: `${
+                                  productItem?.version ?? ''
+                                } -> ${value}`,
+                              };
+                            });
+                          }}
+                          onBlur={() => form.setFieldTouched(field.name, true)}
+                          enableCheckValid
+                          isValid={_.isEmpty(meta.error)}
+                          isTouched={meta.touched}
+                          feedbackText={meta.error}
+                          placeholder={`${_.capitalize(t('SoftwareVersion'))}...`}
+                          type={KTFormInputType.text}
+                          disabled={current?.role === 'GUEST'}
+                        />
+                      )}
+                    </FastField>
+                  }
+                />
+              </div>
+
+              {/* status */}
+              <div className="col-12">
+                <KTFormGroup
+                  label={<>{t('CurrentStatus')}</>}
+                  inputName="status"
+                  inputElement={
+                    <FastField name="status">
+                      {({ field, form, meta }) => (
+                        <KeenSelectOption
+                          searchable={false}
+                          fieldProps={field}
+                          fieldHelpers={formikProps.getFieldHelpers(field.name)}
+                          fieldMeta={meta}
+                          name={field.name}
+                          options={AppData.productCurrentStatus?.map((item) => {
+                            return {
+                              name: t(item.name),
+                              value: item.value,
+                            };
+                          })}
+                          onValueChanged={(newValue) => {
+                            form.setFieldValue(field.name, newValue);
+                            setChangeObj((prev) => {
+                              return {
+                                ...prev,
+                                [`${t('CurrentStatus')}`]: `${
+                                  AppData.productCurrentStatus.find(
+                                    (item) => item.value == productItem?.status
+                                  )?.name ?? ''
+                                } -> ${
+                                  AppData.productCurrentStatus.find(
+                                    (item) => item.value == newValue
+                                  )?.name
+                                }`,
+                              };
+                            });
+                          }}
+                          disabled={current?.role === 'GUEST'}
+                        />
+                      )}
+                    </FastField>
+                  }
+                />
+              </div>
+
+              {/* WarrantyStatus */}
+              <div className="col-12">
+                <KTFormGroup
+                  label={<>{t('WarrantyStatus')}</>}
+                  inputName="warrantyStatus"
+                  inputElement={
+                    <FastField name="warrantyStatus">
+                      {({ field, form, meta }) => (
+                        <KTFormInput
+                          {...field}
+                          onChange={(value) => {
+                            form.setFieldValue(field.name, value);
+                            setChangeObj((prev) => {
+                              return {
+                                ...prev,
+                                [`${t('WarrantyStatus')}`]: `${
+                                  productItem?.warranty_status ?? ''
+                                } -> ${value}`,
+                              };
+                            });
+                          }}
+                          onBlur={() => form.setFieldTouched(field.name, true)}
+                          enableCheckValid
+                          isValid={_.isEmpty(meta.error)}
+                          isTouched={meta.touched}
+                          feedbackText={meta.error}
+                          placeholder={`${_.capitalize(t('WarrantyStatus'))}...`}
+                          type={KTFormInputType.text}
                           disabled={current?.role === 'GUEST'}
                         />
                       )}
