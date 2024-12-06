@@ -45,15 +45,15 @@ function QuarterReportTable(props) {
         remainCount: quarter?.remain?.count,
         remainHandleInQuarter: quarter?.remain?.handleInQuarter,
         remainTotalProcessedIssue: quarter?.remain?.totalProcessedIssue,
-        cummulativeIssues: quarter?.cummulative?.cummulativeIssues,
+        cumulativeIssues: quarter?.cumulative?.cumulativeIssues,
         criticalIssue: quarter?.issueCount?.criticalIssue,
         stopFightingIssue: quarter?.issueCount?.stopFightingIssue,
         moderateIssue: quarter?.issueCount?.moderateIssue,
         minorIssue: quarter?.issueCount?.minorIssue,
         stopFightingTime: quarter?.issueCount?.stopFightingTime,
 
-        processedIssuesCount: quarter?.cummulative?.processedIssuesCount,
-        impactReadyFightingIssue: quarter?.cummulative?.impactReadyFightingIssue,
+        processedIssuesCount: quarter?.cumulative?.processedIssuesCount,
+        impactReadyFightingIssue: quarter?.cumulative?.impactReadyFightingIssue,
         criticalIssueRemain: quarter?.remainIssue?.criticalIssue,
         moderateIssueRemain: quarter?.remainIssue?.moderateIssue,
         minorIssueRemain: quarter?.remainIssue?.minorIssue,
@@ -119,7 +119,7 @@ function QuarterReportTable(props) {
         '',
         '',
         '',
-        t('Cummulative'),
+        t('Cumulative'),
         '',
         '',
         t('TotalHandledThisQuarter'),
@@ -198,15 +198,15 @@ function QuarterReportTable(props) {
         quarter?.remain?.count,
         quarter?.remain?.handleInQuarter,
         quarter?.remain?.totalProcessedIssue,
-        quarter?.cummulative?.cummulativeIssues,
+        quarter?.cumulative?.cumulativeIssues,
         quarter?.issueCount?.criticalIssue,
         quarter?.issueCount?.stopFightingIssue,
         quarter?.issueCount?.moderateIssue,
         quarter?.issueCount?.minorIssue,
         quarter?.issueCount?.stopFightingTime,
 
-        quarter?.cummulative?.processedIssuesCount,
-        quarter?.cummulative?.impactReadyFightingIssue,
+        quarter?.cumulative?.processedIssuesCount,
+        quarter?.cumulative?.impactReadyFightingIssue,
         quarter?.remainIssue?.criticalIssue,
         quarter?.remainIssue?.moderateIssue,
         quarter?.remainIssue?.minorIssue,
@@ -278,7 +278,7 @@ function QuarterReportTable(props) {
           t('CurrentOperatingQuantity'),
           t('QuarterlyError'),
           t('Remain'),
-          t('Cummulative'),
+          t('Cumulative'),
           t('TotalHandledThisQuarter'),
           t('QuarterlyKPIEvaluation'),
           t('AverageFailureOccurrenceTime'),
@@ -468,11 +468,11 @@ function QuarterReportTable(props) {
                 key="remainTotalProcessedIssue"
               />
             </ColumnGroup>
-            <ColumnGroup title={t('Cummulative')}>
+            <ColumnGroup title={t('Cumulative')}>
               <Column
                 title={t('CumulativeRemain')}
-                dataIndex="cummulativeIssues"
-                key="cummulativeIssues"
+                dataIndex="cumulativeIssues"
+                key="cumulativeIssues"
               />
               <Column
                 title={t('Handled')}

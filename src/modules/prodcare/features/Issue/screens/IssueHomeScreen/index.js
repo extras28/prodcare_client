@@ -27,6 +27,7 @@ import ModalEditIssue from '../../components/ModalEditIssue';
 import ModalEvaluateIssue from '../../components/ModalEvaluateIssue';
 import ModalUploadIssueFile from '../../components/ModalUploadIssueFile';
 import { setPaginationPerPage, thunkGetListIssue } from '../../issueSlice';
+import AppSelectField from 'shared/components/AppSelectField';
 
 IssueHomePage.propTypes = {};
 
@@ -55,12 +56,719 @@ function IssueHomePage(props) {
   const { products, customers, components, reasons, currentProject, projects, users } = useSelector(
     (state) => state?.app
   );
+  const fullColumns = useMemo(
+    () => [
+      {
+        id: 1,
+        name: t('Status'),
+        sortable: false,
+        cell: (row) => {
+          return (
+            <p
+              data-tag="allowRowEvents"
+              className={`m-0 badge bg-${
+                row?.status === 'PROCESSED'
+                  ? 'success'
+                  : row?.status === 'PROCESSING'
+                  ? 'info'
+                  : 'warning'
+              }`}
+            >
+              {t(_.capitalize(row?.status))}
+            </p>
+          );
+        },
+      },
+      {
+        id: 2,
+        name: t('Customer'),
+        sortable: false,
+        cell: (row) => {
+          const ct = customers.find((item) => item.id === row['customer_id']);
+          return (
+            <p data-tag="allowRowEvents" className="font-weight-normal m-0 text-maxline-3 mr-4">
+              {ct ? `${ct?.['military_region']} - ${ct?.['name']}` : ''}
+            </p>
+          );
+        },
+      },
+      {
+        id: 3,
+        name: t('Product'),
+        sortable: false,
+        // minWidth: '150px',
+        cell: (row) => {
+          const pd = products.find((item) => item.id == row?.product_id);
+          return (
+            <KTTooltip text={t('Product')}>
+              <a
+                className=""
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (row?.componentPath) {
+                    router.navigate(`/prodcare/operating/component/detail/${row?.component_id}`);
+                  } else {
+                    router.navigate(`/prodcare/operating/product/detail/${row?.product_id}`);
+                  }
+                }}
+              >
+                {`${pd?.name} ${pd?.serial ? '(' + pd?.serial + ')' : ''}${
+                  row?.componentPath ? row?.componentPath + '/' : ''
+                }`}
+              </a>
+            </KTTooltip>
+          );
+        },
+      },
+      {
+        id: 4,
+        name: t('DescriptionByCustomer'),
+        sortable: false,
+        cell: (row) => {
+          return (
+            <p
+              data-tag="allowRowEvents"
+              className="text-dark-75  font-weight-normal m-0 text-maxline-5 mr-4"
+            >
+              {row?.description}
+            </p>
+          );
+        },
+      },
+      {
+        id: 5,
+        name: t('ErrorType'),
+        sortable: false,
+        // minWidth: '150px',
+        cell: (row) => {
+          return (
+            <div
+              data-tag="allowRowEvents"
+              className="text-dark-75 m-0 text-maxline-5 d-flex align-items-center"
+            >
+              {t(
+                AppData.responsibleType.find((item) => item.value === row?.responsible_type)?.name
+              )}
+            </div>
+          );
+        },
+      },
+      {
+        id: 6,
+        name: t('ErrorLevel'),
+        sortable: false,
+        // minWidth: '120px',
+        cell: (row) => {
+          function getErrorLevelColor() {
+            switch (row?.level) {
+              case 'CRITICAL':
+                return '#FF4C4C';
+              case 'MAJOR':
+                return '#FF7043';
+              case 'MODERATE':
+                return '#FFD54F';
+              case 'MINOR':
+                return '#A5D6A7';
+
+              default:
+                break;
+            }
+          }
+
+          return (
+            <p
+              data-tag="allowRowEvents"
+              className="m-0 badge"
+              style={{ backgroundColor: getErrorLevelColor() }}
+            >
+              {t(_.capitalize(AppData.errorLevel.find((item) => item.value === row?.level)?.name))}
+            </p>
+          );
+        },
+      },
+      {
+        id: 7,
+        name: t('ReceptionTime'),
+        sortable: false,
+        // minWidth: '120px',
+        cell: (row) => {
+          return (
+            <div
+              data-tag="allowRowEvents"
+              className="text-dark-75 m-0 text-maxline-5 d-flex align-items-center"
+            >
+              {row?.reception_time ? Utils.formatDateTime(row?.reception_time, 'YYYY-MM-DD') : ''}
+            </div>
+          );
+        },
+      },
+      {
+        id: 8,
+        name: t('StopFighting'),
+        sortable: false,
+        // minWidth: '120px',
+        cell: (row) => {
+          return (
+            <p
+              data-tag="allowRowEvents"
+              className="text-dark-75 font-weight-normal m-0 text-maxline-5 mr-4"
+            >
+              {t(`${_.capitalize(row?.stop_fighting ? 'Yes' : 'No')}`)}
+            </p>
+          );
+        },
+      },
+      {
+        id: 9,
+        name: t('Handler'),
+        sortable: false,
+        // minWidth: '120px',
+        right: true,
+        cell: (row) => {
+          return (
+            <div
+              data-tag="allowRowEvents"
+              className="text-dark-75 m-0 text-maxline-5 d-flex align-items-center"
+            >
+              {users.find((item) => item.value === row?.['account_id'])?.name}
+            </div>
+          );
+        },
+      },
+      {
+        id: 10,
+        name: t('ScopeOfImpact'),
+        sortable: false,
+        minWidth: '180px',
+        right: true,
+        cell: (row) => {
+          return (
+            <div
+              data-tag="allowRowEvents"
+              className="text-dark-75 m-0 text-maxline-5 d-flex align-items-center"
+            >
+              {t(
+                AppData.scopeOfImpacts.find((item) => item.value === row?.['scope_of_impact'])?.name
+              )}
+            </div>
+          );
+        },
+      },
+      {
+        id: 11,
+        name: t('ImpactPoint'),
+        sortable: false,
+        minWidth: '150px',
+        cell: (row) => {
+          return (
+            <div
+              data-tag="allowRowEvents"
+              className="text-dark-75 m-0 text-maxline-5 d-flex align-items-center"
+            >
+              {t(AppData.impactPoints.find((item) => item.value === row?.['impact_point'])?.name)}
+            </div>
+          );
+        },
+      },
+      {
+        id: 12,
+        name: t('UrgencyLevel'),
+        sortable: false,
+        // minWidth: '150px',
+        cell: (row) => {
+          return (
+            <div
+              data-tag="allowRowEvents"
+              className="text-dark-75 m-0 text-maxline-5 d-flex align-items-center"
+            >
+              {t(AppData.urgencyLevels.find((item) => item.value === row?.['urgency_level'])?.name)}
+            </div>
+          );
+        },
+      },
+      {
+        id: 13,
+        name: t('UrgencyPoint'),
+        sortable: false,
+        // minWidth: '150px',
+        cell: (row) => {
+          return (
+            <div
+              data-tag="allowRowEvents"
+              className="text-dark-75 m-0 text-maxline-5 d-flex align-items-center"
+            >
+              {t(AppData.urgencyPoints.find((item) => item.value === row?.['urgency_point'])?.name)}
+            </div>
+          );
+        },
+      },
+      {
+        id: 14,
+        name: t('OverdueKpiReason'),
+        sortable: false,
+        // minWidth: '150px',
+        cell: (row) => {
+          return (
+            <div
+              data-tag="allowRowEvents"
+              className="text-dark-75 m-0 text-maxline-5 d-flex align-items-center"
+            >
+              {t(
+                AppData.overdueKpiReasons.find((item) => item.value === row?.['overdue_kpi_reason'])
+                  ?.name
+              )}
+            </div>
+          );
+        },
+      },
+      {
+        id: 15,
+        name: t('Note'),
+        sortable: false,
+        // minWidth: '150px',
+        cell: (row) => {
+          return (
+            <div
+              data-tag="allowRowEvents"
+              className="text-dark-75 m-0 text-maxline-5 d-flex align-items-center"
+            >
+              {row?.note}
+            </div>
+          );
+        },
+      },
+      {
+        id: 16,
+        name: t('ResponsibleTypeDescription'),
+        sortable: false,
+        minWidth: '150px',
+        cell: (row) => {
+          return (
+            <div
+              data-tag="allowRowEvents"
+              className="text-dark-75 m-0 text-maxline-5 d-flex align-items-center"
+            >
+              {row?.responsible_type_description}
+            </div>
+          );
+        },
+      },
+      {
+        id: 17,
+        name: t('ReasonCausingError'),
+        sortable: false,
+        // minWidth: '120px',
+        cell: (row) => {
+          return (
+            <div
+              data-tag="allowRowEvents"
+              className="text-dark-75 m-0 text-maxline-5 d-flex align-items-center"
+            >
+              {row?.reason}
+            </div>
+          );
+        },
+      },
+      {
+        id: 18,
+        name: t('UnHandleReasonDescription'),
+        sortable: false,
+        // minWidth: '120px',
+        cell: (row) => {
+          return (
+            <div
+              data-tag="allowRowEvents"
+              className="text-dark-75 m-0 text-maxline-5 d-flex align-items-center"
+            >
+              {row?.unhandle_reason_description}
+            </div>
+          );
+        },
+      },
+      {
+        id: 19,
+        name: t('ErrorEquipmentCount'),
+        sortable: false,
+        // minWidth: '120px',
+        cell: (row) => {
+          return (
+            <div
+              data-tag="allowRowEvents"
+              className="text-dark-75 m-0 text-maxline-5 d-flex align-items-center"
+            >
+              {row?.price}
+            </div>
+          );
+        },
+      },
+      {
+        id: 20,
+        name: t('HandlingMeasures'),
+        sortable: false,
+        // minWidth: '120px',
+        cell: (row) => {
+          return (
+            <div
+              data-tag="allowRowEvents"
+              className="text-dark-75 m-0 text-maxline-5 d-flex align-items-center"
+            >
+              {t(
+                AppData.handlingMeasures.find((item) => item.value === row?.['handling_measures'])
+                  ?.name
+              )}
+            </div>
+          );
+        },
+      },
+      {
+        id: 21,
+        name: t('ProductStatus'),
+        sortable: false,
+        // minWidth: '120px',
+        cell: (row) => {
+          return (
+            <div
+              data-tag="allowRowEvents"
+              className="text-dark-75 m-0 text-maxline-5 d-flex align-items-center"
+            >
+              {t(
+                AppData.productStatus.find((item) => item.value === row?.['product_status'])?.name
+              )}
+            </div>
+          );
+        },
+      },
+      {
+        id: 22,
+        name: t('RepairPart'),
+        sortable: false,
+        // minWidth: '120px',
+        cell: (row) => {
+          return (
+            <div
+              data-tag="allowRowEvents"
+              className="text-dark-75 m-0 text-maxline-5 d-flex align-items-center"
+            >
+              {row?.repair_part}
+            </div>
+          );
+        },
+      },
+      {
+        id: 23,
+        name: t('Amount'),
+        sortable: false,
+        // minWidth: '120px',
+        cell: (row) => {
+          return (
+            <div
+              data-tag="allowRowEvents"
+              className="text-dark-75 m-0 text-maxline-5 d-flex align-items-center"
+            >
+              {row?.repair_part_count}
+            </div>
+          );
+        },
+      },
+      {
+        id: 24,
+        name: t('UnitCount'),
+        sortable: false,
+        // minWidth: '120px',
+        cell: (row) => {
+          return (
+            <div
+              data-tag="allowRowEvents"
+              className="text-dark-75 m-0 text-maxline-5 d-flex align-items-center"
+            >
+              {row?.unit}
+            </div>
+          );
+        },
+      },
+      {
+        id: 25,
+        name: t('CompletionTime'),
+        sortable: false,
+        minWidth: '150px',
+        cell: (row) => {
+          return (
+            <div
+              data-tag="allowRowEvents"
+              className="text-dark-75 m-0 text-maxline-5 d-flex align-items-center"
+            >
+              {row?.completion_time ? Utils.formatDateTime(row?.completion_time, 'YYYY-MM-DD') : ''}
+            </div>
+          );
+        },
+      },
+      {
+        id: 26,
+        name: t('HandlingTime'),
+        sortable: false,
+        // minWidth: '120px',
+        cell: (row) => {
+          return (
+            <p
+              data-tag="allowRowEvents"
+              className="text-dark-75 font-weight-normal m-0 text-maxline-5 mr-4"
+            >
+              {row?.handling_time}
+            </p>
+          );
+        },
+      },
+      {
+        id: 27,
+        name: t('ResponsibleHandlingUnit'),
+        sortable: false,
+        minWidth: '150px',
+        cell: (row) => {
+          return (
+            <p
+              data-tag="allowRowEvents"
+              className="text-dark-75 font-weight-normal m-0 text-maxline-5 mr-4"
+            >
+              {issueItem?.responsible_handling_unit}
+            </p>
+          );
+        },
+      },
+      {
+        id: 28,
+        name: t('ReportingPerson'),
+        sortable: false,
+        width: '120px',
+        cell: (row) => {
+          return (
+            <p
+              data-tag="allowRowEvents"
+              className="text-dark-75 font-weight-normal m-0 text-maxline-5 mr-4"
+            >
+              {issueItem?.reporting_person ?? ''}
+            </p>
+          );
+        },
+      },
+      {
+        id: 29,
+        name: t('RemainStatus'),
+        sortable: false,
+        width: '110px',
+        cell: (row) => {
+          return (
+            <p
+              data-tag="allowRowEvents"
+              className="text-dark-75 font-weight-normal m-0 text-maxline-5 mr-4"
+            >
+              {AppData.errorRemainStatus.find(
+                (item) => item.value === issueItem?.['remain_status']
+              )}
+            </p>
+          );
+        },
+      },
+      {
+        name: t('OverdueKpi'),
+        sortable: false,
+        // width: '150px',
+        cell: (row) => {
+          const data = [
+            { name: 'Yes', value: true },
+            { name: 'No', value: false },
+          ];
+          return (
+            <p
+              data-tag="allowRowEvents"
+              className="text-dark-75 font-weight-normal m-0 text-maxline-5 mr-4"
+            >
+              {t(data.find((item) => item.value === issueItem?.['overdue_kpi'])?.name)}
+            </p>
+          );
+        },
+      },
+      {
+        id: 30,
+        name: t('WarrantyStatus'),
+        sortable: false,
+
+        cell: (row) => {
+          const data = [
+            { name: 'UnderWarranty', value: 'UNDER' },
+            { name: 'OutOfWarranty', value: 'OVER' },
+          ];
+          return (
+            <p
+              data-tag="allowRowEvents"
+              className="text-dark-75 font-weight-normal m-0 text-maxline-5 mr-4"
+            >
+              {t(data.find((item) => item.value === issueItem?.['warranty_status']).name)}
+            </p>
+          );
+        },
+      },
+      {
+        id: 31,
+        name: t('SSCDImpact'),
+        sortable: false,
+
+        cell: (row) => {
+          const data = [
+            { name: 'Restriction', value: 'RESTRICTION' },
+            { name: 'Yes', value: 'YES' },
+            { name: 'No', value: 'No' },
+          ];
+          return (
+            <p
+              data-tag="allowRowEvents"
+              className="text-dark-75 font-weight-normal m-0 text-maxline-5 mr-4"
+            >
+              {t(data.find((item) => item.value === issueItem?.['impact'])?.name)}
+            </p>
+          );
+        },
+      },
+      {
+        id: 32,
+        name: t('StopFightingDays'),
+        sortable: false,
+
+        cell: (row) => {
+          const data = [
+            { name: 'Restriction', value: 'RESTRICTION' },
+            { name: 'Yes', value: 'YES' },
+            { name: 'No', value: 'No' },
+          ];
+          return (
+            <p
+              data-tag="allowRowEvents"
+              className="text-dark-75 font-weight-normal m-0 text-maxline-5 mr-4"
+            >
+              {row?.stop_fighting_days}
+            </p>
+          );
+        },
+      },
+      {
+        id: 33,
+        name: t('UnhandleReason'),
+        sortable: false,
+
+        cell: (row) => {
+          const data = [
+            { name: 'Restriction', value: 'RESTRICTION' },
+            { name: 'Yes', value: 'YES' },
+            { name: 'No', value: 'No' },
+          ];
+          return (
+            <p
+              data-tag="allowRowEvents"
+              className="text-dark-75 font-weight-normal m-0 text-maxline-5 mr-4"
+            >
+              {t(
+                AppData.errorUnhandleReason.find(
+                  (item) => item.value === issueItem?.['unhandle_reason']
+                )?.name
+              )}
+            </p>
+          );
+        },
+      },
+      {
+        id: 34,
+        name: t('MaterialStatus'),
+        sortable: false,
+
+        cell: (row) => {
+          const data = [
+            { name: 'Restriction', value: 'RESTRICTION' },
+            { name: 'Yes', value: 'YES' },
+            { name: 'No', value: 'No' },
+          ];
+          return (
+            <p
+              data-tag="allowRowEvents"
+              className="text-dark-75 font-weight-normal m-0 text-maxline-5 mr-4"
+            >
+              {row?.material_status}
+            </p>
+          );
+        },
+      },
+      {
+        id: 35,
+        name: t('HandlingPlan'),
+        sortable: false,
+        cell: (row) => {
+          const data = [
+            { name: 'Restriction', value: 'RESTRICTION' },
+            { name: 'Yes', value: 'YES' },
+            { name: 'No', value: 'No' },
+          ];
+          return (
+            <p
+              data-tag="allowRowEvents"
+              className="text-dark-75 font-weight-normal m-0 text-maxline-5 mr-4"
+            >
+              {row?.handling_plan}
+            </p>
+          );
+        },
+      },
+      {
+        id: 36,
+        name: t('Action'),
+        center: 'true',
+        width: '120px',
+        cell: (row) => (
+          <div className="d-flex align-items-center">
+            <KTTooltip text={t('Evaluate')}>
+              <a
+                className="btn btn-icon btn-sm btn-success btn-hover-success mr-2"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleEvaluateIssue(row);
+                }}
+              >
+                <i className="fa-regular fa-pen-to-square p-0 icon-1x" />
+              </a>
+            </KTTooltip>
+            <KTTooltip text={t('Edit')}>
+              <a
+                className="btn btn-icon btn-sm btn-primary btn-hover-primary "
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleEditIssue(row);
+                }}
+              >
+                <i className="fa-regular fa-pen p-0 icon-1x" />
+              </a>
+            </KTTooltip>
+
+            <KTTooltip text={t('Delete')}>
+              <a
+                className="btn btn-icon btn-sm btn-danger btn-hover-danger ml-2"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleDeleteIssue(row);
+                }}
+              >
+                <i className="far fa-trash p-0 icon-1x" />
+              </a>
+            </KTTooltip>
+          </div>
+        ),
+      },
+    ],
+    []
+  );
+
   const columns = useMemo(() => {
     const tableColumns = [
       {
         name: t('Status'),
         sortable: false,
-        // minWidth: '250px',
+        //
         cell: (row) => {
           return (
             <p
@@ -93,7 +801,6 @@ function IssueHomePage(props) {
       {
         name: t('Product'),
         sortable: false,
-        // minWidth: '150px',
         cell: (row) => {
           const pd = products.find((item) => item.id == row?.product_id);
           return (
@@ -109,33 +816,18 @@ function IssueHomePage(props) {
                   }
                 }}
               >
-                {`${pd?.name} ${pd?.serial ? '(' + pd?.serial + ')' : ''} / ${
-                  row?.componentPath || ''
+                {`${pd?.name} ${pd?.serial ? '(' + pd?.serial + ')' : ''}${
+                  row?.componentPath ? row?.componentPath + '/' : ''
                 }`}
               </a>
             </KTTooltip>
           );
         },
       },
-      // {
-      //   name: t('Component'),
-      //   sortable: false,
-      //   // minWidth: '150px',
-      //   cell: (row) => {
-      //     return (
-      //       <p
-      //         data-tag="allowRowEvents"
-      //         className="text-dark-75 font-weight-normal m-0 text-maxline-5 mr-4"
-      //       >
-      //         {components?.find((item) => item.id == row?.component_id)?.name}
-      //       </p>
-      //     );
-      //   },
-      // },
       {
         name: t('DescriptionByCustomer'),
         sortable: false,
-        // minWidth: '250px',
+        //
         cell: (row) => {
           return (
             <p
@@ -196,144 +888,6 @@ function IssueHomePage(props) {
           );
         },
       },
-      // {
-      //   name: t('KPI_h'),
-      //   sortable: false,
-      //   // minWidth: '120px',
-      //   right: true,
-      //   cell: (row) => {
-      //     return (
-      //       <div
-      //         data-tag="allowRowEvents"
-      //         className="text-dark-75 m-0 text-maxline-5 d-flex align-items-center"
-      //       >
-      //         {row?.kpi_h}
-      //       </div>
-      //     );
-      //   },
-      // },
-      // {
-      //   name: t('HandlingMeasures'),
-      //   sortable: false,
-      //   minWidth: '180px',
-      //   right: true,
-      //   cell: (row) => {
-      //     return (
-      //       <div
-      //         data-tag="allowRowEvents"
-      //         className="text-dark-75 m-0 text-maxline-5 d-flex align-items-center"
-      //       >
-      //         {row?.handling_measures}
-      //       </div>
-      //     );
-      //   },
-      // },
-      // {
-      //   name: t('RepairPart'),
-      //   sortable: false,
-      //   minWidth: '150px',
-      //   cell: (row) => {
-      //     return (
-      //       <div
-      //         data-tag="allowRowEvents"
-      //         className="text-dark-75 m-0 text-maxline-5 d-flex align-items-center"
-      //       >
-      //         {row?.repair_part}
-      //       </div>
-      //     );
-      //   },
-      // },
-      // {
-      //   name: t('Amount'),
-      //   sortable: false,
-      //   // minWidth: '150px',
-      //   cell: (row) => {
-      //     return (
-      //       <div
-      //         data-tag="allowRowEvents"
-      //         className="text-dark-75 m-0 text-maxline-5 d-flex align-items-center"
-      //       >
-      //         {row?.repair_part_count}
-      //       </div>
-      //     );
-      //   },
-      // },
-      // {
-      //   name: t('UnitCount'),
-      //   sortable: false,
-      //   // minWidth: '150px',
-      //   cell: (row) => {
-      //     return (
-      //       <div
-      //         data-tag="allowRowEvents"
-      //         className="text-dark-75 m-0 text-maxline-5 d-flex align-items-center"
-      //       >
-      //         {row?.unit}
-      //       </div>
-      //     );
-      //   },
-      // },
-      // {
-      //   name: t('Project'),
-      //   sortable: false,
-      //   // minWidth: '150px',
-      //   cell: (row) => {
-      //     return (
-      //       <div
-      //         data-tag="allowRowEvents"
-      //         className="text-dark-75 m-0 text-maxline-5 d-flex align-items-center"
-      //       >
-      //         {projects.find((item) => item.id == row?.project_id)?.id}
-      //       </div>
-      //     );
-      //   },
-      // },
-
-      // {
-      //   name: t('S/N'),
-      //   sortable: false,
-      //   // minWidth: '150px',
-      //   cell: (row) => {
-      //     return (
-      //       <div
-      //         data-tag="allowRowEvents"
-      //         className="text-dark-75 m-0 text-maxline-5 d-flex align-items-center"
-      //       >
-      //         {customers.find((item) => item.id == row?.customer_id)?.code_number}
-      //       </div>
-      //     );
-      //   },
-      // },
-      // {
-      //   name: t('EquipmentStatus'),
-      //   sortable: false,
-      //   minWidth: '150px',
-      //   cell: (row) => {
-      //     return (
-      //       <div
-      //         data-tag="allowRowEvents"
-      //         className="text-dark-75 m-0 text-maxline-5 d-flex align-items-center"
-      //       >
-      //         {row?.product_status}
-      //       </div>
-      //     );
-      //   },
-      // },
-      // {
-      //   name: t('ExpDate'),
-      //   sortable: false,
-      //   // minWidth: '120px',
-      //   cell: (row) => {
-      //     return (
-      //       <div
-      //         data-tag="allowRowEvents"
-      //         className="text-dark-75 m-0 text-maxline-5 d-flex align-items-center"
-      //       >
-      //         {row?.exp_date ? Utils.formatDateTime(row?.exp_date, 'YYYY-MM-DD') : ''}
-      //       </div>
-      //     );
-      //   },
-      // },
       {
         name: t('ReceptionTime'),
         sortable: false,
@@ -349,151 +903,6 @@ function IssueHomePage(props) {
           );
         },
       },
-      // {
-      //   name: t('CompletionTime'),
-      //   sortable: false,
-      //   // minWidth: '120px',
-      //   cell: (row) => {
-      //     return (
-      //       <div
-      //         data-tag="allowRowEvents"
-      //         className="text-dark-75 m-0 text-maxline-5 d-flex align-items-center"
-      //       >
-      //         {row?.completion_time ? Utils.formatDateTime(row?.completion_time, 'YYYY-MM-DD') : ''}
-      //       </div>
-      //     );
-      //   },
-      // },
-      // {
-      //   name: t('HandlingTime'),
-      //   sortable: false,
-      //   // minWidth: '120px',
-      //   cell: (row) => {
-      //     return (
-      //       <div
-      //         data-tag="allowRowEvents"
-      //         className="text-dark-75 m-0 text-maxline-5 d-flex align-items-center"
-      //       >
-      //         {row?.handling_time}
-      //       </div>
-      //     );
-      //   },
-      // },
-      // {
-      //   name: t('ResponsibleHandlingUnit'),
-      //   sortable: false,
-      //   // minWidth: '120px',
-      //   cell: (row) => {
-      //     return (
-      //       <div
-      //         data-tag="allowRowEvents"
-      //         className="text-dark-75 m-0 text-maxline-5 d-flex align-items-center"
-      //       >
-      //         {row?.responsible_handling_unit}
-      //       </div>
-      //     );
-      //   },
-      // },
-      // {
-      //   name: t('ReportingPerson'),
-      //   sortable: false,
-      //   // minWidth: '120px',
-      //   cell: (row) => {
-      //     return (
-      //       <div
-      //         data-tag="allowRowEvents"
-      //         className="text-dark-75 m-0 text-maxline-5 d-flex align-items-center"
-      //       >
-      //         {row?.reporting_person}
-      //       </div>
-      //     );
-      //   },
-      // },
-      // {
-      //   name: t('RemainStatus'),
-      //   sortable: false,
-      //   // minWidth: '120px',
-      //   cell: (row) => {
-      //     return (
-      //       <div
-      //         data-tag="allowRowEvents"
-      //         className="text-dark-75 m-0 text-maxline-5 d-flex align-items-center"
-      //       >
-      //         {t(
-      //           AppData.errorRemainStatus.find((item) => item.value === row?.['remain_status'])
-      //             ?.name
-      //         )}
-      //       </div>
-      //     );
-      //   },
-      // },
-      // {
-      //   name: t('OverdueKpi'),
-      //   sortable: false,
-      //   // minWidth: '120px',
-      //   cell: (row) => {
-      //     return (
-      //       <div
-      //         data-tag="allowRowEvents"
-      //         className="text-dark-75 m-0 text-maxline-5 d-flex align-items-center"
-      //       >
-      //         {t(_.capitalize(row?.overdue_kpi ? 'Yes' : 'No'))}
-      //       </div>
-      //     );
-      //   },
-      // },
-      // {
-      //   name: t('WarrantyStatus'),
-      //   sortable: false,
-      //   // minWidth: '120px',
-      //   cell: (row) => {
-      //     return (
-      //       <div
-      //         data-tag="allowRowEvents"
-      //         className="text-dark-75 m-0 text-maxline-5 d-flex align-items-center"
-      //       >
-      //         {t(
-      //           row?.warranty_status === 'UNDER'
-      //             ? 'UnderWarranty'
-      //             : row?.warranty_status === 'OVER'
-      //             ? 'OutOfWarranty'
-      //             : ''
-      //         )}
-      //       </div>
-      //     );
-      //   },
-      // },
-      // {
-      //   name: t('OverdueKpiReason'),
-      //   sortable: false,
-      //   minWidth: '150px',
-      //   cell: (row) => {
-      //     return (
-      //       <div
-      //         data-tag="allowRowEvents"
-      //         className="text-dark-75 m-0 text-maxline-5 d-flex align-items-center"
-      //       >
-      //         {row?.overdue_kpi_reason}
-      //       </div>
-      //     );
-      //   },
-      // },
-
-      // {
-      //   name: t('SSCDImpact'),
-      //   sortable: false,
-      //   // minWidth: '120px',
-      //   cell: (row) => {
-      //     return (
-      //       <p
-      //         data-tag="allowRowEvents"
-      //         className="text-dark-75 font-weight-normal m-0 text-maxline-5 mr-4"
-      //       >
-      //         {t(`${_.capitalize(row?.impact)}`)}
-      //       </p>
-      //     );
-      //   },
-      // },
       {
         name: t('StopFighting'),
         sortable: false,
@@ -509,99 +918,6 @@ function IssueHomePage(props) {
           );
         },
       },
-      // {
-      //   name: t('UnhandleReason'),
-      //   sortable: false,
-      //   minWidth: '150px',
-      //   cell: (row) => {
-      //     return (
-      //       <p
-      //         data-tag="allowRowEvents"
-      //         className="text-dark-75 font-weight-normal m-0 text-maxline-5 mr-4"
-      //       >
-      //         {t(
-      //           AppData.errorUnhandleReason.find((item) => item.value == row?.unhandle_reason)?.name
-      //         )}
-      //       </p>
-      //     );
-      //   },
-      // },
-      // {
-      //   name: t('LetterSendVmc'),
-      //   sortable: false,
-      //   width: '120px',
-      //   cell: (row) => {
-      //     return (
-      //       <p
-      //         data-tag="allowRowEvents"
-      //         className="text-dark-75 font-weight-normal m-0 text-maxline-5 mr-4"
-      //       >
-      //         {row?.letter_send_vmc}
-      //       </p>
-      //     );
-      //   },
-      // },
-      // {
-      //   name: t('Date'),
-      //   sortable: false,
-      //   width: '110px',
-      //   cell: (row) => {
-      //     return (
-      //       <p
-      //         data-tag="allowRowEvents"
-      //         className="text-dark-75 font-weight-normal m-0 text-maxline-5 mr-4"
-      //       >
-      //         {row?.date ? Utils.formatDateTime(row?.date, 'YYYY-MM-DD') : ''}
-      //       </p>
-      //     );
-      //   },
-      // },
-      // {
-      //   name: t('MaterialStatus'),
-      //   sortable: false,
-      //   // width: '150px',
-      //   cell: (row) => {
-      //     return (
-      //       <p
-      //         data-tag="allowRowEvents"
-      //         className="text-dark-75 font-weight-normal m-0 text-maxline-5 mr-4"
-      //       >
-      //         {row?.material_status}
-      //       </p>
-      //     );
-      //   },
-      // },
-      // {
-      //   name: t('HandlingPlan'),
-      //   sortable: false,
-      //   minWidth: '250px',
-      //   cell: (row) => {
-      //     return (
-      //       <p
-      //         data-tag="allowRowEvents"
-      //         className="text-dark-75 font-weight-normal m-0 text-maxline-5 mr-4"
-      //       >
-      //         {row?.handling_plan}
-      //       </p>
-      //     );
-      //   },
-      // },
-      // {
-      //   name: t('ErrorAlert'),
-      //   sortable: false,
-      //   minWidth: '250px',
-      //   cell: (row) => {
-      //     return (
-      //       <p
-      //         data-tag="allowRowEvents"
-      //         className="text-dark-75 font-weight-normal m-0 text-maxline-5 mr-4"
-      //       >
-      //         {row?.error_alert}
-      //       </p>
-      //     );
-      //   },
-      // },
-
       {
         name: t('Action'),
         center: 'true',
@@ -843,7 +1159,7 @@ function IssueHomePage(props) {
 
       <div className="card card-custom border">
         {/* card header */}
-        <div className="card-header border-0 pt-6 pb-6">
+        <div className="flex-md-row d-md-flex card-header border-0 pt-6 pb-6">
           {/* header toolbar */}
           <div className="d-flex flex-wrap gap-2">
             {/* <KeenSearchBarNoFormik
@@ -928,7 +1244,7 @@ function IssueHomePage(props) {
             {!!productId || !!componentId ? null : (
               <div className="d-flex flex-wrap align-items-center">
                 <label className="mr-2 mb-0" htmlFor="product">
-                  {_.capitalize(t('Equipment'))}
+                  {_.capitalize(t('Product'))}
                 </label>
                 <KTFormSelect
                   name="product"
@@ -1136,6 +1452,12 @@ function IssueHomePage(props) {
                 <i className="fa-regular fa-file-arrow-up"></i>
                 {t('Upload')}
               </button> */}
+              <AppSelectField
+                fields={fullColumns}
+                defaultColumns={fullColumns.filter((item) =>
+                  [1, 2, 3, 4, 5, 6, 7, 8, 36].includes(item)
+                )}
+              />
               <a
                 href="#"
                 onClick={(e) => {

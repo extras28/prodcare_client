@@ -279,7 +279,7 @@ function ModalEditIssue({
         handlingTime: issueItem?.handling_time?.toString() || '',
         note: issueItem?.note || '',
         responsibleTypeDescription: issueItem?.responsible_type_description || '',
-        unhandleReasonDescription: issueItem?.unhandle_reason_description || '',
+        unHandleReasonDescription: issueItem?.unhandle_reason_description || '',
         price: issueItem?.price || '',
         unitPrice: issueItem?.unit_price || '',
         reason: issueItem?.reason || '',
@@ -434,12 +434,12 @@ function ModalEditIssue({
                   />
                 </div>
 
-                {/* Equipment */}
+                {/* Product */}
                 <div className="col-lg-4 col-md-6">
                   <KTFormGroup
                     label={
                       <>
-                        {t('Equipment')} <span className="text-danger">*</span>
+                        {t('Product')} <span className="text-danger">*</span>
                       </>
                     }
                     inputName="productId"
@@ -469,7 +469,7 @@ function ModalEditIssue({
                                 const nextProd = products.find((item) => item.id == newValue);
                                 return {
                                   ...prev,
-                                  [`${t('Equipment')}`]: `${prevProd?.['name']} ${
+                                  [`${t('Product')}`]: `${prevProd?.['name']} ${
                                     prevProd?.serial ? '(' + prevProd?.serial + ')' : ''
                                   } -> ${nextProd?.['name']} ${
                                     nextProd?.serial ? '(' + nextProd?.serial + ')' : ''
@@ -1114,7 +1114,7 @@ function ModalEditIssue({
                   />
                 </div>
 
-                {/* ReasonCausingError */}
+                {/* ReasonDescription */}
                 {formikProps.getFieldProps('reasonType').value === 'NEW' ? (
                   <div className="col-4">
                     <KTFormGroup
@@ -1152,13 +1152,13 @@ function ModalEditIssue({
                   </div>
                 ) : null}
 
-                {/* UnhandleReasonDescription */}
+                {/* UnHandleReasonDescription */}
                 <div className="col-lg-4 col-md-6">
                   <KTFormGroup
-                    label={<>{t('UnhandleReasonDescription')}</>}
-                    inputName="unhandleReasonDescription"
+                    label={<>{t('UnHandleReasonDescription')}</>}
+                    inputName="unHandleReasonDescription"
                     inputElement={
-                      <FastField name="unhandleReasonDescription">
+                      <FastField name="unHandleReasonDescription">
                         {({ field, form, meta }) => (
                           <KTFormTextArea
                             {...field}
@@ -1167,7 +1167,7 @@ function ModalEditIssue({
                               setChangeObj((prev) => {
                                 return {
                                   ...prev,
-                                  [`${t('UnhandleReasonDescription')}`]: `${
+                                  [`${t('UnHandleReasonDescription')}`]: `${
                                     issueItem?.unhandle_reason_description ?? ''
                                   } -> ${value}`,
                                 };
@@ -1178,7 +1178,7 @@ function ModalEditIssue({
                             isValid={_.isEmpty(meta.error)}
                             isTouched={meta.touched}
                             feedbackText={meta.error}
-                            placeholder={`${_.capitalize(t('UnhandleReasonDescription'))}...`}
+                            placeholder={`${_.capitalize(t('UnHandleReasonDescription'))}...`}
                             type={KTFormInputType.text}
                             disabled={current?.role === 'GUEST'}
                           />

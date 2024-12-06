@@ -5,6 +5,7 @@ import {
   thunkGetAllProject,
   thunkGetAllReason,
   thunkGetAllUser,
+  thunkGetCurrentColumn,
 } from 'app/appSlice';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -40,6 +41,7 @@ function DataCommonListener(props) {
     if (!_.isEmpty(currentUser) && AccountHelper.checkAccessTokenValid()) {
       dispatch(thunkGetAllCustomer());
       dispatch(thunkGetAllUser());
+      dispatch(thunkGetCurrentColumn());
     }
   }, [currentUser]);
 

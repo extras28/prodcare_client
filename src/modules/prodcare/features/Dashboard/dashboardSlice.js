@@ -45,10 +45,10 @@ const dashboardSlice = createSlice({
     });
     builder.addCase(thunkGetYearReport.fulfilled, (state, action) => {
       state.isGetttingYearReport = false;
-      const { result, project, issueCounts, cummulative, issueInYears, cummulativeIssues } =
+      const { result, project, issueCounts, cumulative, issueInYears, cumulativeIssues } =
         action.payload;
       if (result === 'success') {
-        state.year = { project, issueCounts, cummulative, issueInYears, cummulativeIssues };
+        state.year = { project, issueCounts, cumulative, issueInYears, cumulativeIssues };
       }
     });
 
@@ -65,7 +65,7 @@ const dashboardSlice = createSlice({
         project,
         issueCount,
         remain,
-        cummulative,
+        cumulative,
         totalHandledInMonth,
         warranty,
         averageTimeError,
@@ -75,7 +75,7 @@ const dashboardSlice = createSlice({
           project,
           issueCount,
           remain,
-          cummulative,
+          cumulative,
           totalHandledInMonth,
           warranty,
           averageTimeError,
@@ -96,7 +96,7 @@ const dashboardSlice = createSlice({
         project,
         issueCount,
         remain,
-        cummulative,
+        cumulative,
         totalHandledInQuarter,
         warranty,
         averageTimeError,
@@ -107,7 +107,7 @@ const dashboardSlice = createSlice({
           project,
           issueCount,
           remain,
-          cummulative,
+          cumulative,
           totalHandledInQuarter,
           warranty,
           averageTimeError,

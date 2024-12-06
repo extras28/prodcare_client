@@ -41,11 +41,11 @@ function MonthReportTable(props) {
         remainCount: month?.remain?.count,
         remainHandleInMonth: month?.remain?.handleInMonth,
         remainTotalProcessedIssue: month?.remain?.totalProcessedIssue,
-        cummulativeIssues: month?.cummulative?.cummulativeIssues,
+        cumulativeIssues: month?.cumulative?.cumulativeIssues,
 
-        processedIssuesCount: month?.cummulative?.processedIssuesCount,
-        impactReadyFightingIssue: month?.cummulative?.impactReadyFightingIssue,
-        stopFightingIssues: month?.cummulative?.stopFightingIssues,
+        processedIssuesCount: month?.cumulative?.processedIssuesCount,
+        impactReadyFightingIssue: month?.cumulative?.impactReadyFightingIssue,
+        stopFightingIssues: month?.cumulative?.stopFightingIssues,
         totalHandledInMonth: month?.totalHandledInMonth,
         notReadyFightingWarrantyTime: Utils.formatNumber(
           month?.warranty?.notReadyFightingWarrantyTime
@@ -100,7 +100,7 @@ function MonthReportTable(props) {
         t('Remain'),
         '',
         '',
-        t('Cummulative'),
+        t('Cumulative'),
         '',
         '',
         '',
@@ -166,10 +166,10 @@ function MonthReportTable(props) {
         month?.remain?.count,
         month?.remain?.handleInMonth,
         month?.remain?.totalProcessedIssue,
-        month?.cummulative?.cummulativeIssues,
-        month?.cummulative?.processedIssuesCount,
-        month?.cummulative?.impactReadyFightingIssue,
-        month?.cummulative?.stopFightingIssues,
+        month?.cumulative?.cumulativeIssues,
+        month?.cumulative?.processedIssuesCount,
+        month?.cumulative?.impactReadyFightingIssue,
+        month?.cumulative?.stopFightingIssues,
         month?.totalHandledInMonth,
         Utils.formatNumber(month?.warranty?.notReadyFightingWarrantyTime),
         Utils.formatNumber(month?.warranty?.allErrorWarrantyTime),
@@ -231,7 +231,7 @@ function MonthReportTable(props) {
           t('CurrentOperatingQuantity'),
           t('MonthlyError'),
           t('Remain'),
-          t('Cummulative'),
+          t('Cumulative'),
           t('TotalHandledThisMonth'),
           t('MonthlyKPIEvaluation'),
           t('AverageFailureOccurrenceTime'),
@@ -365,11 +365,11 @@ function MonthReportTable(props) {
                 key="remainTotalProcessedIssue"
               />
             </ColumnGroup>
-            <ColumnGroup title={t('Cummulative')}>
+            <ColumnGroup title={t('Cumulative')}>
               <Column
                 title={t('CumulativeRemain')}
-                dataIndex="cummulativeIssues"
-                key="cummulativeIssues"
+                dataIndex="cumulativeIssues"
+                key="cumulativeIssues"
               />
               <Column
                 title={t('Handled')}

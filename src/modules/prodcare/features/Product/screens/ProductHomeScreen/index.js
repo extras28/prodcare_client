@@ -153,13 +153,18 @@ function ProductHomePage(props) {
         <Column
           style={{ width: '100px' }}
           body={(row) => {
-            const breakdown = row?.data?.issues?.length > 0 ? true : false;
+            const issues = row?.data?.issues;
+
+            const breakdown =
+              issues?.length > 0 && issues?.every((item) => item?.status !== 'PROCESSED')
+                ? true
+                : false;
             return (
               <span
                 data-tag="allowRowEvents"
                 className={`badge badge-${breakdown ? 'danger' : 'success'}`}
               >
-                {row?.data?.issues?.length > 0 ? t('Broken') : t('Active')}
+                {breakdown ? t('HaveErrors') : t('Active')}
               </span>
             );
           }}
@@ -482,7 +487,6 @@ function ProductHomePage(props) {
               />
             </div>
             <div className="d-flex flex-wrap align-items-center">
-              {' '}
               <label className="mr-2 mb-0" htmlFor="handedOverTime">
                 {_.capitalize(t('HandedOverTime'))}
               </label>

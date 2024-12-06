@@ -56,7 +56,8 @@ const Global = {
 
   gNeedToRefreshStatisticByYear: false,
   gFiltersStatisticByYear: {
-    year: moment().year(),
+    startTime: moment().startOf('month').format('YYYY-MM-DD'),
+    endTime: moment().format('YYYY-MM-DD'),
     projectId: JSON.parse(localStorage.getItem(PreferenceKeys.currentProject))?.id,
   },
 

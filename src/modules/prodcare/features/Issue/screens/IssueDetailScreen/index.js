@@ -82,7 +82,7 @@ function IssueDetailScreen(props) {
         value: issueDetail?.reason ?? '',
       },
       {
-        label: t('UnhandleReasonDescription'),
+        label: t('UnHandleReasonDescription'),
         value: issueDetail?.unhandle_reason_description ?? '',
       },
       {
@@ -138,9 +138,7 @@ function IssueDetailScreen(props) {
       },
       {
         label: t('HandlingTime'),
-        value: issueDetail?.handling_time
-          ? Utils.formatDateTime(issueDetail?.handling_time, 'YYYY-MM-DD')
-          : '',
+        value: issueDetail?.handling_time ? Utils.formatNumber(issueDetail?.handling_time) : '',
       },
       {
         label: t('ResponsibleHandlingUnit'),

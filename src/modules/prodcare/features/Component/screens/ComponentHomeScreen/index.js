@@ -91,7 +91,7 @@ function ComponentHomePage(props) {
         },
       },
       {
-        name: t('Equipment'),
+        name: t('Product'),
         sortable: false,
         cell: (row) => {
           const pd = products.find((item) => item.id == row.product_id);
@@ -340,7 +340,7 @@ function ComponentHomePage(props) {
             />
             <div className="d-flex flex-wrap align-items-center">
               <label className="mr-2 mb-0" htmlFor="product">
-                {_.capitalize(t('Equipment'))}
+                {_.capitalize(t('Product'))}
               </label>
               <KTFormSelect
                 name="product"

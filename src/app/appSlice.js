@@ -1,4 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { accountApi } from 'api/accountApi';
 import componentApi from 'api/componentApi';
 import customerApi from 'api/customerApi';
 import issueApi from 'api/issueApi';
@@ -38,6 +39,14 @@ export const thunkGetAllUser = createAsyncThunk('app/user', async (params, thunk
   return res;
 });
 
+export const thunkGetCurrentColumn = createAsyncThunk(
+  'app/current-column',
+  async (params, thunkApi) => {
+    const res = await accountApi.getIssueColumns(params);
+    return res;
+  }
+);
+
 export const appSlice = createSlice({
   name: 'app',
   initialState: {
@@ -49,6 +58,7 @@ export const appSlice = createSlice({
     components: [],
     reasons: [],
     users: [],
+    currentColumns: {},
   },
   reducers: {
     setEnvironment: (state, action) => {
@@ -112,6 +122,13 @@ export const appSlice = createSlice({
       const { result, users } = action.payload;
       if (result === 'success') {
         state.users = users;
+      }
+    });
+
+    builder.addCase(thunkGetCurrentColumn.fulfilled, (state, action) => {
+      const { result, showingColumn } = action.payload;
+      if (result === 'success') {
+        state.currentColumns = showingColumn;
       }
     });
   },

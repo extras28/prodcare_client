@@ -6,7 +6,7 @@ import DateRangePicker from 'react-bootstrap-daterangepicker';
 import { useTranslation } from 'react-i18next';
 import Utils from 'shared/utils/Utils';
 import './style.scss';
-import $ from 'jquery';
+import $, { isEmptyObject } from 'jquery';
 
 function DateRangePickerInput({
   format = 'YYYY-MM-DD',
@@ -16,7 +16,7 @@ function DateRangePickerInput({
   initialLabel = 'All',
   initialStartDate = null,
   initialEndDate = null,
-  listMarkDays = [], // add listMarkDays prop
+  customRanges = {},
 }) {
   const dateRangePickerInput = useRef(null);
   const { t } = useTranslation();
@@ -35,8 +35,8 @@ function DateRangePickerInput({
     setRange(rangeLabel);
     dateRange = {
       label: label,
-      startDate: label === t('All') ? '' : Utils.formatDateTime(start._d, 'YYYY-MM-DD'),
-      endDate: label === t('All') ? '' : Utils.formatDateTime(end._d, 'YYYY-MM-DD'),
+      startDate: label === t('All') ? '' : moment(start._d).format('YYYY-MM-DD'),
+      endDate: label === t('All') ? '' : moment(end._d).format('YYYY-MM-DD'),
     };
 
     if (getDateRange) {
@@ -44,33 +44,7 @@ function DateRangePickerInput({
     }
   }
 
-  function handleShowCalendar(event, picker) {
-    // setTimeout(() => {
-    //   // Get the month and year for the left and right calendars
-    //   const leftMonthYearText = $('.drp-calendar.left .month').text().trim();
-    //   const rightMonthYearText = $('.drp-calendar.right .month').text().trim();
-    //   const leftMonth = moment(leftMonthYearText, 'MMM YYYY').month(); // e.g., November => 10
-    //   const leftYear = moment(leftMonthYearText, 'MMM YYYY').year();
-    //   const rightMonth = moment(rightMonthYearText, 'MMM YYYY').month();
-    //   const rightYear = moment(rightMonthYearText, 'MMM YYYY').year();
-    //   // Iterate over each day cell in both calendars
-    //   $('.drp-calendar td').each(function () {
-    //     const day = $(this).text().trim();
-    //     // Determine the month and year based on which calendar we're in (left or right)
-    //     const isLeftCalendar = $(this).closest('.drp-calendar').hasClass('left');
-    //     const month = isLeftCalendar ? leftMonth : rightMonth;
-    //     const year = isLeftCalendar ? leftYear : rightYear;
-    //     // Construct the full date in 'YYYY-MM-DD' format
-    //     const date = moment({ year, month, day }).format('YYYY-MM-DD');
-    //     // Check if this date is in the listMarkDays array
-    //     if (listMarkDays.includes(date)) {
-    //       $(this).addClass('mark-day');
-    //     } else {
-    //       $(this).removeClass('mark-day');
-    //     }
-    //   });
-    // }, 10);
-  }
+  function handleShowCalendar(event, picker) {}
 
   useEffect(() => {
     if (showingRange) {
@@ -95,8 +69,8 @@ function DateRangePickerInput({
         ref={dateRangePickerInput}
         onCallback={handleCallback}
         initialSettings={{
-          startDate: initialStartDate ?? moment(),
-          endDate: initialEndDate ?? moment(),
+          startDate: initialStartDate ? initialStartDate : moment(),
+          endDate: initialEndDate ? initialEndDate : moment(),
           alwaysShowCalendars: true,
           opens: 'left',
           locale: {
@@ -105,17 +79,19 @@ function DateRangePickerInput({
             applyLabel: t('Apply'),
             customRangeLabel: t('Customize'),
           },
-          ranges: {
-            [t('All')]: [moment(), moment()],
-            [t('ThisWeek')]: [moment().startOf('week').add(1, 'days'), moment()],
-            [t('Last7Days')]: [moment().subtract(6, 'days'), moment()],
-            [t('Last30Days')]: [moment().subtract(29, 'days'), moment()],
-            [t('LastMonth')]: [
-              moment().subtract(1, 'month').startOf('month'),
-              moment().subtract(1, 'month').endOf('month'),
-            ],
-            [t('ThisMonth')]: [moment().startOf('month'), moment()],
-          },
+          ranges: !isEmptyObject(customRanges)
+            ? customRanges
+            : {
+                [t('All')]: [moment(), moment()],
+                [t('ThisWeek')]: [moment().startOf('week').add(1, 'days'), moment()],
+                [t('Last7Days')]: [moment().subtract(6, 'days'), moment()],
+                [t('Last30Days')]: [moment().subtract(29, 'days'), moment()],
+                [t('LastMonth')]: [
+                  moment().subtract(1, 'month').startOf('month'),
+                  moment().subtract(1, 'month').endOf('month'),
+                ],
+                [t('ThisMonth')]: [moment().startOf('month'), moment()],
+              },
         }}
       >
         <input
@@ -139,7 +115,7 @@ DateRangePickerInput.propTypes = {
   initialLabel: PropTypes.string,
   initialStartDate: PropTypes.object,
   initialEndDate: PropTypes.object,
-  listMarkDays: PropTypes.arrayOf(PropTypes.string), // declare prop type
+  customRanges: PropTypes.object,
 };
 
 export default DateRangePickerInput;

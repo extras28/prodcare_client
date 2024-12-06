@@ -17,6 +17,7 @@ import Utils from 'shared/utils/Utils';
 import { thunkGetYearReport } from '../../dashboardSlice';
 import _ from 'lodash';
 import AppData from 'shared/constants/AppData';
+import DateRangePickerInput from 'shared/components/AppDateRangePicker';
 const { Column, ColumnGroup } = Table;
 
 YearReportTable.propTypes = {};
@@ -27,7 +28,8 @@ function YearReportTable(props) {
   const dispatch = useDispatch();
   const [filters, setFilters] = useState({
     ...Global.gFiltersStatisticByYear,
-    year: moment().year(),
+    startTime: moment().startOf('month').format('YYYY-MM-DD'),
+    endTime: moment().format('YYYY-MM-DD'),
     projectId: JSON.parse(localStorage.getItem(PreferenceKeys.currentProject))?.id,
   });
   const { year, isGettingYearReport } = useSelector((state) => state?.dashboard);
@@ -48,16 +50,16 @@ function YearReportTable(props) {
         processedIssuesInYear: year?.issueCounts?.processedIssuesInYear,
         receptionIssuesPercent: `${
           year?.issueCounts?.['%'] ? Utils.formatNumber(year?.issueCounts?.['%']) : 0
-        } %`,
+        }%`,
         remainIssuesThisYear: year?.issueCounts?.remainIssues,
-        cummulativeIssues: year?.cummulative?.cummulativeIssues,
-        processedIssues: year?.cummulative?.processedIssues,
-        processedIssuesInPrevYear: year?.cummulative?.processedIssuesInPrevYear,
-        needToProcessInPrevYear: year?.cummulative?.needToProcessInPrevYear,
-        cummulativeIssuesPercent: year?.cummulative?.['%']
-          ? Utils.formatNumber(year?.cummulative?.['%'])
-          : 0,
-        remainIssues: year?.cummulative?.remainIssues,
+        cumulativeIssues: year?.cumulative?.cumulativeIssues,
+        processedIssues: year?.cumulative?.processedIssues,
+        processedIssuesInPrevYear: year?.cumulative?.processedIssuesInPrevYear,
+        needToProcessInPrevYear: year?.cumulative?.needToProcessInPrevYear,
+        cumulativeIssuesPercent: `${
+          year?.cumulative?.['%'] ? Utils.formatNumber(year?.cumulative?.['%']) : 0
+        }%`,
+        remainIssues: year?.cumulative?.remainIssues,
         warrantyForImpactFightingIssue: year?.issueCounts?.warrantyForImpactFightingIssue
           ? Utils.formatNumber(year?.issueCounts?.warrantyForImpactFightingIssue)
           : 0,
@@ -85,9 +87,14 @@ function YearReportTable(props) {
     });
 
     // Add title spanning from A1 to U2 with yellow background
-    worksheet1.mergeCells('A1:S2');
+    worksheet1.mergeCells('A1:Q2');
     const titleCell1 = worksheet1.getCell('A1');
-    titleCell1.value = `BÁO CÁO CÔNG TÁC ĐẢM BẢO KỸ THUẬT SẢN PHẨM ${year?.project?.project_name} NĂM ${filters.year}`;
+    titleCell1.value = `BÁO CÁO CÔNG TÁC ĐẢM BẢO KỸ THUẬT SẢN PHẨM ${
+      year?.project?.project_name
+    } (${Utils.formatDateTime(filters?.startTime, 'YYYY-MM-DD')} - ${Utils.formatDateTime(
+      filters?.endTime,
+      'YYYY-MM-DD'
+    )})`;
     titleCell1.font = { name: 'Times New Roman', size: 14, bold: true };
     titleCell1.alignment = { vertical: 'middle', horizontal: 'center' };
     titleCell1.fill = {
@@ -110,37 +117,45 @@ function YearReportTable(props) {
         '',
         '',
         '',
-        t('CummulativeErrorsUpToTheEndOfYear', { year: filters?.year - 1 }),
+        t('CumulativeErrorsUpToTheEndOfTime', {
+          time: moment(filters?.startTime).subtract(1, 'day').format('YYYY-MM-DD'),
+        }),
         '',
         '',
         '',
-        '',
-        '',
-        t('AverageWarrantyTime'),
+        t('AverageWarrantyTime', {
+          range: `${moment(filters?.startTime).format('YYYY-MM-DD')}->${moment(
+            filters?.endTime
+          ).format('YYYY-MM-DD')}`,
+        }),
         '',
       ],
       [
         '',
         '',
-        t('RecevedInYear'),
+        t('ReceivedInYear'),
         t('CriticalError'),
         t('ModerateError'),
         t('MinorError'),
         t('StopFightingError'),
         t('NotReadyForFightingError'),
         t('ErrorsProcessedDuringTheYear'),
-        t('HandledReateInYear'),
+        t('ProcessedRate'),
         t('UnprocessedErrorsForNextYear'),
-        t('CummulativeErrorsReceivedUpToTheEndOfYear', { year: filters?.year - 1 }),
-        t('TheTotalNumberOfErrorsProcessedByTheEndOfYear', {
-          year: filters?.year - 1,
+        t('CumulativeErrorsReceivedUpToTheEndOfTime', {
+          time: moment(filters?.startTime).subtract(1, 'day').format('YYYY-MM-DD'),
         }),
-        t('TheTotalErrorsProcessedInTheYear'),
-        t('TheTotalErrorsToBeProcessedInTheYear'),
-        t('HandledReateInYear'),
-        t('IssuesCarriedOverToYear', { year: filters?.year }),
-        t('NotReadyFightingError'),
-        t('AllError'),
+        t('TheTotalNumberOfErrorsProcessedByTheEndOfTime', {
+          time: moment(filters?.startTime).subtract(1, 'day').format('YYYY-MM-DD'),
+        }),
+        // t('TheTotalErrorsProcessedInTheYear'),
+        // t('TheTotalErrorsToBeProcessedUpToTime'),
+        t('HandledRateUpToTime', {
+          time: moment(filters?.startTime).subtract(1, 'day').format('YYYY-MM-DD'),
+        }),
+        t('Remain'),
+        `${t('NotReadyFightingError')} (${t('Hour')})`,
+        `${t('AllError')} (${t('Hour')})`,
       ],
       [
         year?.project?.project_name,
@@ -152,14 +167,14 @@ function YearReportTable(props) {
         year?.issueCounts?.stopFightingIssues,
         year?.issueCounts?.impactReadyFightingIssue,
         year?.issueCounts?.processedIssuesInYear,
-        `${year?.issueCounts?.['%'] ? Utils.formatNumber(year?.issueCounts?.['%']) : 0} %`,
+        `${year?.issueCounts?.['%'] ? Utils.formatNumber(year?.issueCounts?.['%']) : 0}%`,
         year?.issueCounts?.remainIssues,
-        year?.cummulative?.cummulativeIssues,
-        year?.cummulative?.processedIssues,
-        year?.cummulative?.processedIssuesInPrevYear,
-        year?.cummulative?.needToProcessInPrevYear,
-        year?.cummulative?.['%'] ? Utils.formatNumber(year?.cummulative?.['%']) : 0,
-        year?.cummulative?.remainIssues,
+        year?.cumulative?.cumulativeIssues,
+        year?.cumulative?.processedIssues,
+        // year?.cumulative?.processedIssuesInPrevYear,
+        // year?.cumulative?.needToProcessInPrevYear,
+        `${year?.cumulative?.['%'] ? Utils.formatNumber(year?.cumulative?.['%']) : 0}%`,
+        year?.cumulative?.remainIssues,
         year?.issueCounts?.warrantyForImpactFightingIssue
           ? Utils.formatNumber(year?.issueCounts?.warrantyForImpactFightingIssue)
           : 0,
@@ -188,8 +203,8 @@ function YearReportTable(props) {
     worksheet1.mergeCells('A6:A7'); // "Sản phẩm"
     worksheet1.mergeCells('B6:B7'); // "Số lượng trên tuyến hiện nay"
     worksheet1.mergeCells('C6:K6'); // "Lỗi phát sinh"
-    worksheet1.mergeCells('L6:Q6'); // "Lỗi lũy kế đến hết năm 2023"
-    worksheet1.mergeCells('R6:S6'); // "Thời gian bảo hành trung bình"
+    worksheet1.mergeCells('L6:O6'); // "Lỗi lũy kế"
+    worksheet1.mergeCells('P6:Q6'); // "Thời gian bảo hành trung bình"
 
     // Applying bold to specific header cells in row 6
     worksheet1.getRow(6).eachCell((cell, colNumber) => {
@@ -198,8 +213,14 @@ function YearReportTable(props) {
           t('Product'),
           t('CurrentOperatingQuantity'),
           t('IncidentalError'),
-          t('CummulativeErrorsUpToTheEndOfYear', { year: filters?.year - 1 }),
-          t('AverageWarrantyTime'),
+          t('CumulativeErrorsUpToTheEndOfTime', {
+            time: moment(filters?.startTime).subtract(1, 'day').format('YYYY-MM-DD'),
+          }),
+          t('AverageWarrantyTime', {
+            range: `${moment(filters?.startTime).format('YYYY-MM-DD')}->${moment(
+              filters?.endTime
+            ).format('YYYY-MM-DD')}`,
+          }),
         ].includes(cell.value)
       ) {
         cell.font = { name: 'Times New Roman', size: 11, bold: true }; // Set font family to Times New Roman, size to 11, and make it bold
@@ -224,7 +245,7 @@ function YearReportTable(props) {
 
     // Adjust column width
     worksheet1.columns.forEach((column) => {
-      column.width = 10; // Adjust as necessary
+      column.width = 12; // Adjust as necessary
     });
 
     const worksheet2 = workbook.addWorksheet(t('IncidentalError'), {
@@ -406,7 +427,9 @@ function YearReportTable(props) {
     worksheet2.getColumn(30).width = 40;
 
     const worksheet3 = workbook.addWorksheet(
-      t('CummulativeErrorsUpToTheEndOfYear', { year: filters?.year - 1 }),
+      t('CumulativeErrorsUpToTheEndOfTime', {
+        time: moment(filters?.startTime).subtract(1, 'day').format('YYYY-MM-DD'),
+      }),
       {
         views: [{ zoomScale: 85 }], // Set default zoom to 85%
       }
@@ -446,7 +469,7 @@ function YearReportTable(props) {
         t('HandlingPlan'),
         // t('ErrorAlert'),
       ],
-      ...year?.cummulativeIssues?.map((row, index) => {
+      ...year?.cumulativeIssues?.map((row, index) => {
         const ct = customers.find((c) => c.id === row['customer_id']);
         const pd = products.find((p) => p.id == row?.product_id);
         return [
@@ -593,10 +616,10 @@ function YearReportTable(props) {
     });
     saveAs(
       blob,
-      `BÁO CÁO ĐBKT ${year?.project?.project_name} ${filters.year} (${Utils.formatDateTime(
-        moment(),
+      `BÁO CÁO ĐBKT ${year?.project?.project_name} (${Utils.formatDateTime(
+        filters?.startTime,
         'YYYY-MM-DD'
-      )}).xlsx`
+      )} - ${Utils.formatDateTime(filters?.endTime, 'YYYY-MM-DD')}).xlsx`
     );
   }
 
@@ -627,31 +650,44 @@ function YearReportTable(props) {
   return (
     <div>
       <div className="m-4 d-flex flex-wrap justify-content-between">
-        <KTFormInput
-          name="report_year"
-          value={filters.year.toString()}
-          onChange={(value) => {
-            const isValidYear = moment(value, 'YYYY', true).isValid();
-
-            if (isValidYear) {
+        <div className="d-flex flex-wrap align-items-center">
+          <label className="mr-2 mb-0" htmlFor="handedOverTime">
+            {_.capitalize(t('Time'))}
+          </label>
+          <DateRangePickerInput
+            initialLabel={t('ThisMonth')}
+            initialStartDate={moment().startOf('month')}
+            initialEndDate={moment()}
+            customRanges={{
+              [t('ThisWeek')]: [moment().startOf('week').add(1, 'days'), moment()],
+              [t('Last7Days')]: [moment().subtract(6, 'days'), moment()],
+              [t('Last30Days')]: [moment().subtract(29, 'days'), moment()],
+              [t('LastMonth')]: [
+                moment().subtract(1, 'month').startOf('month'),
+                moment().subtract(1, 'month').endOf('month'),
+              ],
+              [t('ThisMonth')]: [moment().startOf('month'), moment()],
+              [t('ThisYear')]: [moment().startOf('year'), moment()],
+              [t('LastYear')]: [
+                moment().subtract(1, 'year').startOf('year'),
+                moment().subtract(1, 'year').endOf('year'),
+              ],
+            }}
+            getDateRange={(dateRange) => {
               setFilters({
                 projectId: JSON.parse(localStorage.getItem(PreferenceKeys.currentProject))?.id,
-                year: value,
+                startTime: moment(dateRange.startDate).format('YYYY-MM-DD'),
+                endTime: moment(dateRange.endDate).format('YYYY-MM-DD'),
               });
               Global.gFiltersStatisticByYear = {
                 projectId: JSON.parse(localStorage.getItem(PreferenceKeys.currentProject))?.id,
-                year: value,
+                startTime: moment(dateRange.startDate).format('YYYY-MM-DD'),
+                endTime: moment(dateRange.endDate).format('YYYY-MM-DD'),
               };
               Global.gNeedToRefreshStatisticByYear = true;
-            } else {
-              console.error("Invalid year format. Please enter a year in the 'YYYY' format.");
-            }
-          }}
-          placeholder={`${_.capitalize(t('Year'))}...`}
-          type={KTFormInputType.btdPicker}
-          btdPickerType={KTFormInputBTDPickerType.year}
-          inputGroupType={KTFormInputGroupType.button}
-        />
+            }}
+          />
+        </div>
 
         <a
           href="#"
@@ -674,12 +710,12 @@ function YearReportTable(props) {
               dataIndex="customerCount"
               key="customerCount"
             />
-            <ColumnGroup title={t('IncidentalError')}>
-              <Column
-                title={t('RecevedInYear')}
-                dataIndex="receptionIssues"
-                key="receptionIssues"
-              />
+            <ColumnGroup
+              title={`${t('IncidentalError')} (${moment(filters?.startTime).format(
+                'YYYY-MM-DD'
+              )}->${moment(filters?.endTime).format('YYYY-MM-DD')})`}
+            >
+              <Column title={t('Received')} dataIndex="receptionIssues" key="receptionIssues" />
               <Column title={t('CriticalError')} dataIndex="criticalIssues" key="criticalIssues" />
               <Column title={t('ModerateError')} dataIndex="moderateIssues" key="moderateIssues" />
               <Column title={t('MinorError')} dataIndex="minorIssues" key="minorIssues" />
@@ -694,64 +730,78 @@ function YearReportTable(props) {
                 key="impactReadyFightingIssue"
               />
               <Column
-                title={t('ErrorsProcessedDuringTheYear')}
+                title={t('Processed')}
                 dataIndex="processedIssuesInYear"
                 key="processedIssuesInYear"
               />
               <Column
-                title={t('HandledReateInYear')}
+                title={t('ProcessedRate')}
                 dataIndex="receptionIssuesPercent"
                 key="receptionIssuesPercent"
               />
               <Column
-                title={t('UnprocessedErrorsForNextYear')}
+                title={t('Remain')}
                 dataIndex="remainIssuesThisYear"
                 key="remainIssuesThisYear"
               />
             </ColumnGroup>
             <ColumnGroup
-              title={t('CummulativeErrorsUpToTheEndOfYear', { year: filters?.year - 1 })}
+              title={t('CumulativeErrorsUpToTheEndOfTime', {
+                time: moment(filters?.startTime).subtract(1, 'day').format('YYYY-MM-DD'),
+              })}
             >
               <Column
-                title={t('CummulativeErrorsReceivedUpToTheEndOfYear', { year: filters?.year - 1 })}
-                dataIndex="cummulativeIssues"
-                key="cummulativeIssues"
+                title={t('CumulativeErrorsReceivedUpToTheEndOfTime', {
+                  time: moment(filters?.startTime).subtract(1, 'day').format('YYYY-MM-DD'),
+                })}
+                dataIndex="cumulativeIssues"
+                key="cumulativeIssues"
               />
               <Column
-                title={t('TheTotalNumberOfErrorsProcessedByTheEndOfYear', {
-                  year: filters?.year - 1,
+                title={t('TheTotalNumberOfErrorsProcessedByTheEndOfTime', {
+                  time: moment(filters?.startTime).subtract(1, 'day').format('YYYY-MM-DD'),
                 })}
                 dataIndex="processedIssues"
                 key="processedIssues"
               />
-              <Column
+              {/* <Column
                 title={t('TheTotalErrorsProcessedInTheYear')}
                 dataIndex="processedIssuesInPrevYear"
                 key="processedIssuesInPrevYear"
-              />
-              <Column
-                title={t('TheTotalErrorsToBeProcessedInTheYear')}
+              /> */}
+              {/* <Column
+                title={t('TheTotalErrorsToBeProcessedUpToTime', {
+                  time: moment(filters?.startTime).subtract(1, 'day').format('YYYY-MM-DD'),
+                })}
                 dataIndex="needToProcessInPrevYear"
                 key="needToProcessInPrevYear"
-              />
+              /> */}
               <Column
-                title={t('HandledReateInYear')}
-                dataIndex="cummulativeIssuesPercent"
-                key="cummulativeIssuesPercent"
+                title={t('HandledRateUpToTime', {
+                  time: moment(filters?.startTime).subtract(1, 'day').format('YYYY-MM-DD'),
+                })}
+                dataIndex="cumulativeIssuesPercent"
+                key="cumulativeIssuesPercent"
               />
-              <Column
-                title={t('IssuesCarriedOverToYear', { year: filters?.year })}
-                dataIndex="remainIssues"
-                key="remainIssues"
-              />
+              <Column title={t('Remain')} dataIndex="remainIssues" key="remainIssues" />
             </ColumnGroup>
-            <ColumnGroup title={t('AverageWarrantyTime')}>
+            <ColumnGroup
+              title={t('AverageWarrantyTime', {
+                range: `${moment(filters?.startTime).format('YYYY-MM-DD')}->${moment(
+                  filters?.endTime
+                ).format('YYYY-MM-DD')}`,
+              })}
+            >
               <Column
-                title={t('NotReadyFightingError')}
+                title={`${t('NotReadyFightingError')} (${t('Hour')})`}
                 dataIndex="warrantyForImpactFightingIssue"
                 key="warrantyForImpactFightingIssue"
               />
-              <Column title={t('AllError')} dataIndex="warrantyAllError" key="warrantyAllError" />
+              <Column
+                title={`${t('AllError')} (${t('Hour')})`}
+                dataIndex="warrantyAllError"
+                key="warrantyAllError"
+              />
             </ColumnGroup>
           </Table>
         </div>
