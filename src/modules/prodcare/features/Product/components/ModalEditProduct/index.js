@@ -344,14 +344,16 @@ function ModalEditProduct({
                               return {
                                 ...prev,
                                 [`${t('CurrentStatus')}`]: `${
-                                  AppData.productCurrentStatus.find(
-                                    (item) => item.value == productItem?.status
-                                  )?.name ?? ''
-                                } -> ${
+                                  t(
+                                    AppData.productCurrentStatus.find(
+                                      (item) => item.value == productItem?.status
+                                    )?.name
+                                  ) ?? ''
+                                } -> ${t(
                                   AppData.productCurrentStatus.find(
                                     (item) => item.value == newValue
                                   )?.name
-                                }`,
+                                )}`,
                               };
                             });
                           }}

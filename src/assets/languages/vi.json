@@ -286,7 +286,7 @@
   "Last30Days": "30 ngày gần đây",
   "LastMonth": "Tháng trước",
   "ThisMonth": "Tháng này",
-  "Customize": "Tùy chỉnh",
+  "CustomizeColumns": "Tùy chỉnh cột hiển thị",
   "Information": "Thông tin",
   "ListOfProductsHasBeenImplemented": "Danh sách các sản phẩm {{project}} trên tuyến",
   "SoftwareVersion": "Phiên bản phần mềm",
@@ -302,5 +302,6 @@
   "ProcessedRate": "Tỷ lệ lỗi đã xử lý",
   "ThisYear": "Năm nay",
   "LastYear": " Năm trước",
-  "Hour": "Giờ"
+  "Hour": "Giờ",
+  "Repairing": "Đang sửa chữa"
 }

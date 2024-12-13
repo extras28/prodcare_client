@@ -1,6 +1,9 @@
 import componentApi from 'api/componentApi';
+import eventApi from 'api/eventApi';
+import { thunkGetAllComponent } from 'app/appSlice';
 import { FastField, Field, Formik } from 'formik';
 import _ from 'lodash';
+import { thunkGetListProduct } from 'modules/prodcare/features/Product/productSlice';
 import PropTypes from 'prop-types';
 import { useEffect, useRef, useState } from 'react';
 import { Button, Modal } from 'react-bootstrap';
@@ -13,13 +16,11 @@ import KTFormInput, {
 } from 'shared/components/OtherKeenComponents/Forms/KTFormInput';
 import KTFormTextArea from 'shared/components/OtherKeenComponents/Forms/KTFormTextArea';
 import AppData from 'shared/constants/AppData';
+import PreferenceKeys from 'shared/constants/PreferenceKeys';
 import ToastHelper from 'shared/helpers/ToastHelper';
 import Global from 'shared/utils/Global';
 import * as Yup from 'yup';
 import { thunkGetListComponent } from '../../componentSlice';
-import PreferenceKeys from 'shared/constants/PreferenceKeys';
-import eventApi from 'api/eventApi';
-import { thunkGetAllComponent } from 'app/appSlice';
 
 function ModalEditComponent({
   show = false,
@@ -93,7 +94,10 @@ function ModalEditComponent({
         createEvent({
           subType: 'EDIT',
           componentId: values.componentId,
-          content: JSON.stringify({ title: t('EditComponent'), ...changeObj }),
+          content: JSON.stringify({
+            title: t('EditComponent', { name: `${componentItem?.name}(${componentItem?.serial})` }),
+            ...changeObj,
+          }),
         });
         ToastHelper.showSuccess(t('Success'));
         dispatch(thunkGetListComponent(Global.gFiltersComponentList));
@@ -102,6 +106,7 @@ function ModalEditComponent({
             projectId: JSON.parse(localStorage.getItem(PreferenceKeys.currentProject))?.id,
           })
         );
+        dispatch(thunkGetListProduct(Global.gFiltersProductList));
         handleClose();
       }
     } catch (error) {
@@ -233,35 +238,44 @@ function ModalEditComponent({
                   <KTFormGroup
                     label={
                       <>
-                        {t('Serial')} <span className="text-danger">*</span>
+                        {t('Serial')} <span className="text-danger">*</span>{' '}
                       </>
                     }
                     inputName="serial"
                     inputElement={
-                      <FastField name="serial">
-                        {({ field, form, meta }) => (
-                          <KTFormInput
-                            {...field}
-                            onChange={(value) => {
-                              form.setFieldValue(field.name, value);
-                              setChangeObj((prev) => {
-                                return {
-                                  ...prev,
-                                  [`${t('Serial')}`]: `${componentItem?.serial ?? ''} -> ${value}`,
-                                };
-                              });
-                            }}
-                            onBlur={() => form.setFieldTouched(field.name, true)}
-                            enableCheckValid
-                            isValid={_.isEmpty(meta.error)}
-                            isTouched={meta.touched}
-                            feedbackText={meta.error}
-                            placeholder={`${_.capitalize(t('Serial'))}...`}
-                            type={KTFormInputType.text}
-                            disabled={current?.role === 'GUEST'}
-                          />
-                        )}
-                      </FastField>
+                      <div>
+                        <FastField name="serial">
+                          {({ field, form, meta }) => (
+                            <KTFormInput
+                              {...field}
+                              onChange={(value) => {
+                                form.setFieldValue(field.name, value);
+                                setChangeObj((prev) => {
+                                  return {
+                                    ...prev,
+                                    [`${t('Serial')}`]: `${
+                                      componentItem?.serial ?? ''
+                                    } -> ${value}`,
+                                  };
+                                });
+                              }}
+                              onBlur={() => form.setFieldTouched(field.name, true)}
+                              enableCheckValid
+                              isValid={_.isEmpty(meta.error)}
+                              isTouched={meta.touched}
+                              feedbackText={meta.error}
+                              placeholder={`${_.capitalize(t('Serial'))}...`}
+                              type={KTFormInputType.text}
+                              disabled={current?.role === 'GUEST'}
+                            />
+                          )}
+                        </FastField>
+                        <span style={{ fontSize: '10px' }}>
+                          {`(${t(
+                            'Nhập "thiếu serial" nếu chưa có thông tin serial của thành phần'
+                          )})`}
+                        </span>
+                      </div>
                     }
                   />
                 </div>
@@ -348,11 +362,11 @@ function ModalEditComponent({
                                 return {
                                   ...prev,
                                   [`${t('ComponentType')}`]: `${t(
-                                    AppData.responsibleType.find(
+                                    AppData.componentType.find(
                                       (item) => item.value === componentItem?.['type']
                                     )?.name
                                   )} -> ${t(
-                                    AppData.responsibleType.find((item) => item.value === newValue)
+                                    AppData.componentType.find((item) => item.value === newValue)
                                       ?.name
                                   )}`,
                                 };
@@ -545,14 +559,16 @@ function ModalEditComponent({
                                 return {
                                   ...prev,
                                   [`${t('CurrentStatus')}`]: `${
-                                    AppData.productCurrentStatus.find(
-                                      (item) => item.value == componentItem?.status
-                                    )?.name ?? ''
-                                  } -> ${
+                                    t(
+                                      AppData.productCurrentStatus.find(
+                                        (item) => item.value == componentItem?.status
+                                      )?.name
+                                    ) ?? ''
+                                  } -> ${t(
                                     AppData.productCurrentStatus.find(
                                       (item) => item.value == newValue
                                     )?.name
-                                  }`,
+                                  )}`,
                                 };
                               });
                             }}

@@ -215,6 +215,7 @@ const AppData = {
   productCurrentStatus: [
     { name: 'Using', value: 'USING' },
     { name: 'Stored', value: 'STORED' },
+    { name: 'Repairing', value: 'REPAIRING' },
   ],
 };
 

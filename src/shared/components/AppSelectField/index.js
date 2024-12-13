@@ -38,7 +38,7 @@ function AppSelectField({ fields = [], defaultColumns = [] }) {
         toggleElement={
           <div className="btn btn-success font-weight-bold d-flex align-items-center">
             <i className="fa-regular fa-filter-list"></i>
-            {t('Customize')}
+            {t('CustomizeColumns')}
           </div>
         }
         dropdownMenuClassName="min-w-200px"

@@ -10,6 +10,7 @@ import DataTable from 'react-data-table-component';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import AppDateRangePicker from 'shared/components/AppDateRangePicker';
+import AppSelectField from 'shared/components/AppSelectField';
 import Empty from 'shared/components/Empty';
 import Loading from 'shared/components/Loading';
 import KTFormSelect from 'shared/components/OtherKeenComponents/Forms/KTFormSelect';
@@ -27,7 +28,6 @@ import ModalEditIssue from '../../components/ModalEditIssue';
 import ModalEvaluateIssue from '../../components/ModalEvaluateIssue';
 import ModalUploadIssueFile from '../../components/ModalUploadIssueFile';
 import { setPaginationPerPage, thunkGetListIssue } from '../../issueSlice';
-import AppSelectField from 'shared/components/AppSelectField';
 
 IssueHomePage.propTypes = {};
 
@@ -53,9 +53,16 @@ function IssueHomePage(props) {
   const { current } = useSelector((state) => state.auth);
   const needToRefreshData = useRef(issues?.length === 0);
   const refLoading = useRef(false);
-  const { products, customers, components, reasons, currentProject, projects, users } = useSelector(
-    (state) => state?.app
-  );
+  const {
+    products,
+    customers,
+    components,
+    reasons,
+    currentProject,
+    projects,
+    users,
+    currentColumns,
+  } = useSelector((state) => state?.app);
   const fullColumns = useMemo(
     () => [
       {
@@ -113,7 +120,7 @@ function IssueHomePage(props) {
                 }}
               >
                 {`${pd?.name} ${pd?.serial ? '(' + pd?.serial + ')' : ''}${
-                  row?.componentPath ? row?.componentPath + '/' : ''
+                  row?.componentPath ? '/' + row?.componentPath : ''
                 }`}
               </a>
             </KTTooltip>
@@ -157,7 +164,7 @@ function IssueHomePage(props) {
         id: 6,
         name: t('ErrorLevel'),
         sortable: false,
-        // minWidth: '120px',
+        width: '130px',
         cell: (row) => {
           function getErrorLevelColor() {
             switch (row?.level) {
@@ -529,7 +536,7 @@ function IssueHomePage(props) {
               data-tag="allowRowEvents"
               className="text-dark-75 font-weight-normal m-0 text-maxline-5 mr-4"
             >
-              {issueItem?.responsible_handling_unit}
+              {row?.responsible_handling_unit}
             </p>
           );
         },
@@ -545,7 +552,7 @@ function IssueHomePage(props) {
               data-tag="allowRowEvents"
               className="text-dark-75 font-weight-normal m-0 text-maxline-5 mr-4"
             >
-              {issueItem?.reporting_person ?? ''}
+              {row?.reporting_person ?? ''}
             </p>
           );
         },
@@ -561,9 +568,7 @@ function IssueHomePage(props) {
               data-tag="allowRowEvents"
               className="text-dark-75 font-weight-normal m-0 text-maxline-5 mr-4"
             >
-              {AppData.errorRemainStatus.find(
-                (item) => item.value === issueItem?.['remain_status']
-              )}
+              {AppData.errorRemainStatus.find((item) => item.value === row?.['remain_status'])}
             </p>
           );
         },
@@ -582,7 +587,7 @@ function IssueHomePage(props) {
               data-tag="allowRowEvents"
               className="text-dark-75 font-weight-normal m-0 text-maxline-5 mr-4"
             >
-              {t(data.find((item) => item.value === issueItem?.['overdue_kpi'])?.name)}
+              {t(data.find((item) => item.value === row?.['overdue_kpi'])?.name)}
             </p>
           );
         },
@@ -602,7 +607,7 @@ function IssueHomePage(props) {
               data-tag="allowRowEvents"
               className="text-dark-75 font-weight-normal m-0 text-maxline-5 mr-4"
             >
-              {t(data.find((item) => item.value === issueItem?.['warranty_status']).name)}
+              {t(data.find((item) => item.value === row?.['warranty_status'])?.name)}
             </p>
           );
         },
@@ -623,7 +628,7 @@ function IssueHomePage(props) {
               data-tag="allowRowEvents"
               className="text-dark-75 font-weight-normal m-0 text-maxline-5 mr-4"
             >
-              {t(data.find((item) => item.value === issueItem?.['impact'])?.name)}
+              {t(data.find((item) => item.value === row?.['impact'])?.name)}
             </p>
           );
         },
@@ -666,9 +671,8 @@ function IssueHomePage(props) {
               className="text-dark-75 font-weight-normal m-0 text-maxline-5 mr-4"
             >
               {t(
-                AppData.errorUnhandleReason.find(
-                  (item) => item.value === issueItem?.['unhandle_reason']
-                )?.name
+                AppData.errorUnhandleReason.find((item) => item.value === row?.['unhandle_reason'])
+                  ?.name
               )}
             </p>
           );
@@ -760,212 +764,32 @@ function IssueHomePage(props) {
         ),
       },
     ],
-    []
+    [
+      current,
+      LanguageHelper.getCurrentLanguage(),
+      products,
+      projects,
+      components,
+      customers,
+      currentColumns,
+    ]
   );
 
   const columns = useMemo(() => {
-    const tableColumns = [
-      {
-        name: t('Status'),
-        sortable: false,
-        //
-        cell: (row) => {
-          return (
-            <p
-              data-tag="allowRowEvents"
-              className={`m-0 badge bg-${
-                row?.status === 'PROCESSED'
-                  ? 'success'
-                  : row?.status === 'PROCESSING'
-                  ? 'info'
-                  : 'warning'
-              }`}
-            >
-              {t(_.capitalize(row?.status))}
-            </p>
-          );
-        },
-      },
-      {
-        name: t('Customer'),
-        sortable: false,
-        cell: (row) => {
-          const ct = customers.find((item) => item.id === row['customer_id']);
-          return (
-            <p data-tag="allowRowEvents" className="font-weight-normal m-0 text-maxline-3 mr-4">
-              {ct ? `${ct?.['military_region']} - ${ct?.['name']}` : ''}
-            </p>
-          );
-        },
-      },
-      {
-        name: t('Product'),
-        sortable: false,
-        cell: (row) => {
-          const pd = products.find((item) => item.id == row?.product_id);
-          return (
-            <KTTooltip text={t('Product')}>
-              <a
-                className=""
-                onClick={(e) => {
-                  e.preventDefault();
-                  if (row?.componentPath) {
-                    router.navigate(`/prodcare/operating/component/detail/${row?.component_id}`);
-                  } else {
-                    router.navigate(`/prodcare/operating/product/detail/${row?.product_id}`);
-                  }
-                }}
-              >
-                {`${pd?.name} ${pd?.serial ? '(' + pd?.serial + ')' : ''}${
-                  row?.componentPath ? row?.componentPath + '/' : ''
-                }`}
-              </a>
-            </KTTooltip>
-          );
-        },
-      },
-      {
-        name: t('DescriptionByCustomer'),
-        sortable: false,
-        //
-        cell: (row) => {
-          return (
-            <p
-              data-tag="allowRowEvents"
-              className="text-dark-75  font-weight-normal m-0 text-maxline-5 mr-4"
-            >
-              {row?.description}
-            </p>
-          );
-        },
-      },
-      {
-        name: t('ErrorType'),
-        sortable: false,
-        // minWidth: '150px',
-        cell: (row) => {
-          return (
-            <div
-              data-tag="allowRowEvents"
-              className="text-dark-75 m-0 text-maxline-5 d-flex align-items-center"
-            >
-              {t(
-                AppData.responsibleType.find((item) => item.value === row?.responsible_type)?.name
-              )}
-            </div>
-          );
-        },
-      },
-      {
-        name: t('ErrorLevel'),
-        sortable: false,
-        // minWidth: '120px',
-        cell: (row) => {
-          function getErrorLevelColor() {
-            switch (row?.level) {
-              case 'CRITICAL':
-                return '#FF4C4C';
-              case 'MAJOR':
-                return '#FF7043';
-              case 'MODERATE':
-                return '#FFD54F';
-              case 'MINOR':
-                return '#A5D6A7';
-
-              default:
-                break;
-            }
-          }
-
-          return (
-            <p
-              data-tag="allowRowEvents"
-              className="m-0 badge"
-              style={{ backgroundColor: getErrorLevelColor() }}
-            >
-              {t(_.capitalize(AppData.errorLevel.find((item) => item.value === row?.level)?.name))}
-            </p>
-          );
-        },
-      },
-      {
-        name: t('ReceptionTime'),
-        sortable: false,
-        // minWidth: '120px',
-        cell: (row) => {
-          return (
-            <div
-              data-tag="allowRowEvents"
-              className="text-dark-75 m-0 text-maxline-5 d-flex align-items-center"
-            >
-              {row?.reception_time ? Utils.formatDateTime(row?.reception_time, 'YYYY-MM-DD') : ''}
-            </div>
-          );
-        },
-      },
-      {
-        name: t('StopFighting'),
-        sortable: false,
-        // minWidth: '120px',
-        cell: (row) => {
-          return (
-            <p
-              data-tag="allowRowEvents"
-              className="text-dark-75 font-weight-normal m-0 text-maxline-5 mr-4"
-            >
-              {t(`${_.capitalize(row?.stop_fighting ? 'Yes' : 'No')}`)}
-            </p>
-          );
-        },
-      },
-      {
-        name: t('Action'),
-        center: 'true',
-        width: '120px',
-        cell: (row) => (
-          <div className="d-flex align-items-center">
-            <KTTooltip text={t('Evaluate')}>
-              <a
-                className="btn btn-icon btn-sm btn-success btn-hover-success mr-2"
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleEvaluateIssue(row);
-                }}
-              >
-                <i className="fa-regular fa-pen-to-square p-0 icon-1x" />
-              </a>
-            </KTTooltip>
-            <KTTooltip text={t('Edit')}>
-              <a
-                className="btn btn-icon btn-sm btn-primary btn-hover-primary "
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleEditIssue(row);
-                }}
-              >
-                <i className="fa-regular fa-pen p-0 icon-1x" />
-              </a>
-            </KTTooltip>
-
-            <KTTooltip text={t('Delete')}>
-              <a
-                className="btn btn-icon btn-sm btn-danger btn-hover-danger ml-2"
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleDeleteIssue(row);
-                }}
-              >
-                <i className="far fa-trash p-0 icon-1x" />
-              </a>
-            </KTTooltip>
-          </div>
-        ),
-      },
-    ];
+    const columnIds = currentColumns?.columns?.split(',')?.map((item) => Number(item));
+    const tableColumns = fullColumns.filter((item) => columnIds?.includes(item?.id));
 
     if (current?.role === 'GUEST') return tableColumns.slice(0, tableColumns.length - 1);
     return tableColumns;
-  }, [current, LanguageHelper.getCurrentLanguage(), products, projects, components]);
+  }, [
+    current,
+    LanguageHelper.getCurrentLanguage(),
+    products,
+    projects,
+    components,
+    customers,
+    currentColumns,
+  ]);
   const [selectedIssueItem, setSelectedIssueItem] = useState(null);
   const [modalIssueEditShowing, setModalEditIssueShowing] = useState(false);
   const [modalIssueEvaluateShowing, setModalEvaluateIssueShowing] = useState(false);
@@ -1476,15 +1300,11 @@ function IssueHomePage(props) {
         {/* card body */}
         <div className="card-body pt-0">
           <DataTable
-            // fixedHeader
-            // fixedHeaderScrollHeight="60vh"
             columns={columns}
             data={issues}
             customStyles={customDataTableStyle}
             responsive={true}
             noHeader
-            // selectableRows={current?.role != 'ADMIN' ? false : true}
-            // striped
             noDataComponent={
               <div className="pt-12">
                 <Empty
@@ -1500,8 +1320,6 @@ function IssueHomePage(props) {
             onSelectedRowsChange={handleSelectedIssuesChanged}
             clearSelectedRows={toggledClearIssues}
             onRowClicked={(row) => {
-              // handleEditIssue(row);
-              // router.navigate(`detail/${row?.id}`);
               handleViewIsseDetail(row);
             }}
             pointerOnHover

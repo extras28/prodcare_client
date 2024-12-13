@@ -705,7 +705,7 @@ function ModalEditIssue({
                               )
                               ?.map((item) => {
                                 return {
-                                  name: item?.['name'],
+                                  name: `${item?.['name']}(${item?.serial})`,
                                   value: item.id,
                                 };
                               })}
@@ -1913,7 +1913,7 @@ function ModalEditIssue({
                                   [`${t('WarrantyStatus')}`]: `${t(
                                     data.find(
                                       (item) => item.value === issueItem?.['warranty_status']
-                                    ).name
+                                    )?.name
                                   )} -> ${t(data.find((item) => item.value === newValue)?.name)}`,
                                 };
                               });
