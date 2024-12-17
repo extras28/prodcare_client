@@ -49,6 +49,7 @@ function ProductHomePage(props) {
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [toggledClearProducts, setToggledClearProducts] = useState(true);
   const { products, isGettingProductList, pagination } = useSelector((state) => state.product);
+  const allProducts = useSelector((state) => state?.app?.products);
   const { current } = useSelector((state) => state.auth);
   const needToRefreshData = useRef(products?.length === 0);
   const refLoading = useRef(false);
@@ -638,7 +639,7 @@ function ProductHomePage(props) {
       />
 
       <ModalEditComponent
-        products={products}
+        products={allProducts}
         show={modalComponentEditShowing}
         onClose={() => {
           setModalEditComponentShowing(false);
