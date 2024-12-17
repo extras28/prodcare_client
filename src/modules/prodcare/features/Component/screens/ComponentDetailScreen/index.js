@@ -8,6 +8,7 @@ import Utils from 'shared/utils/Utils';
 import ModalEditComponent from '../../components/ModalEditComponent';
 import ComponentActivityTab from '../../components/ComponentActivityTab';
 import { clearComponentDetail, thunkGetComponentDetail } from '../../componentSlice';
+import AppData from 'shared/constants/AppData';
 
 ComponentDetailScreen.propTypes = {};
 
@@ -26,7 +27,7 @@ function ComponentDetailScreen(props) {
       { label: t('ComponentName'), value: componentDetail?.name ?? '' },
       { label: t('Serial'), value: componentDetail?.serial ?? '' },
       {
-        label: t('Equipment'),
+        label: t('Product'),
         value: `${componentDetail?.product?.name} ${
           componentDetail?.product?.serial ? '(' + componentDetail?.product?.serial + ')' : ''
         }`,
@@ -34,6 +35,43 @@ function ComponentDetailScreen(props) {
           router.navigate(`/prodcare/operating/product/detail/${componentDetail?.product_id}`);
         },
         className: 'text-primary cursor-pointer',
+      },
+      {
+        label: t('Status'),
+        value: (
+          componentDetail?.issues?.length > 0 &&
+          componentDetail?.issues?.every((item) => item?.status !== 'PROCESSED')
+            ? true
+            : false
+        )
+          ? t('HaveErrors')
+          : t('Active'),
+        valueClassName: `badge badge-${
+          (
+            componentDetail?.issues?.length > 0 &&
+            componentDetail?.issues?.every((item) => item?.status !== 'PROCESSED')
+              ? true
+              : false
+          )
+            ? 'danger'
+            : 'success'
+        }`,
+      },
+      {
+        label: t('CurrentStatus'),
+        value: componentDetail?.status
+          ? t(
+              AppData.productCurrentStatus.find((item) => item?.value === componentDetail?.status)
+                ?.name
+            )
+          : '',
+        valueClassName: `badge badge-${
+          componentDetail?.status === 'USING'
+            ? 'primary'
+            : componentDetail?.status === 'REPAIRING'
+            ? 'danger'
+            : 'warning'
+        }`,
       },
       { label: t('ComponentLevel'), value: componentDetail?.level ?? '' },
     ];
@@ -79,7 +117,7 @@ function ComponentDetailScreen(props) {
               onClick={item?.onClick}
             >
               <p className="font-weight-bolder mb-1 text-dark-75">{item?.label}</p>
-              <p className={`${index === 0 ? 'text-primary' : ''} m-0`}>
+              <p className={`${index === 0 ? 'text-primary' : ''} m-0 ${item?.valueClassName}`}>
                 {item?.value || <>&nbsp;</>}
               </p>
             </div>

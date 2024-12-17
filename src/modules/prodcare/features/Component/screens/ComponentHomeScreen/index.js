@@ -139,6 +139,48 @@ function ComponentHomePage(props) {
         },
       },
       {
+        name: t('CurrentStatus'),
+        sortable: false,
+        cell: (row) => {
+          return (
+            <span
+              data-tag="allowRowEvents"
+              className={`badge badge-${
+                row?.status === 'USING'
+                  ? 'primary'
+                  : row?.status === 'REPAIRING'
+                  ? 'danger'
+                  : 'warning'
+              }`}
+            >
+              {row?.status
+                ? t(AppData.productCurrentStatus.find((item) => item?.value === row?.status)?.name)
+                : ''}
+            </span>
+          );
+        },
+      },
+      {
+        name: t('Status'),
+        sortable: false,
+        cell: (row) => {
+          const issues = row?.issues;
+
+          const breakdown =
+            issues?.length > 0 && issues?.every((item) => item?.status !== 'PROCESSED')
+              ? true
+              : false;
+          return (
+            <span
+              data-tag="allowRowEvents"
+              className={`badge badge-${breakdown ? 'danger' : 'success'}`}
+            >
+              {breakdown ? t('HaveErrors') : t('Active')}
+            </span>
+          );
+        },
+      },
+      {
         name: t('Action'),
         center: 'true',
         width: '120px',

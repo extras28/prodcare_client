@@ -29,6 +29,7 @@ import 'primereact/resources/themes/lara-light-cyan/theme.css';
 import DateRangePickerInput from 'shared/components/AppDateRangePicker';
 import KTFormSelect from 'shared/components/OtherKeenComponents/Forms/KTFormSelect';
 import AppData from 'shared/constants/AppData';
+import ExcelJS from 'exceljs';
 
 ProductHomePage.propTypes = {};
 
@@ -136,7 +137,13 @@ function ProductHomePage(props) {
             return (
               <span
                 data-tag="allowRowEvents"
-                className={`badge badge-${row?.data?.status === 'USING' ? 'primary' : 'warning'}`}
+                className={`badge badge-${
+                  row?.data?.status === 'USING'
+                    ? 'primary'
+                    : row?.data?.status === 'REPAIRING'
+                    ? 'danger'
+                    : 'warning'
+                }`}
               >
                 {row?.data?.status
                   ? t(
@@ -147,7 +154,7 @@ function ProductHomePage(props) {
               </span>
             );
           }}
-          field="status"
+          field="currentStatus"
           header={t('CurrentStatus')}
         ></Column>
         <Column
@@ -355,6 +362,15 @@ function ProductHomePage(props) {
     }
   }
 
+  function handleExportFile() {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet(t('General'), {
+      views: [{ zoomScale: 85 }], // Set default zoom to 85%
+    });
+
+    const data = [products?.map((item) => item)];
+  }
+
   // MARK: --- Hooks ---
   useEffect(() => {
     const shouldRefreshData =
@@ -520,7 +536,17 @@ function ProductHomePage(props) {
                 <i className="far fa-ban"></i>
                 {`${t('Delete')} (${selectedProducts.length})`}
               </a>
-
+              {/* <a
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setModalEditProductShowing(true);
+                }}
+                className="btn btn-success font-weight-bold d-flex align-items-center"
+              >
+                <i className="fa-regular fa-file-download"></i>
+                {t('Export')}
+              </a> */}
               <a
                 href="#"
                 onClick={(e) => {

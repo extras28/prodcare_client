@@ -2,22 +2,17 @@ import { unwrapResult } from '@reduxjs/toolkit';
 import { Table } from 'antd';
 import ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
+import _ from 'lodash';
 import moment from 'moment';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
-import KTFormInput, {
-  KTFormInputBTDPickerType,
-  KTFormInputGroupType,
-  KTFormInputType,
-} from 'shared/components/OtherKeenComponents/Forms/KTFormInput';
+import DateRangePickerInput from 'shared/components/AppDateRangePicker';
+import AppData from 'shared/constants/AppData';
 import PreferenceKeys from 'shared/constants/PreferenceKeys';
 import Global from 'shared/utils/Global';
 import Utils from 'shared/utils/Utils';
 import { thunkGetYearReport } from '../../dashboardSlice';
-import _ from 'lodash';
-import AppData from 'shared/constants/AppData';
-import DateRangePickerInput from 'shared/components/AppDateRangePicker';
 const { Column, ColumnGroup } = Table;
 
 YearReportTable.propTypes = {};
