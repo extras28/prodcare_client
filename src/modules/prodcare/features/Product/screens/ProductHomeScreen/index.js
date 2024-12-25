@@ -24,12 +24,13 @@ import ModalEditProduct from '../../components/ModalEditProduct';
 import ModalProductActivity from '../../components/ModalProductActivity';
 import { setPaginationPerPage, thunkGetListProduct } from '../../productSlice';
 
+import ExcelJS from 'exceljs';
+import { saveAs } from 'file-saver';
 import ModalEditComponent from 'modules/prodcare/features/Component/components/ModalEditComponent';
 import 'primereact/resources/themes/lara-light-cyan/theme.css';
 import DateRangePickerInput from 'shared/components/AppDateRangePicker';
 import KTFormSelect from 'shared/components/OtherKeenComponents/Forms/KTFormSelect';
 import AppData from 'shared/constants/AppData';
-import ExcelJS from 'exceljs';
 
 ProductHomePage.propTypes = {};
 
@@ -250,6 +251,120 @@ function ProductHomePage(props) {
       console.log(`${sTag} get Product list error: ${error.message}`);
     }
     refLoading.current = false;
+  }
+
+  async function getAllProduct() {
+    try {
+      const res = await productApi.exportExcel({ projectId: currentProject?.id });
+      if (res.result === 'success') {
+        return res.components;
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  async function exportExcelFile() {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet2 = workbook.addWorksheet(currentProject?.project_name, {
+      views: [{ zoomScale: 85 }], // Set default zoom to 85%
+    });
+
+    const excelComponents = await getAllProduct();
+
+    const listData2 = [
+      [
+        t('Customer'),
+        t('Product'),
+        t('Component'),
+        t('Serial'),
+        t('SoftwareVersion'),
+        t('CurrentStatus'),
+        t('Status'),
+        t('Note'),
+      ],
+      ...excelComponents.map((item) => {
+        const customer = item?.product?.customer;
+        const issues = item?.issues;
+
+        const breakdown =
+          issues?.length > 0 && issues?.every((item) => item?.status !== 'PROCESSED')
+            ? true
+            : false;
+        return [
+          customer ? `${customer?.['military_region']} - ${customer?.['name']}` : '',
+          item?.product?.name,
+          item?.name,
+          item?.serial,
+          item?.version ?? '',
+          item?.status
+            ? t(AppData.productCurrentStatus.find((st) => st?.value === item?.status)?.name)
+            : '',
+          breakdown ? t('HaveErrors') : t('Active'),
+          item?.description ?? '',
+        ];
+      }),
+    ];
+
+    listData2.forEach((row, rowIndex) => {
+      const excelRow = worksheet2.getRow(rowIndex + 1);
+      row.forEach((value, colIndex) => {
+        const cell = excelRow.getCell(colIndex + 1);
+        cell.value = value;
+        cell.alignment = { vertical: 'middle', wrapText: true };
+        cell.font = { name: 'Times New Roman', size: 11 };
+      });
+
+      if (row[6] === t('HaveErrors')) {
+        excelRow.eachCell((cell) => {
+          cell.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FF0000' }, // Red color
+          };
+        });
+      }
+    });
+
+    // Adding borders to list sheet cells
+    worksheet2.eachRow((row) => {
+      row.eachCell((cell) => {
+        cell.border = {
+          top: { style: 'thin' },
+          left: { style: 'thin' },
+          bottom: { style: 'thin' },
+          right: { style: 'thin' },
+        };
+      });
+    });
+
+    worksheet2.columns.forEach((column) => {
+      column.width = 30; // Adjust as necessary
+    });
+
+    // Merge cells in column A (Customer) and column B (Product)
+    const mergeCellsByColumn = (colIndex) => {
+      let startRow = 2; // Skip the header row
+      for (let i = 2; i < listData2.length; i++) {
+        const currentCellValue = worksheet2.getCell(i, colIndex).value;
+        const nextCellValue = worksheet2.getCell(i + 1, colIndex)?.value;
+        if (currentCellValue !== nextCellValue || i + 1 === listData2.length) {
+          if (startRow < i) {
+            worksheet2.mergeCells(startRow, colIndex, i, colIndex);
+          }
+          startRow = i + 1;
+        }
+      }
+    };
+
+    mergeCellsByColumn(1); // Merge column A
+    mergeCellsByColumn(2); // Merge column B
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    });
+    saveAs(blob, currentProject?.project_name);
   }
 
   function clearSelectedProducts() {
@@ -537,17 +652,17 @@ function ProductHomePage(props) {
                 <i className="far fa-ban"></i>
                 {`${t('Delete')} (${selectedProducts.length})`}
               </a>
-              {/* <a
+              <a
                 href="#"
                 onClick={(e) => {
                   e.preventDefault();
-                  setModalEditProductShowing(true);
+                  exportExcelFile();
                 }}
                 className="btn btn-success font-weight-bold d-flex align-items-center"
               >
                 <i className="fa-regular fa-file-download"></i>
                 {t('Export')}
-              </a> */}
+              </a>
               <a
                 href="#"
                 onClick={(e) => {

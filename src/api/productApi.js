@@ -30,6 +30,10 @@ const productApi = {
     const url = '/product/list';
     return axiosClient.get(url, { params });
   },
+  exportExcel: (params) => {
+    const url = '/product/excel';
+    return axiosClient.get(url, { params });
+  },
 };
 
 export default productApi;
