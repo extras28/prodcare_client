@@ -316,12 +316,15 @@ function ProductHomePage(props) {
       });
 
       if (row[6] === t('HaveErrors')) {
-        excelRow.eachCell((cell) => {
-          cell.fill = {
-            type: 'pattern',
-            pattern: 'solid',
-            fgColor: { argb: 'FF0000' }, // Red color
-          };
+        excelRow.eachCell((cell, colNumber) => {
+          if (colNumber > 2) {
+            // Skip columns A (1) and B (2)
+            cell.fill = {
+              type: 'pattern',
+              pattern: 'solid',
+              fgColor: { argb: 'FF0000' }, // Red color
+            };
+          }
         });
       }
     });
