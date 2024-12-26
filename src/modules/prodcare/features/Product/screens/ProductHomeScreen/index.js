@@ -282,8 +282,9 @@ function ProductHomePage(props) {
         t('CurrentStatus'),
         t('Status'),
         t('Note'),
+        'Is First Row', // Helper column
       ],
-      ...excelComponents.map((item) => {
+      ...excelComponents.map((item, index) => {
         const customer = item?.product?.customer;
         const issues = item?.issues;
 
@@ -291,6 +292,7 @@ function ProductHomePage(props) {
           issues?.length > 0 && issues?.every((item) => item?.status !== 'PROCESSED')
             ? true
             : false;
+
         return [
           customer ? `${customer?.['military_region']} - ${customer?.['name']}` : '',
           item?.product?.name,
@@ -302,6 +304,10 @@ function ProductHomePage(props) {
             : '',
           breakdown ? t('HaveErrors') : t('Active'),
           item?.description ?? '',
+          index === 0 ||
+          excelComponents[index - 1]?.product?.customer?.['name'] !== customer?.['name']
+            ? 'Yes'
+            : 'No', // Helper column logic
         ];
       }),
     ];
@@ -315,7 +321,7 @@ function ProductHomePage(props) {
         cell.font = { name: 'Times New Roman', size: 11 };
       });
 
-      if (row[6] === t('HaveErrors')) {
+      if (row[6] === t('HaveErrors') || row[5] === t(AppData.productCurrentStatus[2].name)) {
         excelRow.eachCell((cell, colNumber) => {
           if (colNumber > 2) {
             // Skip columns A (1) and B (2)
@@ -327,6 +333,13 @@ function ProductHomePage(props) {
           }
         });
       }
+    });
+
+    // Apply styles to the first row (header row)
+    const headerRow = worksheet2.getRow(1);
+    headerRow.eachCell((cell) => {
+      cell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true }; // Align text to the center
+      cell.font = { name: 'Times New Roman', size: 12, bold: true }; // Bold and green
     });
 
     // Adding borders to list sheet cells
@@ -341,8 +354,12 @@ function ProductHomePage(props) {
       });
     });
 
-    worksheet2.columns.forEach((column) => {
-      column.width = 30; // Adjust as necessary
+    worksheet2.columns.forEach((column, index) => {
+      if (index === worksheet2.columns.length - 1) {
+        column.hidden = true; // Hide the helper column
+      } else {
+        column.width = 30; // Adjust as necessary
+      }
     });
 
     // Merge cells in column A (Customer) and column B (Product)
@@ -362,6 +379,12 @@ function ProductHomePage(props) {
 
     mergeCellsByColumn(1); // Merge column A
     mergeCellsByColumn(2); // Merge column B
+
+    worksheet2.getColumn(4).width = 30;
+    worksheet2.getColumn(5).width = 15;
+    worksheet2.getColumn(6).width = 15;
+    worksheet2.getColumn(7).width = 15;
+    worksheet2.getColumn(8).width = 40;
 
     const buffer = await workbook.xlsx.writeBuffer();
     const blob = new Blob([buffer], {

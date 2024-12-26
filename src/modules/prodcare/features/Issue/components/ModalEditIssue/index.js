@@ -444,7 +444,7 @@ function ModalEditIssue({
                     }
                     inputName="productId"
                     inputElement={
-                      <FastField name="productId">
+                      <Field name="productId">
                         {({ field, form, meta }) => (
                           <KeenSelectOption
                             searchable={true}
@@ -452,14 +452,21 @@ function ModalEditIssue({
                             fieldHelpers={formikProps.getFieldHelpers(field.name)}
                             fieldMeta={meta}
                             name={field.name}
-                            options={products?.map((item) => {
-                              return {
-                                name: `${item?.['name']} ${
-                                  item?.serial ? '(' + item?.serial + ')' : ''
-                                }`,
-                                value: item.id,
-                              };
-                            })}
+                            options={products
+                              ?.filter((item) =>
+                                formikProps.getFieldProps('customerId')?.value
+                                  ? item?.customer_id ==
+                                    formikProps.getFieldProps('customerId')?.value
+                                  : true
+                              )
+                              ?.map((item) => {
+                                return {
+                                  name: `${item?.['name']} ${
+                                    item?.serial ? '(' + item?.serial + ')' : ''
+                                  }`,
+                                  value: item.id,
+                                };
+                              })}
                             onValueChanged={(newValue) => {
                               form.setFieldValue(field.name, newValue);
                               setChangeObj((prev) => {
@@ -480,7 +487,7 @@ function ModalEditIssue({
                             disabled={current?.role === 'GUEST' || !!productId}
                           />
                         )}
-                      </FastField>
+                      </Field>
                     }
                   />
                 </div>

@@ -302,6 +302,14 @@ function ModalEditComponent({
                               return {
                                 name: `${item?.['name']} ${
                                   item?.serial ? '(' + item?.serial + ')' : ''
+                                } ${
+                                  item?.componentCount
+                                    ? '(' +
+                                      item?.componentCount +
+                                      ' ' +
+                                      _.lowerCase(t('Component')) +
+                                      ')'
+                                    : ''
                                 }`,
                                 value: item.id,
                               };
