@@ -165,10 +165,19 @@ function ComponentHomePage(props) {
         name: t('Note'),
         sortable: false,
         cell: (row) => {
+          const issues = row?.issues;
+
+          const breakdown =
+            (issues?.length > 0 && issues?.every((item) => item?.status !== 'PROCESSED')) ||
+            row?.status === 'REPAIRING'
+              ? true
+              : false;
           return (
             <p
               data-tag="allowRowEvents"
-              className="text-dark-75 font-weight-normal m-0 text-maxline-3 mr-4"
+              className={`${
+                breakdown ? 'text-danger' : 'text-dark-75'
+              } font-weight-normal m-0 text-maxline-3 mr-4`}
             >
               {row?.description}
             </p>

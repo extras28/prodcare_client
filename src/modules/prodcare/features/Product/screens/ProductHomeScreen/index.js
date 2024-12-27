@@ -193,8 +193,18 @@ function ProductHomePage(props) {
         <Column
           style={{ width: '200px' }}
           body={(row) => {
+            const issues = row?.data?.issues;
+
+            const breakdown =
+              (issues?.length > 0 && issues?.every((item) => item?.status !== 'PROCESSED')) ||
+              row?.data?.status === 'REPAIRING'
+                ? true
+                : false;
             return (
-              <span data-tag="allowRowEvents" className="font-weight-bolder font-weight-normal">
+              <span
+                data-tag="allowRowEvents"
+                className={`${breakdown ? 'text-danger' : 'text-dark-75'} font-weight-normal`}
+              >
                 {row?.data?.description}
               </span>
             );
