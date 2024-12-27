@@ -540,52 +540,56 @@ const Utils = {
     timeDifferenceInSeconds,
     language = LanguageHelper.getCurrentLanguage()
   ) => {
-    const timeUnits = {
-      en: {
-        second: 'second',
-        minute: 'minute',
-        hour: 'hour',
-        day: 'day',
-        week: 'week',
-        month: 'month',
-        year: 'year',
-        ago: 'ago',
-      },
-      vi: {
-        second: 'giây',
-        minute: 'phút',
-        hour: 'giờ',
-        day: 'ngày',
-        week: 'tuần',
-        month: 'tháng',
-        year: 'năm',
-        ago: 'trước',
-      },
-    };
+    if (timeDifferenceInSeconds < 604800) {
+      const timeUnits = {
+        en: {
+          second: 'second',
+          minute: 'minute',
+          hour: 'hour',
+          day: 'day',
+          week: 'week',
+          month: 'month',
+          year: 'year',
+          ago: 'ago',
+        },
+        vi: {
+          second: 'giây',
+          minute: 'phút',
+          hour: 'giờ',
+          day: 'ngày',
+          week: 'tuần',
+          month: 'tháng',
+          year: 'năm',
+          ago: 'trước',
+        },
+      };
 
-    const selectedLanguage = timeUnits[language];
+      const selectedLanguage = timeUnits[language];
 
-    const timeIntervals = [
-      { unit: 'year', seconds: 31536000 }, // 60 * 60 * 24 * 365
-      { unit: 'month', seconds: 2592000 }, // 60 * 60 * 24 * 30
-      { unit: 'week', seconds: 604800 }, // 60 * 60 * 24 * 7
-      { unit: 'day', seconds: 86400 }, // 60 * 60 * 24
-      { unit: 'hour', seconds: 3600 }, // 60 * 60
-      { unit: 'minute', seconds: 60 }, // 60
-      { unit: 'second', seconds: 1 },
-    ];
+      const timeIntervals = [
+        { unit: 'year', seconds: 31536000 }, // 60 * 60 * 24 * 365
+        { unit: 'month', seconds: 2592000 }, // 60 * 60 * 24 * 30
+        { unit: 'week', seconds: 604800 }, // 60 * 60 * 24 * 7
+        { unit: 'day', seconds: 86400 }, // 60 * 60 * 24
+        { unit: 'hour', seconds: 3600 }, // 60 * 60
+        { unit: 'minute', seconds: 60 }, // 60
+        { unit: 'second', seconds: 1 },
+      ];
 
-    for (let interval of timeIntervals) {
-      const timeValue = Math.floor(timeDifferenceInSeconds / interval.seconds);
-      if (timeValue >= 1) {
-        const unitLabel =
-          selectedLanguage[interval.unit] + (timeValue > 1 && language === 'en' ? 's' : '');
-        return `${timeValue} ${unitLabel} ${selectedLanguage.ago}`;
+      for (let interval of timeIntervals) {
+        const timeValue = Math.floor(timeDifferenceInSeconds / interval.seconds);
+        if (timeValue >= 1) {
+          const unitLabel =
+            selectedLanguage[interval.unit] + (timeValue > 1 && language === 'en' ? 's' : '');
+          return `${timeValue} ${unitLabel} ${selectedLanguage.ago}`;
+        }
       }
+
+      // If the difference is less than 1 second
+      return `0 ${selectedLanguage.second} ${selectedLanguage.ago}`;
     }
 
-    // If the difference is less than 1 second
-    return `0 ${selectedLanguage.second} ${selectedLanguage.ago}`;
+    return Utils.formatDateTime(timeDifferenceInSeconds, 'YYYY-MM-DD HH:mm');
   },
 };
 

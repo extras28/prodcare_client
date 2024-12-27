@@ -56,7 +56,7 @@ function CustomerHomePage(props) {
       {
         name: t('Unit'),
         sortable: false,
-        width: '120px',
+        // width: '120px',
         cell: (row) => {
           return (
             <p
@@ -71,7 +71,7 @@ function CustomerHomePage(props) {
       {
         name: t('Sign'),
         sortable: false,
-        width: '120px',
+        // width: '120px',
         cell: (row) => {
           return (
             <p
@@ -83,21 +83,21 @@ function CustomerHomePage(props) {
           );
         },
       },
-      {
-        name: t('CodeNumber'),
-        sortable: false,
-        // minWidth: '120px',
-        cell: (row) => {
-          return (
-            <div
-              data-tag="allowRowEvents"
-              className="text-dark-75 m-0 text-maxline-3 d-flex align-items-center"
-            >
-              {row?.code_number}
-            </div>
-          );
-        },
-      },
+      // {
+      //   name: t('CodeNumber'),
+      //   sortable: false,
+      //   // minWidth: '120px',
+      //   cell: (row) => {
+      //     return (
+      //       <div
+      //         data-tag="allowRowEvents"
+      //         className="text-dark-75 m-0 text-maxline-3 d-flex align-items-center"
+      //       >
+      //         {row?.code_number}
+      //       </div>
+      //     );
+      //   },
+      // },
 
       {
         name: t('Address'),

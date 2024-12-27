@@ -74,11 +74,17 @@ function ComponentDetailScreen(props) {
         }`,
       },
       { label: t('ComponentLevel'), value: componentDetail?.level ?? '' },
+      { label: t('Note'), value: componentDetail?.description ?? '' },
     ];
   }, [componentDetail]);
 
   const issueList = useMemo(
-    () => <IssueHomePage name={componentDetail?.name} componentId={componentDetail?.id} />,
+    () => (
+      <IssueHomePage
+        name={`${componentDetail?.name} - ${componentDetail?.serial}`}
+        componentId={componentDetail?.id}
+      />
+    ),
     [componentDetail]
   );
 
@@ -106,7 +112,7 @@ function ComponentDetailScreen(props) {
   return (
     <div className="row">
       {/* component detail */}
-      <div className="col-4">
+      <div className="col-3">
         <div className="bg-white rounded px-4 mb-4">
           {rows?.map((item, index) => (
             <div
@@ -138,7 +144,7 @@ function ComponentDetailScreen(props) {
         <ComponentActivityTab />
       </div>
 
-      <div className="col-8">
+      <div className="col-9">
         <div className="bg-white rounded">
           <div className="p-4">{issueList}</div>
         </div>

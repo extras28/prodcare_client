@@ -28,6 +28,7 @@ import ModalEditIssue from '../../components/ModalEditIssue';
 import ModalEvaluateIssue from '../../components/ModalEvaluateIssue';
 import ModalUploadIssueFile from '../../components/ModalUploadIssueFile';
 import { setPaginationPerPage, thunkGetListIssue } from '../../issueSlice';
+import KeenSearchBarNoFormik from 'shared/components/OtherKeenComponents/KeenSearchBarNoFormik';
 
 IssueHomePage.propTypes = {};
 
@@ -213,7 +214,7 @@ function IssueHomePage(props) {
         id: 8,
         name: t('StopFighting'),
         sortable: false,
-        // minWidth: '120px',
+        width: '100px',
         cell: (row) => {
           return (
             <p
@@ -237,7 +238,7 @@ function IssueHomePage(props) {
               data-tag="allowRowEvents"
               className="text-dark-75 m-0 text-maxline-5 d-flex align-items-center"
             >
-              {users.find((item) => item.value === row?.['account_id'])?.name}
+              {users.find((item) => item.email === row?.['account_id'])?.name}
             </div>
           );
         },
@@ -986,10 +987,10 @@ function IssueHomePage(props) {
         <div className="flex-md-row d-md-flex card-header border-0 pt-6 pb-6">
           {/* header toolbar */}
           <div className="d-flex flex-wrap gap-2">
-            {/* <KeenSearchBarNoFormik
+            <KeenSearchBarNoFormik
               name="searchQuery"
               className="my-2"
-              placeholder={`${t('Search')}...`}
+              placeholder={`${t('Serial')}...`}
               value={Global.gFiltersIssueList.q}
               onSubmit={(text) => {
                 needToRefreshData.current = true;
@@ -1004,7 +1005,7 @@ function IssueHomePage(props) {
                   page: 0,
                 });
               }}
-            /> */}
+            />
             {/* <div className="d-flex flex-wrap align-items-center">
               <label className="mr-2 mb-0" htmlFor="project">
                 {_.capitalize(t('Project'))}

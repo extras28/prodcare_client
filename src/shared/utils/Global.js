@@ -21,6 +21,7 @@ const Global = {
     q: '',
     productId: '',
     level: '',
+    status: '',
     projectId: JSON.parse(localStorage.getItem(PreferenceKeys.currentProject))?.id ?? '',
   },
 

@@ -191,6 +191,18 @@ function ProductHomePage(props) {
           header={t('Mfg')}
         ></Column> */}
         <Column
+          style={{ width: '200px' }}
+          body={(row) => {
+            return (
+              <span data-tag="allowRowEvents" className="font-weight-bolder font-weight-normal">
+                {row?.data?.description}
+              </span>
+            );
+          }}
+          field="description"
+          header={t('Note')}
+        ></Column>
+        <Column
           style={{ width: '100px' }}
           body={(row) => {
             return (

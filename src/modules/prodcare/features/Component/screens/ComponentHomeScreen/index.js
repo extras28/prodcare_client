@@ -44,24 +44,24 @@ function ComponentHomePage(props) {
   const { current } = useSelector((state) => state.auth);
   const needToRefreshData = useRef(components?.length === 0);
   const refLoading = useRef(false);
-  const { products } = useSelector((state) => state?.app);
-  const { currentProject, projects } = useSelector((state) => state?.app);
+  const { currentProject, projects, customers, products } = useSelector((state) => state?.app);
   const columns = useMemo(() => {
     const tableColumns = [
-      // {
-      //   name: t('ID'),
-      //   sortable: false,
-      //   cell: (row) => {
-      //     return (
-      //       <div
-      //         data-tag="allowRowEvents"
-      //         className="text-dark-75 font-weight-bold m-0 text-maxline-3 d-flex align-items-center"
-      //       >
-      //         {row?.id}
-      //       </div>
-      //     );
-      //   },
-      // },
+      {
+        name: t('Serial'),
+        sortable: false,
+        width: '170px',
+        cell: (row) => {
+          return (
+            <p
+              data-tag="allowRowEvents"
+              className="text-dark-75 font-weight-bolder font-weight-normal m-0 text-maxline-3 mr-4"
+            >
+              {row?.serial}
+            </p>
+          );
+        },
+      },
       {
         name: t('ComponentName'),
         sortable: false,
@@ -77,15 +77,14 @@ function ComponentHomePage(props) {
         },
       },
       {
-        name: t('Serial'),
+        id: 2,
+        name: t('Customer'),
         sortable: false,
         cell: (row) => {
+          const ct = row?.product?.customer;
           return (
-            <p
-              data-tag="allowRowEvents"
-              className="text-dark-75 font-weight-bolder font-weight-normal m-0 text-maxline-3 mr-4"
-            >
-              {row?.serial}
+            <p data-tag="allowRowEvents" className="font-weight-normal m-0 text-maxline-3 mr-4">
+              {ct ? `${ct?.['military_region']} - ${ct?.['name']}` : ''}
             </p>
           );
         },
@@ -105,24 +104,6 @@ function ComponentHomePage(props) {
           );
         },
       },
-      // {
-      //   name: t('Project'),
-      //   sortable: false,
-      //   cell: (row) => {
-      //     return (
-      //       <p
-      //         data-tag="allowRowEvents"
-      //         className="text-dark-75 font-weight-bolder font-weight-normal m-0 text-maxline-3 mr-4"
-      //       >
-      //         {
-      //           projects.find(
-      //             (pr) => pr.id == products.find((item) => item.id == row.product_id)?.project_id
-      //           )?.['project_name']
-      //         }
-      //       </p>
-      //     );
-      //   },
-      // },
       {
         name: t('ComponentLevel'),
         sortable: false,
@@ -177,6 +158,20 @@ function ComponentHomePage(props) {
             >
               {breakdown ? t('HaveErrors') : t('Active')}
             </span>
+          );
+        },
+      },
+      {
+        name: t('Note'),
+        sortable: false,
+        cell: (row) => {
+          return (
+            <p
+              data-tag="allowRowEvents"
+              className="text-dark-75 font-weight-normal m-0 text-maxline-3 mr-4"
+            >
+              {row?.description}
+            </p>
           );
         },
       },
@@ -351,9 +346,9 @@ function ComponentHomePage(props) {
   return (
     <div>
       <div className="card-title ">
-        <h1 className="card-label">{`${t('ComponentList')} ${
-          pagination?.total ? `(${pagination?.total})` : ''
-        }`}</h1>
+        <h1 className="card-label">{`${t('ComponentList', {
+          product: currentProject?.project_name,
+        })} ${pagination?.total ? `(${pagination?.total})` : ''}`}</h1>
       </div>
 
       <div className="card card-custom border">
@@ -403,6 +398,66 @@ function ComponentHomePage(props) {
                     ...filters,
                     page: 0,
                     productId: newValue,
+                  };
+                  setFilters({
+                    ...Global.gFiltersComponentList,
+                  });
+                }}
+              />
+            </div>
+            {/* <div className="d-flex flex-wrap align-items-center">
+              <label className="mr-2 mb-0" htmlFor="customer">
+                {_.capitalize(t('Customer'))}
+              </label>
+              <KTFormSelect
+                name="customer"
+                isCustom
+                options={[
+                  { name: 'All', value: '' },
+                  ...customers.map((item) => {
+                    return {
+                      name: `${item?.['military_region']} - ${item?.['name']}`,
+                      value: item.id.toString(),
+                    };
+                  }),
+                ]}
+                value={Global.gFiltersComponentList.customerId}
+                onChange={(newValue) => {
+                  needToRefreshData.current = true;
+                  Global.gFiltersComponentList = {
+                    ...filters,
+                    page: 0,
+                    customerId: newValue,
+                  };
+                  setFilters({
+                    ...Global.gFiltersComponentList,
+                  });
+                }}
+              />
+            </div> */}
+            <div className="d-flex flex-wrap align-items-center">
+              <label className="mr-2 mb-0" htmlFor="product">
+                {_.capitalize(t('CurrentStatus'))}
+              </label>
+              <KTFormSelect
+                name="status"
+                isCustom
+                options={[
+                  { name: 'All', value: '' },
+                  ...AppData.productCurrentStatus.map((item) => {
+                    return {
+                      name: t(item?.name),
+                      value: item.value?.toString(),
+                    };
+                  }),
+                ]}
+                value={Global.gFiltersComponentList.status}
+                onChange={(newValue) => {
+                  needToRefreshData.current = true;
+                  Global.gFiltersComponentList = {
+                    ...filters,
+                    page: 0,
+                    status: newValue,
                   };
                   setFilters({
                     ...Global.gFiltersComponentList,

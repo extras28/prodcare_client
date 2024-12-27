@@ -83,7 +83,7 @@
   "MessageConfirmDeleteMultiProject": "Bạn có chắc muốn xoá {{projects}} dự án?",
   "MessageConfirmDeleteProject": "Bạn có chắc muốn xoá dự án {{name}}?",
   "Component": "Thành phần",
-  "ComponentList": "Danh sách thành phần",
+  "ComponentList": "Danh sách thành phần {{product}}",
   "Product": "Sản phẩm",
   "ProductList": "Danh sách sản phẩm",
   "NewProduct": "Thêm mới sản phẩm",

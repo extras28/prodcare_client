@@ -260,7 +260,7 @@ function ModalEditCustomer({
               </div>
 
               {/* CodeNumber */}
-              <div className="col-12">
+              {/* <div className="col-12">
                 <KTFormGroup
                   label={<>{t('CodeNumber')}</>}
                   inputName="codeNumber"
@@ -277,6 +277,32 @@ function ModalEditCustomer({
                           feedbackText={meta.error}
                           placeholder={`${_.capitalize(t('CodeNumber'))}...`}
                           type={KTFormInputType.text}
+                          disabled={current?.role != 'ADMIN'}
+                        />
+                      )}
+                    </FastField>
+                  }
+                />
+              </div> */}
+
+              {/* Phone */}
+              <div className="col-12">
+                <KTFormGroup
+                  label={<>{t('Phone')}</>}
+                  inputName="phone"
+                  inputElement={
+                    <FastField name="phone">
+                      {({ field, form, meta }) => (
+                        <KTFormInput
+                          {...field}
+                          onChange={(value) => form.setFieldValue(field.name, value)}
+                          onBlur={() => form.setFieldTouched(field.name, true)}
+                          enableCheckValid
+                          isValid={_.isEmpty(meta.error)}
+                          isTouched={meta.touched}
+                          feedbackText={meta.error}
+                          placeholder={`${_.capitalize(t('Phone'))}...`}
+                          type={KTFormInputType.telephone}
                           disabled={current?.role != 'ADMIN'}
                         />
                       )}
@@ -303,32 +329,6 @@ function ModalEditCustomer({
                           feedbackText={meta.error}
                           placeholder={`${_.capitalize(t('Address'))}...`}
                           type={KTFormInputType.text}
-                          disabled={current?.role != 'ADMIN'}
-                        />
-                      )}
-                    </FastField>
-                  }
-                />
-              </div>
-
-              {/* Phone */}
-              <div className="col-12">
-                <KTFormGroup
-                  label={<>{t('Phone')}</>}
-                  inputName="phone"
-                  inputElement={
-                    <FastField name="phone">
-                      {({ field, form, meta }) => (
-                        <KTFormInput
-                          {...field}
-                          onChange={(value) => form.setFieldValue(field.name, value)}
-                          onBlur={() => form.setFieldTouched(field.name, true)}
-                          enableCheckValid
-                          isValid={_.isEmpty(meta.error)}
-                          isTouched={meta.touched}
-                          feedbackText={meta.error}
-                          placeholder={`${_.capitalize(t('Phone'))}...`}
-                          type={KTFormInputType.telephone}
                           disabled={current?.role != 'ADMIN'}
                         />
                       )}
