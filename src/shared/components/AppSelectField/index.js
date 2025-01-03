@@ -28,7 +28,9 @@ function AppSelectField({ fields = [], defaultColumns = [] }) {
       columns = current.filter((cl) => cl != item.id);
     }
 
-    await accountApi.adjustIssueColumns({ columnIds: columns.map((cl) => (cl.id ? cl.id : cl)) });
+    await accountApi.adjustIssueColumns({
+      columnIds: columns.map((cl) => (cl?.id ? cl?.id : cl)),
+    });
     dispatch(thunkGetCurrentColumn());
   }
 
@@ -61,7 +63,7 @@ function AppSelectField({ fields = [], defaultColumns = [] }) {
             ))}
           </div>
         }
-        autoCloseBehavior={false}
+        autoCloseBehavior={'false'}
         staticDisplay={true}
       />
     </div>

@@ -1,6 +1,8 @@
 import eventApi from 'api/eventApi';
 import issueApi from 'api/issueApi';
+import { thunkGetAllReason } from 'app/appSlice';
 import { FastField, Formik } from 'formik';
+import useRouter from 'hooks/useRouter';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { useRef, useState } from 'react';
@@ -17,13 +19,13 @@ import ToastHelper from 'shared/helpers/ToastHelper';
 import Global from 'shared/utils/Global';
 import * as Yup from 'yup';
 import { thunkGetListIssue } from '../../issueSlice';
-import { thunkGetAllReason } from 'app/appSlice';
 
 function ModalEvaluateIssue({
   show = false,
   onClose = null,
   issueItem = null,
   onExistDone = null,
+  productId = null,
   reasons = [],
 }) {
   const { t } = useTranslation();
@@ -31,6 +33,7 @@ function ModalEvaluateIssue({
   const { current } = useSelector((state) => state?.auth);
   const [changeObj, setChangeObj] = useState({});
   const refFormik = useRef(null);
+  const router = useRouter();
 
   function handleClose() {
     if (onClose) {
@@ -196,13 +199,16 @@ function ModalEvaluateIssue({
   return (
     <Formik
       initialValues={{
+        productId: issueItem?.product_id ? issueItem?.product_id : productId ? productId : '',
+        customerId: issueItem?.customer_id?.toString() || '',
+        componentId: issueItem?.component_id || '',
         id: issueItem?.id || '',
         responsibleType: issueItem?.responsible_type || '',
         level: issueItem?.level || '',
         overdueKpiReason: issueItem?.overdue_kpi_reason || '',
         impact: issueItem?.impact || '',
         description: issueItem?.description || '',
-        stopFighting: issueItem?.stop_fighting || '',
+        stopFighting: issueItem?.stop_fighting || false,
         unhandleReason: issueItem?.unhandle_reason || '',
         productStatus: issueItem?.product_status || '',
         handlingMeasures: issueItem?.handling_measures || '',
@@ -219,7 +225,7 @@ function ModalEvaluateIssue({
         level: Yup.string().required(t('Required')),
       })}
       enableReinitialize
-      onSubmit={(values) => {
+      onSubmit={async (values) => {
         requestUpdateIssue(values);
       }}
     >

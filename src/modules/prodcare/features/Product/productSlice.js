@@ -83,6 +83,7 @@ const productSlice = createSlice({
     builder.addCase(thunkGetProductDetail.fulfilled, (state, action) => {
       state.isGettingProductDetail = false;
       const { result, product, issues, events } = action.payload;
+
       if (result == 'success') {
         state.productDetail = product;
         state.events = events;

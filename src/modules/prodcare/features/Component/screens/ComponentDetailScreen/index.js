@@ -15,12 +15,23 @@ ComponentDetailScreen.propTypes = {};
 function ComponentDetailScreen(props) {
   // MARK: --- Params ---
   const router = useRouter();
-  const { componentDetail } = useSelector((state) => state.component);
+  const { componentDetail, issues } = useSelector((state) => state.component);
   const dispatch = useDispatch();
   const { t } = useTranslation();
   const [modalComponentEditShowing, setModalEditComponentShowing] = useState(false);
   const { current } = useSelector((state) => state?.auth);
   const { customers, products } = useSelector((state) => state?.app);
+  const situation = useMemo(() => {
+    if (issues?.length == 0) return 'GOOD';
+
+    const handled = issues?.every((item) => item?.status == 'PROCESSED') ? true : false;
+    if (handled) return 'GOOD';
+
+    const stopFighting = issues?.some((item) => item?.stop_fighting && item?.status != 'PROCESSED')
+      ? true
+      : false;
+    return !stopFighting ? 'DEGRADED' : 'DEFECTIVE';
+  }, [componentDetail, issues]);
 
   const rows = useMemo(() => {
     return [
@@ -38,23 +49,14 @@ function ComponentDetailScreen(props) {
       },
       {
         label: t('Status'),
-        value: (
-          componentDetail?.issues?.length > 0 &&
-          componentDetail?.issues?.every((item) => item?.status !== 'PROCESSED')
-            ? true
-            : false
-        )
-          ? t('HaveErrors')
-          : t('Active'),
+        value:
+          situation == 'GOOD'
+            ? t('Good')
+            : situation == 'DEFECTIVE'
+            ? t('HaveErrors')
+            : t('OperationalWithErrors'),
         valueClassName: `badge badge-${
-          (
-            componentDetail?.issues?.length > 0 &&
-            componentDetail?.issues?.every((item) => item?.status !== 'PROCESSED')
-              ? true
-              : false
-          )
-            ? 'danger'
-            : 'success'
+          situation == 'GOOD' ? 'success' : situation == 'DEFECTIVE' ? 'danger' : 'warning'
         }`,
       },
       {

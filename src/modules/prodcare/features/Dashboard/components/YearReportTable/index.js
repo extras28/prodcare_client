@@ -287,7 +287,7 @@ function YearReportTable(props) {
         return [
           index + 1,
           t(_.capitalize(row?.status)),
-          ct ? `${ct?.['military_region']} - ${ct?.['name']}` : '',
+          ct ? `${ct?.['name']} - ${ct?.['military_region']}` : '',
           // `${pd?.name} ${pd?.serial ? '(' + pd?.serial + ')' : ''}`,
           // components?.find((item) => item.id == row?.component_id)?.name || '',
           `${pd?.name} ${pd?.serial ? '(' + pd?.serial + ')' : ''} ${row?.componentPath || ''}`,
@@ -470,7 +470,7 @@ function YearReportTable(props) {
         return [
           index + 1,
           t(_.capitalize(row?.status)),
-          ct ? `${ct?.['military_region']} - ${ct?.['name']}` : '',
+          ct ? `${ct?.['name']} - ${ct?.['military_region']}` : '',
           // `${pd?.name} ${pd?.serial ? '(' + pd?.serial + ')' : ''}`,
           // components?.find((item) => item.id == row?.component_id)?.name || '',
           `${pd?.name} ${pd?.serial ? '(' + pd?.serial + ')' : ''} ${row?.componentPath || ''}`,

@@ -85,6 +85,19 @@ function ProductHomePage(props) {
         value={products}
       >
         <Column
+          style={{ width: '40px' }}
+          className="pr-0"
+          body={(row) => {
+            return (
+              <span data-tag="allowRowEvents" className="ont-weight-normal">
+                {row?.data?.orderNumber}
+              </span>
+            );
+          }}
+          field="order"
+          header={t('STT')}
+        ></Column>
+        <Column
           style={{ width: '200px' }}
           body={(row) => {
             return (
@@ -98,7 +111,7 @@ function ProductHomePage(props) {
           expander
         ></Column>
         <Column
-          style={{ width: '200px' }}
+          style={{ width: '180px' }}
           body={(row) => {
             return (
               <span data-tag="allowRowEvents" className="font-weight-bolder font-weight-normal">
@@ -110,12 +123,12 @@ function ProductHomePage(props) {
           header={t('Serial')}
         ></Column>
         <Column
-          style={{ width: '200px' }}
+          style={{ width: '150px' }}
           body={(row) => {
             const ct = customers.find((item) => item.id === row?.data?.['customer_id']);
             return (
               <span data-tag="allowRowEvents" className="font-weight-normal  text-maxline-3">
-                {ct ? `${ct?.['military_region']} - ${ct?.['name']}` : ''}
+                {ct ? `${ct?.['name']} - ${ct?.['military_region']}` : ''}
               </span>
             );
           }}
@@ -164,16 +177,30 @@ function ProductHomePage(props) {
           body={(row) => {
             const issues = row?.data?.issues;
 
-            const breakdown =
-              issues?.length > 0 && issues?.every((item) => item?.status !== 'PROCESSED')
-                ? true
-                : false;
+            let active = 'GOOD';
+
+            if (issues?.length > 0) {
+              const allProcessed = issues.every((item) => item?.status == 'PROCESSED');
+              if (!allProcessed) {
+                const hasStopFighting = issues.some(
+                  (item) => item?.stop_fighting && item?.status != 'PROCESSED'
+                );
+                active = hasStopFighting ? 'DEFECTIVE' : 'DEGRADED';
+              }
+            }
+
             return (
               <span
                 data-tag="allowRowEvents"
-                className={`badge badge-${breakdown ? 'danger' : 'success'}`}
+                className={`badge badge-${
+                  active == 'GOOD' ? 'success' : active == 'DEFECTIVE' ? 'danger' : 'warning'
+                }`}
               >
-                {breakdown ? t('HaveErrors') : t('Active')}
+                {active == 'GOOD'
+                  ? t('Good')
+                  : active == 'DEFECTIVE'
+                  ? t('HaveErrors')
+                  : t('OperationalWithErrors')}
               </span>
             );
           }}
@@ -195,11 +222,18 @@ function ProductHomePage(props) {
           body={(row) => {
             const issues = row?.data?.issues;
 
-            const breakdown =
-              (issues?.length > 0 && issues?.every((item) => item?.status !== 'PROCESSED')) ||
-              row?.data?.status === 'REPAIRING'
-                ? true
-                : false;
+            let active = 'GOOD';
+
+            if (issues?.length > 0) {
+              const allProcessed = issues.every((item) => item?.status == 'PROCESSED');
+              if (!allProcessed) {
+                const hasStopFighting = issues.some(
+                  (item) => item?.stop_fighting && item?.status != 'PROCESSED'
+                );
+                active = hasStopFighting ? 'DEFECTIVE' : 'DEGRADED';
+              }
+            }
+            const breakdown = active == 'DEFECTIVE' || row?.status === 'REPAIRING' ? true : false;
             return (
               <span
                 data-tag="allowRowEvents"
@@ -212,7 +246,7 @@ function ProductHomePage(props) {
           field="description"
           header={t('Note')}
         ></Column>
-        <Column
+        {/* <Column
           style={{ width: '100px' }}
           body={(row) => {
             return (
@@ -224,7 +258,7 @@ function ProductHomePage(props) {
             );
           }}
           header={t('HandedOverTime')}
-        ></Column>
+        ></Column> */}
         <Column
           style={{ width: '120px' }}
           body={(row) => {
@@ -617,7 +651,7 @@ function ProductHomePage(props) {
                   { name: 'All', value: '' },
                   ...customers.map((item) => {
                     return {
-                      name: `${item?.['military_region']} - ${item?.['name']}`,
+                      name: `${item?.['name']} - ${item?.['military_region']}`,
                       value: item.id.toString(),
                     };
                   }),
@@ -659,6 +693,36 @@ function ProductHomePage(props) {
                     ...filters,
                     page: 0,
                     status: newValue,
+                  };
+                  setFilters({
+                    ...Global.gFiltersProductList,
+                  });
+                }}
+              />
+            </div>
+            <div className="d-flex flex-wrap align-items-center">
+              <label className="mr-2 mb-0" htmlFor="situation">
+                {_.capitalize(t('Status'))}
+              </label>
+              <KTFormSelect
+                name="situation"
+                isCustom
+                options={[
+                  { name: 'All', value: '' },
+                  ...AppData.productAndComponentStatus.map((item) => {
+                    return {
+                      name: t(item?.name),
+                      value: item.value,
+                    };
+                  }),
+                ]}
+                value={Global.gFiltersProductList.situation}
+                onChange={(newValue) => {
+                  needToRefreshData.current = true;
+                  Global.gFiltersProductList = {
+                    ...filters,
+                    page: 0,
+                    situation: newValue,
                   };
                   setFilters({
                     ...Global.gFiltersProductList,

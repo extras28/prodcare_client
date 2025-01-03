@@ -39,6 +39,18 @@ function CustomerHomePage(props) {
   const columns = useMemo(() => {
     const tableColumns = [
       {
+        name: t('STT'),
+        sortable: false,
+        width: '60px',
+        cell: (row) => {
+          return (
+            <div data-tag="allowRowEvents" className="">
+              {row?.orderNumber}
+            </div>
+          );
+        },
+      },
+      {
         name: t('ManagingAuthority'),
         sortable: false,
         // minWidth: '120px',

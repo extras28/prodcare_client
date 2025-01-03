@@ -304,5 +304,7 @@
   "LastYear": " Năm trước",
   "Hour": "Giờ",
   "Repairing": "Đang sửa chữa",
-  "Export": "Xuất excel"
+  "Export": "Xuất excel",
+  "OperationalWithErrors": "Tạm dùng",
+  "Good": "Tốt"
 }

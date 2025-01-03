@@ -70,17 +70,18 @@ const componentSlice = createSlice({
 
     // get component detail
     builder.addCase(thunkGetComponentDetail.pending, (state, action) => {
-      state.iseGettingDetail = true;
+      state.isGettingDetail = true;
     });
     builder.addCase(thunkGetComponentDetail.rejected, (state, action) => {
-      state.iseGettingDetail = false;
+      state.isGettingDetail = false;
     });
     builder.addCase(thunkGetComponentDetail.fulfilled, (state, action) => {
-      state.iseGettingDetail = false;
+      state.isGettingDetail = false;
       const { result, component, events, issues } = action.payload;
       if (result == 'success') {
         state.componentDetail = component;
-        (state.events = events), (state.issues = issues);
+        state.events = events;
+        state.issues = issues;
       }
     });
   },

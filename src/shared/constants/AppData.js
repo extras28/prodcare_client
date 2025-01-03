@@ -217,6 +217,12 @@ const AppData = {
     { name: 'Stored', value: 'STORED' },
     { name: 'Repairing', value: 'REPAIRING' },
   ],
+
+  productAndComponentStatus: [
+    { name: 'Good', value: 'GOOD' },
+    { name: 'OperationalWithErrors', value: 'DEGRADED' },
+    { name: 'HaveErrors', value: 'DEFECTIVE' },
+  ],
 };
 
 export default AppData;

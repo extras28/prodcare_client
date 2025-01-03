@@ -29,6 +29,8 @@ import ModalEvaluateIssue from '../../components/ModalEvaluateIssue';
 import ModalUploadIssueFile from '../../components/ModalUploadIssueFile';
 import { setPaginationPerPage, thunkGetListIssue } from '../../issueSlice';
 import KeenSearchBarNoFormik from 'shared/components/OtherKeenComponents/KeenSearchBarNoFormik';
+import { thunkGetComponentDetail } from 'modules/prodcare/features/Component/componentSlice';
+import { thunkGetProductDetail } from 'modules/prodcare/features/Product/productSlice';
 
 IssueHomePage.propTypes = {};
 
@@ -67,9 +69,23 @@ function IssueHomePage(props) {
   const fullColumns = useMemo(
     () => [
       {
+        id: 37,
+        name: t('STT'),
+        width: '60px',
+        sortable: false,
+        cell: (row) => {
+          return (
+            <p data-tag="allowRowEvents" className={`font-weight-normal m-0 text-maxline-3 mr-4`}>
+              {t(_.capitalize(row?.orderNumber))}
+            </p>
+          );
+        },
+      },
+      {
         id: 1,
         name: t('Status'),
         sortable: false,
+        width: '100px',
         cell: (row) => {
           return (
             <p
@@ -95,7 +111,7 @@ function IssueHomePage(props) {
           const ct = customers.find((item) => item.id === row['customer_id']);
           return (
             <p data-tag="allowRowEvents" className="font-weight-normal m-0 text-maxline-3 mr-4">
-              {ct ? `${ct?.['military_region']} - ${ct?.['name']}` : ''}
+              {ct ? `${ct?.['name']} - ${ct?.['military_region']}` : ''}
             </p>
           );
         },
@@ -120,7 +136,7 @@ function IssueHomePage(props) {
                   }
                 }}
               >
-                {`${pd?.name} ${pd?.serial ? '(' + pd?.serial + ')' : ''}${
+                {`${pd?.name} ${pd?.serial ? ' (' + pd?.serial + ')' : ''}${
                   row?.componentPath ? '/' + row?.componentPath : ''
                 }`}
               </a>
@@ -198,7 +214,7 @@ function IssueHomePage(props) {
         id: 7,
         name: t('ReceptionTime'),
         sortable: false,
-        // minWidth: '120px',
+        width: '100px',
         cell: (row) => {
           return (
             <div
@@ -1046,7 +1062,7 @@ function IssueHomePage(props) {
                     { name: 'All', value: '' },
                     ...customers.map((item) => {
                       return {
-                        name: `${item?.['military_region']} - ${item?.['name']}`,
+                        name: `${item?.['name']} - ${item?.['military_region']}`,
                         value: item.id.toString(),
                       };
                     }),
@@ -1321,7 +1337,8 @@ function IssueHomePage(props) {
             onSelectedRowsChange={handleSelectedIssuesChanged}
             clearSelectedRows={toggledClearIssues}
             onRowClicked={(row) => {
-              handleViewIsseDetail(row);
+              // handleViewIsseDetail(row);
+              handleEditIssue(row);
             }}
             pointerOnHover
             highlightOnHover
@@ -1380,6 +1397,10 @@ function IssueHomePage(props) {
         }}
         onExistDone={() => {
           setSelectedIssueItem(null);
+          if (router.query.productId)
+            dispatch(thunkGetProductDetail({ productId: router.query.productId }));
+          else if (router.query.componentId)
+            dispatch(thunkGetComponentDetail({ componentId: router.query.componentId }));
         }}
         issueItem={selectedIssueItem}
         onRefreshIssueList={() => {
@@ -1391,12 +1412,17 @@ function IssueHomePage(props) {
       />
 
       <ModalEvaluateIssue
+        productId={productId}
         show={modalIssueEvaluateShowing}
         onClose={() => {
           setModalEvaluateIssueShowing(false);
         }}
         onExistDone={() => {
           setSelectedIssueItem(null);
+          if (router.query.productId)
+            dispatch(thunkGetProductDetail({ productId: router.query.productId }));
+          else if (router.query.componentId)
+            dispatch(thunkGetComponentDetail({ componentId: router.query.componentId }));
         }}
         issueItem={selectedIssueItem}
         reasons={reasons}

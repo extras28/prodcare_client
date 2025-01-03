@@ -1,6 +1,8 @@
 import eventApi from 'api/eventApi';
 import issueApi from 'api/issueApi';
+import { thunkGetAllReason } from 'app/appSlice';
 import { FastField, Field, Formik } from 'formik';
+import useRouter from 'hooks/useRouter';
 import _ from 'lodash';
 import moment from 'moment';
 import PropTypes from 'prop-types';
@@ -22,7 +24,6 @@ import Global from 'shared/utils/Global';
 import Utils from 'shared/utils/Utils';
 import * as Yup from 'yup';
 import { thunkGetListIssue } from '../../issueSlice';
-import { thunkGetAllReason } from 'app/appSlice';
 
 function ModalEditIssue({
   components = [],
@@ -42,6 +43,7 @@ function ModalEditIssue({
   const isEditMode = !_.isNull(issueItem);
   const [changeObj, setChangeObj] = useState({});
   const refFormik = useRef(null);
+  const router = useRouter();
 
   function handleClose() {
     if (onClose) {
@@ -257,7 +259,7 @@ function ModalEditIssue({
         warrantyStatus: issueItem?.warranty_status || '',
         overdueKpiReason: issueItem?.overdue_kpi_reason || '',
         impact: issueItem?.impact || 'YES',
-        stopFighting: issueItem?.stop_fighting || '',
+        stopFighting: issueItem?.stop_fighting || false,
         stopFightingDays: issueItem?.stop_ighting_days || '1',
         unhandleReason: issueItem?.unhandle_reason || '',
         // letterSendVmc: issueItem?.letter_send_vmc || '',
@@ -410,7 +412,7 @@ function ModalEditIssue({
                             name={field.name}
                             options={customers?.map((item) => {
                               return {
-                                name: `${item?.['military_region']} - ${item?.['name']}`,
+                                name: `${item?.['name']} - ${item?.['military_region']}`,
                                 value: item.id.toString(),
                               };
                             })}

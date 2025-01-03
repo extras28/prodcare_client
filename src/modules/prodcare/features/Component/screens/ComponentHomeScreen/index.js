@@ -48,6 +48,18 @@ function ComponentHomePage(props) {
   const columns = useMemo(() => {
     const tableColumns = [
       {
+        name: t('STT'),
+        sortable: false,
+        width: '60px',
+        cell: (row) => {
+          return (
+            <div data-tag="allowRowEvents" className="">
+              {row?.orderNumber}
+            </div>
+          );
+        },
+      },
+      {
         name: t('Serial'),
         sortable: false,
         width: '170px',
@@ -84,7 +96,7 @@ function ComponentHomePage(props) {
           const ct = row?.product?.customer;
           return (
             <p data-tag="allowRowEvents" className="font-weight-normal m-0 text-maxline-3 mr-4">
-              {ct ? `${ct?.['military_region']} - ${ct?.['name']}` : ''}
+              {ct ? `${ct?.['name']} - ${ct?.['military_region']}` : ''}
             </p>
           );
         },
@@ -107,7 +119,7 @@ function ComponentHomePage(props) {
       {
         name: t('ComponentLevel'),
         sortable: false,
-        center: 'true',
+        width: '100px',
         cell: (row) => {
           return (
             <div
@@ -147,16 +159,30 @@ function ComponentHomePage(props) {
         cell: (row) => {
           const issues = row?.issues;
 
-          const breakdown =
-            issues?.length > 0 && issues?.every((item) => item?.status !== 'PROCESSED')
-              ? true
-              : false;
+          let active = 'GOOD';
+
+          if (issues?.length > 0) {
+            const allProcessed = issues.every((item) => item?.status == 'PROCESSED');
+            if (!allProcessed) {
+              const hasStopFighting = issues.some(
+                (item) => item?.stop_fighting && item?.status != 'PROCESSED'
+              );
+              active = hasStopFighting ? 'DEFECTIVE' : 'DEGRADED';
+            }
+          }
+
           return (
             <span
               data-tag="allowRowEvents"
-              className={`badge badge-${breakdown ? 'danger' : 'success'}`}
+              className={`badge badge-${
+                active == 'GOOD' ? 'success' : active == 'DEFECTIVE' ? 'danger' : 'warning'
+              }`}
             >
-              {breakdown ? t('HaveErrors') : t('Active')}
+              {active == 'GOOD'
+                ? t('Good')
+                : active == 'DEFECTIVE'
+                ? t('HaveErrors')
+                : t('OperationalWithErrors')}
             </span>
           );
         },
@@ -167,11 +193,18 @@ function ComponentHomePage(props) {
         cell: (row) => {
           const issues = row?.issues;
 
-          const breakdown =
-            (issues?.length > 0 && issues?.every((item) => item?.status !== 'PROCESSED')) ||
-            row?.status === 'REPAIRING'
-              ? true
-              : false;
+          let active = 'GOOD';
+
+          if (issues?.length > 0) {
+            const allProcessed = issues.every((item) => item?.status == 'PROCESSED');
+            if (!allProcessed) {
+              const hasStopFighting = issues.some(
+                (item) => item?.stop_fighting && item?.status != 'PROCESSED'
+              );
+              active = hasStopFighting ? 'DEFECTIVE' : 'DEGRADED';
+            }
+          }
+          const breakdown = active == 'DEFECTIVE' || row?.status === 'REPAIRING' ? true : false;
           return (
             <p
               data-tag="allowRowEvents"
@@ -425,7 +458,7 @@ function ComponentHomePage(props) {
                   { name: 'All', value: '' },
                   ...customers.map((item) => {
                     return {
-                      name: `${item?.['military_region']} - ${item?.['name']}`,
+                      name: `${item?.['name']} - ${item?.['military_region']}`,
                       value: item.id.toString(),
                     };
                   }),
@@ -494,6 +527,36 @@ function ComponentHomePage(props) {
                     ...filters,
                     page: 0,
                     level: newValue,
+                  };
+                  setFilters({
+                    ...Global.gFiltersComponentList,
+                  });
+                }}
+              />
+            </div>
+            <div className="d-flex flex-wrap align-items-center">
+              <label className="mr-2 mb-0" htmlFor="situation">
+                {_.capitalize(t('Status'))}
+              </label>
+              <KTFormSelect
+                name="situation"
+                isCustom
+                options={[
+                  { name: 'All', value: '' },
+                  ...AppData.productAndComponentStatus.map((item) => {
+                    return {
+                      name: t(item?.name),
+                      value: item.value,
+                    };
+                  }),
+                ]}
+                value={Global.gFiltersComponentList.situation}
+                onChange={(newValue) => {
+                  needToRefreshData.current = true;
+                  Global.gFiltersComponentList = {
+                    ...filters,
+                    page: 0,
+                    situation: newValue,
                   };
                   setFilters({
                     ...Global.gFiltersComponentList,
