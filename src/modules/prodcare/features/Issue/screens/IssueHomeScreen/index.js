@@ -1022,33 +1022,6 @@ function IssueHomePage(props) {
                 });
               }}
             />
-            {/* <div className="d-flex flex-wrap align-items-center">
-              <label className="mr-2 mb-0" htmlFor="project">
-                {_.capitalize(t('Project'))}
-              </label>
-              <KTFormSelect
-                name="project"
-                isCustom
-                options={[
-                  { name: 'All', value: '' },
-                  ...projects.map((item) => {
-                    return { name: item.project_name, value: item.id };
-                  }),
-                ]}
-                value={Global.gFiltersIssueList.projectId}
-                onChange={(newValue) => {
-                  needToRefreshData.current = true;
-                  Global.gFiltersIssueList = {
-                    ...filters,
-                    page: 0,
-                    projectId: newValue,
-                  };
-                  setFilters({
-                    ...Global.gFiltersIssueList,
-                  });
-                }}
-              />
-            </div> */}
 
             {!!productId || !!componentId ? null : (
               <div className="d-flex flex-wrap align-items-center">
@@ -1134,6 +1107,32 @@ function IssueHomePage(props) {
                     ...filters,
                     page: 0,
                     status: newValue,
+                  };
+                  setFilters({
+                    ...Global.gFiltersIssueList,
+                  });
+                }}
+              />
+            </div>
+            <div className="d-flex flex-wrap align-items-center">
+              <label className="mr-2 mb-0" htmlFor="stopFighting">
+                {_.capitalize(t('StopFighting'))}
+              </label>
+              <KTFormSelect
+                name="stopFighting"
+                isCustom
+                options={[
+                  { name: 'All', value: '' },
+                  { name: 'Yes', value: true },
+                  { name: 'No', value: false },
+                ]}
+                value={Global.gFiltersIssueList.stopFighting}
+                onChange={(newValue) => {
+                  needToRefreshData.current = true;
+                  Global.gFiltersIssueList = {
+                    ...filters,
+                    page: 0,
+                    stopFighting: newValue,
                   };
                   setFilters({
                     ...Global.gFiltersIssueList,
@@ -1395,6 +1394,7 @@ function IssueHomePage(props) {
         onClose={() => {
           setModalEditIssueShowing(false);
         }}
+        componentId={componentId}
         onExistDone={() => {
           setSelectedIssueItem(null);
           if (router.query.productId)

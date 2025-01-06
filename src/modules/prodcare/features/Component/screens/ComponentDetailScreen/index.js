@@ -84,6 +84,7 @@ function ComponentDetailScreen(props) {
     () => (
       <IssueHomePage
         name={`${componentDetail?.name} - ${componentDetail?.serial}`}
+        productId={componentDetail?.product_id}
         componentId={componentDetail?.id}
       />
     ),

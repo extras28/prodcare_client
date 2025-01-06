@@ -3,6 +3,7 @@ import ProductHomePage from 'modules/prodcare/features/Product/screens/ProductHo
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
+import Global from 'shared/utils/Global';
 import ModalEditCustomer from '../../components/ModalEditCustomer';
 import { clearCustomerDetail, thunkGetCustomerDetail } from '../../customerSlice';
 
@@ -52,6 +53,7 @@ function CustomerDetailScreen(props) {
   useEffect(() => {
     dispatch(thunkGetCustomerDetail({ customerId: router.query.customerId }));
     return () => {
+      delete Global.gFiltersProductList.customerId;
       dispatch(clearCustomerDetail());
     };
   }, []);

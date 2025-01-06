@@ -4,11 +4,11 @@ import IssueHomePage from 'modules/prodcare/features/Issue/screens/IssueHomeScre
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
+import AppData from 'shared/constants/AppData';
 import Utils from 'shared/utils/Utils';
 import ModalEditProduct from '../../components/ModalEditProduct';
 import ProductActivityTab from '../../components/ProductActivityTab';
 import { clearProductDetail, thunkGetProductDetail } from '../../productSlice';
-import AppData from 'shared/constants/AppData';
 
 ProductDetailScreen.propTypes = {};
 

@@ -1,6 +1,6 @@
 import componentApi from 'api/componentApi';
 import eventApi from 'api/eventApi';
-import { thunkGetAllComponent } from 'app/appSlice';
+import { thunkGetAllComponent, thunkGetAllProduct } from 'app/appSlice';
 import { FastField, Field, Formik } from 'formik';
 import _ from 'lodash';
 import { thunkGetListProduct } from 'modules/prodcare/features/Product/productSlice';
@@ -76,6 +76,11 @@ function ModalEditComponent({
         dispatch(thunkGetListComponent(Global.gFiltersComponentList));
         dispatch(
           thunkGetAllComponent({
+            projectId: JSON.parse(localStorage.getItem(PreferenceKeys.currentProject))?.id,
+          })
+        );
+        dispatch(
+          thunkGetAllProduct({
             projectId: JSON.parse(localStorage.getItem(PreferenceKeys.currentProject))?.id,
           })
         );

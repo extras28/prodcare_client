@@ -258,7 +258,7 @@ function ModalEditProduct({
                           name={field.name}
                           options={customers?.map((item) => {
                             return {
-                              name: `${item?.military_region} - ${item.name}`,
+                              name: `${item.name}-${item?.military_region}`,
                               value: item.id,
                             };
                           })}

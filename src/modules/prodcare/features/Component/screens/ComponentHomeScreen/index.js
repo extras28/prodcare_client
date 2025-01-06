@@ -116,21 +116,7 @@ function ComponentHomePage(props) {
           );
         },
       },
-      {
-        name: t('ComponentLevel'),
-        sortable: false,
-        width: '100px',
-        cell: (row) => {
-          return (
-            <div
-              data-tag="allowRowEvents"
-              className="text-dark-75 m-0 text-maxline-3 d-flex align-items-center"
-            >
-              {row?.level}
-            </div>
-          );
-        },
-      },
+
       {
         name: t('CurrentStatus'),
         sortable: false,
@@ -181,9 +167,43 @@ function ComponentHomePage(props) {
               {active == 'GOOD'
                 ? t('Good')
                 : active == 'DEFECTIVE'
-                ? t('HaveErrors')
+                ? t('HaveErrors') +
+                  ' (' +
+                  issues.filter((item) => item?.status != 'PROCESSED' && item?.stop_fighting)
+                    ?.length +
+                  ')'
                 : t('OperationalWithErrors')}
             </span>
+          );
+        },
+      },
+      {
+        name: t('ComponentLevel'),
+        sortable: false,
+        width: '100px',
+        cell: (row) => {
+          return (
+            <div
+              data-tag="allowRowEvents"
+              className="text-dark-75 m-0 text-maxline-3 d-flex align-items-center"
+            >
+              {row?.level}
+            </div>
+          );
+        },
+      },
+      {
+        name: t('SoftwareVersion'),
+        sortable: false,
+        width: '100px',
+        cell: (row) => {
+          return (
+            <div
+              data-tag="allowRowEvents"
+              className="text-dark-75 m-0 text-maxline-3 d-flex align-items-center"
+            >
+              {row?.version}
+            </div>
           );
         },
       },

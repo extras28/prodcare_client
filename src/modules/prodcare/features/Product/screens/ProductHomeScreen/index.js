@@ -18,7 +18,6 @@ import PreferenceKeys from 'shared/constants/PreferenceKeys';
 import LanguageHelper from 'shared/helpers/LanguageHelper';
 import ToastHelper from 'shared/helpers/ToastHelper';
 import Global from 'shared/utils/Global';
-import Utils from 'shared/utils/Utils';
 import Swal from 'sweetalert2';
 import ModalEditProduct from '../../components/ModalEditProduct';
 import ModalProductActivity from '../../components/ModalProductActivity';
@@ -62,6 +61,7 @@ function ProductHomePage(props) {
   const { customerDetail } = useSelector((state) => state?.customer);
   const [modalComponentEditShowing, setModalEditComponentShowing] = useState(false);
   const [selectedComponentItem, setSelectedComponentItem] = useState(null);
+  const [hidingRowIds, setHidingRowIds] = useState([]);
 
   const table = useMemo(
     () => (
@@ -79,8 +79,21 @@ function ProductHomePage(props) {
             />
           </div>
         }
+        // rowClassName={(node) => {
+        //   const expanding = hidingRowIds.find((item) => item == node.key);
+        //   if (expanding) {
+        //     return { 'bg-light': true };
+        //   }
+        //   return null;
+        // }}
         onRowClick={(row) => {
           showProductIssue(row);
+        }}
+        onExpand={(e) => {
+          setHidingRowIds((pre) => pre.concat(e.node.key));
+        }}
+        onCollapse={(e) => {
+          setHidingRowIds((pre) => pre.filter((item) => item != e.node.key));
         }}
         value={products}
       >
@@ -192,14 +205,18 @@ function ProductHomePage(props) {
             return (
               <span
                 data-tag="allowRowEvents"
-                className={`badge badge-${
+                className={`${hidingRowIds.includes(row?.key) ? 'd-none' : ''} badge badge-${
                   active == 'GOOD' ? 'success' : active == 'DEFECTIVE' ? 'danger' : 'warning'
                 }`}
               >
                 {active == 'GOOD'
                   ? t('Good')
                   : active == 'DEFECTIVE'
-                  ? t('HaveErrors')
+                  ? t('HaveErrors') +
+                    ' (' +
+                    issues.filter((item) => item?.status != 'PROCESSED' && item?.stop_fighting)
+                      ?.length +
+                    ')'
                   : t('OperationalWithErrors')}
               </span>
             );
@@ -294,7 +311,7 @@ function ProductHomePage(props) {
         ></Column>
       </TreeTable>
     ),
-    [current, LanguageHelper.getCurrentLanguage(), projects, customers, products]
+    [current, LanguageHelper.getCurrentLanguage(), projects, customers, products, hidingRowIds]
   );
 
   // MARK: --- Functions ---
@@ -588,7 +605,7 @@ function ProductHomePage(props) {
     if (!currentProjectId) return; // Ensure project ID exists
 
     const baseFilters = {
-      ...filters,
+      ...Global.gFiltersProductList,
       projectId: currentProjectId,
     };
 
