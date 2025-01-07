@@ -87,7 +87,7 @@
   "Product": "Sản phẩm",
   "ProductList": "Danh sách sản phẩm",
   "NewProduct": "Thêm mới sản phẩm",
-  "EditProduct": "Chỉnh sửa thông tin sản phẩm",
+  "EditProduct": "Chỉnh sửa thông tin sản phẩm {{name}}",
   "NewComponent": "Tạo mới thành phần",
   "ComponentName": "Tên thành phần",
   "Description": "Mô tả",

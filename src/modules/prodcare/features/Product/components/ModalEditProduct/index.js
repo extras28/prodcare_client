@@ -93,7 +93,10 @@ function ModalEditProduct({
         createEvent({
           subType: 'EDIT',
           productId: values.productId,
-          content: JSON.stringify({ title: t('EditProduct'), ...changeObj }),
+          content: JSON.stringify({
+            title: t('EditProduct', { name: `${productItem?.name} (${productItem?.serial})` }),
+            ...changeObj,
+          }),
         });
         ToastHelper.showSuccess(t('Success'));
         dispatch(thunkGetListProduct(Global.gFiltersProductList));

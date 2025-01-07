@@ -62,7 +62,7 @@ function ProjectHomePage(props) {
           return (
             <p
               data-tag="allowRowEvents"
-              className="text-dark-75 font-weight-normal m-0 text-maxline-3 mr-4"
+              className="text-dark-75 font-weight-normal m-0 text-maxline-3"
             >
               {row?.project_name}
             </p>
@@ -76,7 +76,7 @@ function ProjectHomePage(props) {
           return (
             <p
               data-tag="allowRowEvents"
-              className="text-dark-75 font-weight-bolder font-weight-normal m-0 text-maxline-3 mr-4"
+              className="text-dark-75 font-weight-bolder font-weight-normal m-0 text-maxline-3"
             >
               {row?.project_pm}
             </p>
@@ -277,7 +277,7 @@ function ProjectHomePage(props) {
 
       <div className="card card-custom border">
         {/* card header */}
-        <div className="card-header border-0 pt-6 pb-6">
+        <div className="card-header border-0 ">
           {/* header toolbar */}
 
           <KeenSearchBarNoFormik

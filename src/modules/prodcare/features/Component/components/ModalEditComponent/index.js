@@ -154,6 +154,7 @@ function ModalEditComponent({
         name: componentItem ? componentItem.name : '',
         version: componentItem ? componentItem.version : '',
         status: componentItem ? componentItem.status : 'USING',
+        temporarilyUse: componentItem ? componentItem.temporarily_use : 'NO',
       }}
       validationSchema={Yup.object({
         name: Yup.string().required(t('Required')),
@@ -199,7 +200,7 @@ function ModalEditComponent({
             <Modal.Body className="overflow-auto" style={{ maxHeight: '70vh' }}>
               <div className="row">
                 {/* ComponentName */}
-                <div className="col-12">
+                <div className="col-lg-4 col-md-6">
                   <KTFormGroup
                     label={
                       <>
@@ -239,7 +240,7 @@ function ModalEditComponent({
                 </div>
 
                 {/* serial */}
-                <div className="col-12">
+                <div className="col-lg-4 col-md-6">
                   <KTFormGroup
                     label={
                       <>
@@ -286,7 +287,7 @@ function ModalEditComponent({
                 </div>
 
                 {/* Product */}
-                <div className="col-12">
+                <div className="col-lg-4 col-md-6">
                   <KTFormGroup
                     label={
                       <>
@@ -349,8 +350,51 @@ function ModalEditComponent({
                   />
                 </div>
 
+                <div className="col-lg-4 col-md-6">
+                  <KTFormGroup
+                    label={
+                      <>
+                        {t('OperationalWithErrors')} <span className="text-danger">*</span>
+                      </>
+                    }
+                    inputName="temporarilyUse"
+                    inputElement={
+                      <FastField name="temporarilyUse">
+                        {({ field, form, meta }) => (
+                          <KeenSelectOption
+                            // searchable={true}
+                            fieldProps={field}
+                            fieldHelpers={formikProps.getFieldHelpers(field.name)}
+                            fieldMeta={meta}
+                            name={field.name}
+                            options={AppData.temporarilyUseStatus}
+                            onValueChanged={(newValue) => {
+                              const { temporarilyUseStatus } = AppData;
+
+                              const newTemporarilyUse = temporarilyUseStatus.find(
+                                (item) => item.value === newValue
+                              );
+                              const currentTemporarilyUse = temporarilyUseStatus.find(
+                                (item) => item.value === componentItem?.['temporarily_use']
+                              );
+
+                              setChangeObj((prev) => ({
+                                ...prev,
+                                [`${t('OperationalWithErrors')}`]: `${t(
+                                  currentTemporarilyUse?.name
+                                )} -> ${t(newTemporarilyUse?.name)}`,
+                              }));
+                            }}
+                            disabled={current?.role === 'GUEST'}
+                          />
+                        )}
+                      </FastField>
+                    }
+                  />
+                </div>
+
                 {/* ComponentType */}
-                <div className="col-12">
+                <div className="col-lg-4 col-md-6">
                   <KTFormGroup
                     label={<>{t('ComponentType')}</>}
                     inputName="type"
@@ -395,7 +439,7 @@ function ModalEditComponent({
 
                 {/* SoftwareVersion */}
 
-                <div className="col-12">
+                <div className="col-lg-4 col-md-6">
                   <KTFormGroup
                     label={<>{t('SoftwareVersion')}</>}
                     inputName="version"
@@ -431,7 +475,7 @@ function ModalEditComponent({
                 </div>
 
                 {/* level */}
-                <div className="col-12">
+                <div className="col-lg-4 col-md-6">
                   <KTFormGroup
                     label={<>{t('ComponentLevel')}</>}
                     inputName="level"
@@ -481,7 +525,7 @@ function ModalEditComponent({
 
                 {/* parentId */}
                 {formikProps.getFieldProps('level').value > 1 ? (
-                  <div className="col-12">
+                  <div className="col-lg-4 col-md-6">
                     <KTFormGroup
                       label={
                         <>
@@ -547,7 +591,7 @@ function ModalEditComponent({
                 ) : null}
 
                 {/* status */}
-                <div className="col-12">
+                <div className="col-lg-4 col-md-6">
                   <KTFormGroup
                     label={<>{t('CurrentStatus')}</>}
                     inputName="status"
@@ -594,7 +638,7 @@ function ModalEditComponent({
                 </div>
 
                 {/* Description */}
-                <div className="col-12">
+                <div className="col-8">
                   <KTFormGroup
                     label={<>{t('Description')}</>}
                     inputName="description"
@@ -602,6 +646,7 @@ function ModalEditComponent({
                       <FastField name="description">
                         {({ field, form, meta }) => (
                           <KTFormTextArea
+                            rows={6}
                             {...field}
                             onChange={(value) => {
                               form.setFieldValue(field.name, value);

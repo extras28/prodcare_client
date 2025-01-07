@@ -84,7 +84,7 @@ function UserHomePage(props) {
           return (
             <p
               data-tag="allowRowEvents"
-              className="text-dark-75 font-weight-normal m-0 text-maxline-3 mr-4"
+              className="text-dark-75 font-weight-normal m-0 text-maxline-3"
             >
               {row?.name}
             </p>
@@ -99,7 +99,7 @@ function UserHomePage(props) {
           return (
             <p
               data-tag="allowRowEvents"
-              className="text-dark-75 font-weight-bolder font-weight-normal m-0 text-maxline-3 mr-4"
+              className="text-dark-75 font-weight-bolder font-weight-normal m-0 text-maxline-3"
             >
               {row?.employee_id}
             </p>
@@ -130,7 +130,7 @@ function UserHomePage(props) {
           return (
             <p
               data-tag="allowRowEvents"
-              className="text-dark-75 font-weight-normal m-0 text-maxline-3 mr-4"
+              className="text-dark-75 font-weight-normal m-0 text-maxline-3"
             >
               {row?.phone}
             </p>
@@ -145,7 +145,7 @@ function UserHomePage(props) {
           return (
             <p
               data-tag="allowRowEvents"
-              className="text-dark-75 font-weight-normal m-0 text-maxline-3 mr-4"
+              className="text-dark-75 font-weight-normal m-0 text-maxline-3"
             >
               {Utils.formatDateTime(row?.dob, 'YYYY-MM-DD')}
             </p>
@@ -358,7 +358,7 @@ function UserHomePage(props) {
 
       <div className="card card-custom border">
         {/* card header */}
-        <div className="card-header border-0 pt-6 pb-6">
+        <div className="card-header border-0 ">
           {/* <div className="w-100 d-flex justify-content-between"> */}
           {/* header toolbar */}
           {/* <div className="card-toolbar">

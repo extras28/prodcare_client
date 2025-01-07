@@ -322,3 +322,31 @@ body {
   border-style: dashed !important;
   border-color: #ebedf3;
 }
+
+.card-body {
+  padding-left: 1rem !important;
+  padding-right: 1rem !important;
+  padding-bottom: 1rem !important;
+}
+
+.card-header {
+  padding-top: 0.5rem !important;
+  padding-left: 1rem !important;
+  padding-right: 1rem !important;
+}
+
+.scrolltop {
+  bottom: 20px !important;
+}
+
+.card-title {
+  margin-bottom: 0.8rem !important;
+}
+
+.p-treetable .p-treetable-tbody > tr > td {
+  padding: 0.2rem 0.2rem !important;
+}
+
+.p-treetable .p-treetable-thead > tr > th {
+  padding: 0.2rem 0.2rem !important;
+}

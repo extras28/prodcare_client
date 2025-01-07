@@ -6,7 +6,7 @@ import useRouter from 'hooks/useRouter';
 import _ from 'lodash';
 import moment from 'moment';
 import PropTypes from 'prop-types';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Button, Modal } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
@@ -34,6 +34,8 @@ function ModalEditIssue({
   issueItem = null,
   onExistDone = null,
   productId = null,
+  componentId = null,
+  customerId = null,
   reasons = [],
   users = [],
 }) {
@@ -241,8 +243,18 @@ function ModalEditIssue({
           issueItem?.project_id ||
           JSON.parse(localStorage.getItem(PreferenceKeys.currentProject))?.id,
         productId: issueItem?.product_id ? issueItem?.product_id : productId ? productId : '',
-        customerId: issueItem?.customer_id?.toString() || '',
-        componentId: issueItem?.component_id || '',
+        customerId: issueItem?.customer_id?.toString()
+          ? issueItem?.customer_id?.toString()
+          : customerId?.toString()
+          ? customerId?.toString()
+          : '',
+        componentId: issueItem?.component_id
+          ? issueItem?.component_id
+          : componentId
+          ? componentId
+          : '',
+        // customerId: issueItem?.customer_id?.toString() || '',
+        // componentId: issueItem?.component_id || '',
         accountId: issueItem?.account_id || '',
         description: issueItem?.description || '',
         responsibleType: issueItem?.responsible_type || 'USER',
@@ -402,7 +414,7 @@ function ModalEditIssue({
                     }
                     inputName="customerId"
                     inputElement={
-                      <FastField name="customerId">
+                      <Field name="customerId">
                         {({ field, form, meta }) => (
                           <KeenSelectOption
                             searchable={true}
@@ -428,10 +440,10 @@ function ModalEditIssue({
                                 };
                               });
                             }}
-                            disabled={current?.role === 'GUEST'}
+                            disabled={current?.role === 'GUEST' || !!customerId}
                           />
                         )}
-                      </FastField>
+                      </Field>
                     }
                   />
                 </div>
@@ -471,6 +483,9 @@ function ModalEditIssue({
                               })}
                             onValueChanged={(newValue) => {
                               form.setFieldValue(field.name, newValue);
+                              const product = products.find((pd) => pd?.id == newValue);
+
+                              form.setFieldValue('customerId', product?.customer_id?.toString());
                               setChangeObj((prev) => {
                                 const prevProd = products.find(
                                   (item) => item.id == issueItem?.product_id
@@ -487,6 +502,59 @@ function ModalEditIssue({
                               });
                             }}
                             disabled={current?.role === 'GUEST' || !!productId}
+                          />
+                        )}
+                      </Field>
+                    }
+                  />
+                </div>
+
+                {/* Component */}
+                <div className="col-lg-4 col-md-6">
+                  <KTFormGroup
+                    label={<>{t('Component')}</>}
+                    inputName="componentId"
+                    inputElement={
+                      <Field name="componentId">
+                        {({ field, form, meta }) => (
+                          <KeenSelectOption
+                            searchable={true}
+                            fieldProps={field}
+                            fieldHelpers={formikProps.getFieldHelpers(field.name)}
+                            fieldMeta={meta}
+                            name={field.name}
+                            options={components
+                              ?.filter((item) =>
+                                formikProps.getFieldProps('productId').value
+                                  ? item?.['product_id'] ===
+                                    formikProps.getFieldProps('productId').value
+                                  : true
+                              )
+                              ?.map((item) => {
+                                return {
+                                  name: `${item?.['name']}(${item?.serial})`,
+                                  value: item.id,
+                                };
+                              })}
+                            onValueChanged={(newValue) => {
+                              form.setFieldValue(field.name, newValue);
+                              const newComponent = components.find((cp) => cp?.id == newValue);
+                              form.setFieldValue('productId', newComponent?.product_id);
+                              form.setFieldValue(
+                                'customerId',
+                                newComponent?.product?.customer_id?.toString()
+                              );
+                              setChangeObj((prev) => {
+                                return {
+                                  ...prev,
+                                  [`${t('Component')}`]: `${
+                                    components.find((item) => item.id == issueItem?.component_id)
+                                      ?.name ?? ''
+                                  } -> ${components.find((item) => item.id == newValue)?.name}`,
+                                };
+                              });
+                            }}
+                            disabled={current?.role === 'GUEST' || !!componentId}
                           />
                         )}
                       </Field>
@@ -687,53 +755,6 @@ function ModalEditIssue({
                           />
                         )}
                       </FastField>
-                    }
-                  />
-                </div>
-
-                {/* Component */}
-                <div className="col-lg-4 col-md-6">
-                  <KTFormGroup
-                    label={<>{t('Component')}</>}
-                    inputName="componentId"
-                    inputElement={
-                      <Field name="componentId">
-                        {({ field, form, meta }) => (
-                          <KeenSelectOption
-                            searchable={true}
-                            fieldProps={field}
-                            fieldHelpers={formikProps.getFieldHelpers(field.name)}
-                            fieldMeta={meta}
-                            name={field.name}
-                            options={components
-                              ?.filter((item) =>
-                                formikProps.getFieldProps('productId').value
-                                  ? item?.['product_id'] ===
-                                    formikProps.getFieldProps('productId').value
-                                  : true
-                              )
-                              ?.map((item) => {
-                                return {
-                                  name: `${item?.['name']}(${item?.serial})`,
-                                  value: item.id,
-                                };
-                              })}
-                            onValueChanged={(newValue) => {
-                              form.setFieldValue(field.name, newValue);
-                              setChangeObj((prev) => {
-                                return {
-                                  ...prev,
-                                  [`${t('Component')}`]: `${
-                                    components.find((item) => item.id == issueItem?.component_id)
-                                      ?.name ?? ''
-                                  } -> ${components.find((item) => item.id == newValue)?.name}`,
-                                };
-                              });
-                            }}
-                            disabled={current?.role === 'GUEST'}
-                          />
-                        )}
-                      </Field>
                     }
                   />
                 </div>

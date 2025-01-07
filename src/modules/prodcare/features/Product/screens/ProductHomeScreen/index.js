@@ -79,13 +79,13 @@ function ProductHomePage(props) {
             />
           </div>
         }
-        // rowClassName={(node) => {
-        //   const expanding = hidingRowIds.find((item) => item == node.key);
-        //   if (expanding) {
-        //     return { 'bg-light': true };
-        //   }
-        //   return null;
-        // }}
+        rowClassName={(node) => {
+          const expanding = hidingRowIds.find((item) => item == node.key);
+          if (expanding) {
+            return { 'bg-light': true };
+          }
+          return null;
+        }}
         onRowClick={(row) => {
           showProductIssue(row);
         }}
@@ -111,7 +111,7 @@ function ProductHomePage(props) {
           header={t('STT')}
         ></Column>
         <Column
-          style={{ width: '200px' }}
+          style={{ width: '210px' }}
           body={(row) => {
             return (
               <span data-tag="allowRowEvents" className="font-weight-bolder font-weight-normal">
@@ -124,7 +124,7 @@ function ProductHomePage(props) {
           expander
         ></Column>
         <Column
-          style={{ width: '180px' }}
+          style={{ width: '150px' }}
           body={(row) => {
             return (
               <span data-tag="allowRowEvents" className="font-weight-bolder font-weight-normal">
@@ -189,18 +189,14 @@ function ProductHomePage(props) {
           style={{ width: '100px' }}
           body={(row) => {
             const issues = row?.data?.issues;
+            const components = row?.children;
+            const temp = row?.data?.temporarily_use;
 
-            let active = 'GOOD';
+            let count = row?.data?.product_id
+              ? row?.data?.count
+              : issues?.filter((is) => is?.status != 'PROCESSED')?.length;
 
-            if (issues?.length > 0) {
-              const allProcessed = issues.every((item) => item?.status == 'PROCESSED');
-              if (!allProcessed) {
-                const hasStopFighting = issues.some(
-                  (item) => item?.stop_fighting && item?.status != 'PROCESSED'
-                );
-                active = hasStopFighting ? 'DEFECTIVE' : 'DEGRADED';
-              }
-            }
+            let active = row?.data?.situation;
 
             return (
               <span
@@ -212,11 +208,7 @@ function ProductHomePage(props) {
                 {active == 'GOOD'
                   ? t('Good')
                   : active == 'DEFECTIVE'
-                  ? t('HaveErrors') +
-                    ' (' +
-                    issues.filter((item) => item?.status != 'PROCESSED' && item?.stop_fighting)
-                      ?.length +
-                    ')'
+                  ? t('HaveErrors') + ' (' + count + ')'
                   : t('OperationalWithErrors')}
               </span>
             );
@@ -250,7 +242,8 @@ function ProductHomePage(props) {
                 active = hasStopFighting ? 'DEFECTIVE' : 'DEGRADED';
               }
             }
-            const breakdown = active == 'DEFECTIVE' || row?.status === 'REPAIRING' ? true : false;
+            const breakdown =
+              active == 'DEFECTIVE' || row?.data?.status === 'REPAIRING' ? true : false;
             return (
               <span
                 data-tag="allowRowEvents"
@@ -635,7 +628,7 @@ function ProductHomePage(props) {
 
       <div className="card card-custom border">
         {/* card header */}
-        <div className="card-header border-0 pt-6 pb-6">
+        <div className="card-header border-0 ">
           {/* header toolbar */}
           <div className="d-flex flex-wrap gap-2">
             <KeenSearchBarNoFormik

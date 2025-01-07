@@ -67,7 +67,7 @@ function ComponentHomePage(props) {
           return (
             <p
               data-tag="allowRowEvents"
-              className="text-dark-75 font-weight-bolder font-weight-normal m-0 text-maxline-3 mr-4"
+              className="text-dark-75 font-weight-bolder font-weight-normal m-0 text-maxline-3"
             >
               {row?.serial}
             </p>
@@ -81,7 +81,7 @@ function ComponentHomePage(props) {
           return (
             <p
               data-tag="allowRowEvents"
-              className="text-dark-75 font-weight-normal m-0 text-maxline-3 mr-4"
+              className="text-dark-75 font-weight-normal m-0 text-maxline-3"
             >
               {row?.name}
             </p>
@@ -95,7 +95,7 @@ function ComponentHomePage(props) {
         cell: (row) => {
           const ct = row?.product?.customer;
           return (
-            <p data-tag="allowRowEvents" className="font-weight-normal m-0 text-maxline-3 mr-4">
+            <p data-tag="allowRowEvents" className="font-weight-normal m-0 text-maxline-3">
               {ct ? `${ct?.['name']} - ${ct?.['military_region']}` : ''}
             </p>
           );
@@ -109,7 +109,7 @@ function ComponentHomePage(props) {
           return (
             <p
               data-tag="allowRowEvents"
-              className="text-dark-75 font-weight-bolder font-weight-normal m-0 text-maxline-3 mr-4"
+              className="text-dark-75 font-weight-bolder font-weight-normal m-0 text-maxline-3"
             >
               {`${pd?.name} ${pd?.serial ? '(' + pd?.serial + ')' : ''}`}
             </p>
@@ -147,13 +147,11 @@ function ComponentHomePage(props) {
 
           let active = 'GOOD';
 
-          if (issues?.length > 0) {
-            const allProcessed = issues.every((item) => item?.status == 'PROCESSED');
-            if (!allProcessed) {
-              const hasStopFighting = issues.some(
-                (item) => item?.stop_fighting && item?.status != 'PROCESSED'
-              );
-              active = hasStopFighting ? 'DEFECTIVE' : 'DEGRADED';
+          if (row?.temporarily_use == 'YES') active = 'DEGRADED';
+          else if (issues?.length > 0) {
+            const allGood = issues.every((item) => item?.status == 'PROCESSED');
+            if (!allGood) {
+              active = 'DEFECTIVE';
             }
           }
 
@@ -169,8 +167,7 @@ function ComponentHomePage(props) {
                 : active == 'DEFECTIVE'
                 ? t('HaveErrors') +
                   ' (' +
-                  issues.filter((item) => item?.status != 'PROCESSED' && item?.stop_fighting)
-                    ?.length +
+                  issues.filter((item) => item?.status != 'PROCESSED')?.length +
                   ')'
                 : t('OperationalWithErrors')}
             </span>
@@ -230,7 +227,7 @@ function ComponentHomePage(props) {
               data-tag="allowRowEvents"
               className={`${
                 breakdown ? 'text-danger' : 'text-dark-75'
-              } font-weight-normal m-0 text-maxline-3 mr-4`}
+              } font-weight-normal m-0 text-maxline-3`}
             >
               {row?.description}
             </p>
@@ -415,7 +412,7 @@ function ComponentHomePage(props) {
 
       <div className="card card-custom border">
         {/* card header */}
-        <div className="card-header border-0 pt-6 pb-6">
+        <div className="card-header border-0 ">
           {/* header toolbar */}
           <div className="d-flex flex-wrap gap-2">
             <KeenSearchBarNoFormik

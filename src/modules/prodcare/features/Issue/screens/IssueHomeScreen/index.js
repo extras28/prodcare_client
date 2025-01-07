@@ -38,7 +38,7 @@ const sTag = '[IssueHomePage]';
 
 function IssueHomePage(props) {
   // MARK: --- Params ---
-  const { productId, componentId, email, name } = props;
+  const { productId, componentId, email, name, customerId } = props;
   const router = useRouter();
   const { t } = useTranslation();
   const dispatch = useDispatch();
@@ -66,6 +66,7 @@ function IssueHomePage(props) {
     users,
     currentColumns,
   } = useSelector((state) => state?.app);
+
   const fullColumns = useMemo(
     () => [
       {
@@ -75,7 +76,7 @@ function IssueHomePage(props) {
         sortable: false,
         cell: (row) => {
           return (
-            <p data-tag="allowRowEvents" className={`font-weight-normal m-0 text-maxline-3 mr-4`}>
+            <p data-tag="allowRowEvents" className={`font-weight-normal m-0 text-maxline-3`}>
               {t(_.capitalize(row?.orderNumber))}
             </p>
           );
@@ -110,7 +111,7 @@ function IssueHomePage(props) {
         cell: (row) => {
           const ct = customers.find((item) => item.id === row['customer_id']);
           return (
-            <p data-tag="allowRowEvents" className="font-weight-normal m-0 text-maxline-3 mr-4">
+            <p data-tag="allowRowEvents" className="font-weight-normal m-0 text-maxline-3">
               {ct ? `${ct?.['name']} - ${ct?.['military_region']}` : ''}
             </p>
           );
@@ -1000,7 +1001,7 @@ function IssueHomePage(props) {
 
       <div className="card card-custom border">
         {/* card header */}
-        <div className="flex-md-row d-md-flex card-header border-0 pt-6 pb-6">
+        <div className="flex-md-row d-md-flex card-header border-0 ">
           {/* header toolbar */}
           <div className="d-flex flex-wrap gap-2">
             <KeenSearchBarNoFormik
@@ -1386,6 +1387,8 @@ function IssueHomePage(props) {
 
       <ModalEditIssue
         productId={productId}
+        componentId={componentId}
+        customerId={customerId}
         components={components}
         customers={customers}
         projects={projects}
@@ -1394,7 +1397,6 @@ function IssueHomePage(props) {
         onClose={() => {
           setModalEditIssueShowing(false);
         }}
-        componentId={componentId}
         onExistDone={() => {
           setSelectedIssueItem(null);
           if (router.query.productId)

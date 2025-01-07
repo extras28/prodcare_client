@@ -24,13 +24,11 @@ function ComponentDetailScreen(props) {
   const situation = useMemo(() => {
     if (issues?.length == 0) return 'GOOD';
 
+    if (componentDetail?.temporarily_use == 'YES') return 'DEGRADED';
+
     const handled = issues?.every((item) => item?.status == 'PROCESSED') ? true : false;
     if (handled) return 'GOOD';
-
-    const stopFighting = issues?.some((item) => item?.stop_fighting && item?.status != 'PROCESSED')
-      ? true
-      : false;
-    return !stopFighting ? 'DEGRADED' : 'DEFECTIVE';
+    else return 'DEFECTIVE';
   }, [componentDetail, issues]);
 
   const rows = useMemo(() => {
@@ -86,6 +84,7 @@ function ComponentDetailScreen(props) {
         name={`${componentDetail?.name} - ${componentDetail?.serial}`}
         productId={componentDetail?.product_id}
         componentId={componentDetail?.id}
+        customerId={componentDetail?.product?.customer?.id}
       />
     ),
     [componentDetail]

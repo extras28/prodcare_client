@@ -223,6 +223,10 @@ const AppData = {
     { name: 'OperationalWithErrors', value: 'DEGRADED' },
     { name: 'HaveErrors', value: 'DEFECTIVE' },
   ],
+  temporarilyUseStatus: [
+    { name: 'Yes', value: 'YES' },
+    { name: 'No', value: 'NO' },
+  ],
 };
 
 export default AppData;

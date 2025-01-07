@@ -2,7 +2,7 @@ const customDataTableStyle = {
   rows: {
     style: {
       minHeight: '64px', // override the row height
-      fontSize: '1rem',
+      // fontSize: '1rem',
       color: '#3F4254',
       paddingLeft: '0px',
       '&:not(:last-of-type)': {
@@ -22,6 +22,7 @@ const customDataTableStyle = {
     style: {
       borderBottomColor: '#ebedf3',
       borderBottomStyle: 'dashed',
+      backgroundColor: '#ebedf3',
     },
   },
   cells: {
@@ -29,7 +30,7 @@ const customDataTableStyle = {
       // paddingLeft: "0px", // override the cell padding for data cells
       // paddingRight: "1rem",
       // marginLeft: 'px',
-      padding: '1rem',
+      padding: '0.2rem',
       '&:first-of-type': {
         // borderLeft: '1px solid #ebedf3',
       },
@@ -44,9 +45,9 @@ const customDataTableStyle = {
       paddingRight: '0px',
       color: '#3F4254',
       textTransform: 'uppercase',
-      letterSpacing: '0.1rem',
-      lineHeight: '1.5 !important',
-      padding: '0 1rem',
+      // letterSpacing: '0.1rem',
+      // lineHeight: '1.5 !important',
+      padding: '0 0.2rem',
       // borderRight: '1px solid #ebedf3',
       // borderTop: '1px solid #ebedf3',
       '&:first-of-type': {
