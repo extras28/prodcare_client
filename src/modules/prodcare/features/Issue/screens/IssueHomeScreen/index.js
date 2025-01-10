@@ -13,7 +13,9 @@ import AppDateRangePicker from 'shared/components/AppDateRangePicker';
 import AppSelectField from 'shared/components/AppSelectField';
 import Empty from 'shared/components/Empty';
 import Loading from 'shared/components/Loading';
-import KTFormSelect from 'shared/components/OtherKeenComponents/Forms/KTFormSelect';
+import KTFormSelect, {
+  KTFormSelectSize,
+} from 'shared/components/OtherKeenComponents/Forms/KTFormSelect';
 import KTTooltip from 'shared/components/OtherKeenComponents/KTTooltip';
 import Pagination from 'shared/components/Pagination';
 import AppData from 'shared/constants/AppData';
@@ -31,6 +33,7 @@ import { setPaginationPerPage, thunkGetListIssue } from '../../issueSlice';
 import KeenSearchBarNoFormik from 'shared/components/OtherKeenComponents/KeenSearchBarNoFormik';
 import { thunkGetComponentDetail } from 'modules/prodcare/features/Component/componentSlice';
 import { thunkGetProductDetail } from 'modules/prodcare/features/Product/productSlice';
+import KeenSelectOption from 'shared/components/OtherKeenComponents/Forms/KeenSelectOption';
 
 IssueHomePage.propTypes = {};
 
@@ -96,7 +99,7 @@ function IssueHomePage(props) {
                   ? 'success'
                   : row?.status === 'PROCESSING'
                   ? 'info'
-                  : 'warning'
+                  : 'danger'
               }`}
             >
               {t(_.capitalize(row?.status))}
@@ -746,7 +749,7 @@ function IssueHomePage(props) {
           <div className="d-flex align-items-center">
             <KTTooltip text={t('Evaluate')}>
               <a
-                className="btn btn-icon btn-sm btn-success btn-hover-success mr-2"
+                className="btn btn-icon btn-xs btn-success btn-hover-success mr-2"
                 onClick={(e) => {
                   e.preventDefault();
                   handleEvaluateIssue(row);
@@ -757,7 +760,7 @@ function IssueHomePage(props) {
             </KTTooltip>
             <KTTooltip text={t('Edit')}>
               <a
-                className="btn btn-icon btn-sm btn-primary btn-hover-primary "
+                className="btn btn-icon btn-xs btn-primary btn-hover-primary "
                 onClick={(e) => {
                   e.preventDefault();
                   handleEditIssue(row);
@@ -769,7 +772,7 @@ function IssueHomePage(props) {
 
             <KTTooltip text={t('Delete')}>
               <a
-                className="btn btn-icon btn-sm btn-danger btn-hover-danger ml-2"
+                className="btn btn-icon btn-xs btn-danger btn-hover-danger ml-2"
                 onClick={(e) => {
                   e.preventDefault();
                   handleDeleteIssue(row);
@@ -914,8 +917,12 @@ function IssueHomePage(props) {
           if (result == 'success') {
             Global.gNeedToRefreshIssueList = true;
             ToastHelper.showSuccess(t('Success'));
-            Global.gFiltersIssueList = { ...filters };
-            setFilters({ ...filters });
+            // Global.gFiltersIssueList = { ...filters };
+            setFilters({ ...Global.gFiltersIssueList });
+            if (router.query.productId)
+              dispatch(thunkGetProductDetail({ productId: router.query.productId }));
+            else if (router.query.componentId)
+              dispatch(thunkGetComponentDetail({ componentId: router.query.componentId }));
           }
         } catch (error) {
           console.log(`Delete Issue error: ${error?.message}`);
@@ -1029,9 +1036,14 @@ function IssueHomePage(props) {
                 <label className="mr-2 mb-0" htmlFor="customer">
                   {_.capitalize(t('Customer'))}
                 </label>
-                <KTFormSelect
+                <KeenSelectOption
+                  isFilter={true}
+                  emptyLabel={t('All')}
+                  containerClassName="m-0 min-w-200px"
+                  searchable={true}
+                  fieldProps={{ value: Global.gFiltersIssueList.customerId }}
+                  fieldHelpers={{ setValue: () => {} }}
                   name="customer"
-                  isCustom
                   options={[
                     { name: 'All', value: '' },
                     ...customers.map((item) => {
@@ -1041,8 +1053,7 @@ function IssueHomePage(props) {
                       };
                     }),
                   ]}
-                  value={Global.gFiltersIssueList.customerId}
-                  onChange={(newValue) => {
+                  onValueChanged={(newValue) => {
                     needToRefreshData.current = true;
                     Global.gFiltersIssueList = {
                       ...filters,
@@ -1053,6 +1064,7 @@ function IssueHomePage(props) {
                       ...Global.gFiltersIssueList,
                     });
                   }}
+                  disabled={current?.role === 'GUEST'}
                 />
               </div>
             )}
@@ -1063,7 +1075,8 @@ function IssueHomePage(props) {
                 </label>
                 <KTFormSelect
                   name="product"
-                  isCustom
+                  isCustom={false}
+                  size={KTFormSelectSize.small}
                   options={[
                     { name: 'All', value: '' },
                     ...products.map((item) => {
@@ -1094,7 +1107,8 @@ function IssueHomePage(props) {
               </label>
               <KTFormSelect
                 name="status"
-                isCustom
+                isCustom={false}
+                size={KTFormSelectSize.small}
                 options={[
                   { name: 'All', value: '' },
                   ...AppData.errorStatus.map((item) => {
@@ -1121,7 +1135,8 @@ function IssueHomePage(props) {
               </label>
               <KTFormSelect
                 name="stopFighting"
-                isCustom
+                isCustom={false}
+                size={KTFormSelectSize.small}
                 options={[
                   { name: 'All', value: '' },
                   { name: 'Yes', value: true },
@@ -1147,7 +1162,8 @@ function IssueHomePage(props) {
               </label>
               <KTFormSelect
                 name="errorType"
-                isCustom
+                isCustom={false}
+                size={KTFormSelectSize.small}
                 options={[
                   { name: 'All', value: '' },
                   ...AppData.responsibleType.map((item) => {
@@ -1174,7 +1190,8 @@ function IssueHomePage(props) {
               </label>
               <KTFormSelect
                 name="level"
-                isCustom
+                isCustom={false}
+                size={KTFormSelectSize.small}
                 options={[
                   { name: 'All', value: '' },
                   ...AppData.errorLevel.map((item) => {
@@ -1222,7 +1239,8 @@ function IssueHomePage(props) {
                 </label>
                 <KTFormSelect
                   name="account"
-                  isCustom
+                  isCustom={false}
+                  size={KTFormSelectSize.small}
                   options={[
                     { name: 'All', value: '' },
                     ...users.map((item) => {
@@ -1305,7 +1323,7 @@ function IssueHomePage(props) {
                   e.preventDefault();
                   setModalEditIssueShowing(true);
                 }}
-                className="btn btn-primary font-weight-bold d-flex align-items-center"
+                className="btn btn-sm btn-primary font-weight-bold d-flex align-items-center"
               >
                 <i className="far fa-plus"></i>
                 {t('NewIssue')}

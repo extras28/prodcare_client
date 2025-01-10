@@ -125,7 +125,7 @@ function ModalEditProduct({
           JSON.parse(localStorage.getItem(PreferenceKeys.currentProject))?.id,
         // productionBatchesId: productItem?.production_batches_id || '',
         version: productItem?.version || '',
-        status: productItem?.status || '',
+        status: productItem?.status || 'USING',
         warrantyStatus: productItem?.warranty_status || '',
         mfg: productItem?.mfg ? Utils.formatDateTime(productItem?.mfg, 'YYYY-MM-DD') : '',
         handedOverTime: productItem?.handed_over_time

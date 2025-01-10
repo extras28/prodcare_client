@@ -16,46 +16,46 @@ import PropTypes from 'prop-types';
 import KTTooltip, { KTTooltipPositions } from '../KTTooltip';
 
 KTStickyToolbar.propTypes = {
-    items: PropTypes.array,
+  items: PropTypes.array,
 };
 
 KTStickyToolbar.defaultProps = {
-    items: [],
+  items: [],
 };
 
 function KTStickyToolbar(props) {
-    // MARK: --- Params ---
-    const { items } = props;
+  // MARK: --- Params ---
+  const { items } = props;
 
-    return (
-        <div>
-            <ul className='sticky-toolbar nav flex-column pl-2 pr-2 pt-3'>
-                {
-                    items.map((item, index) => {
-                        return (
-                            <li key={index} className='nav-item mb-2'>
-                                <KTTooltip position={KTTooltipPositions.left} text={item?.tooltipText}>
-                                    <a
-                                        className={`btn btn-sm btn-icon btn-bg-light ${item?.hoverClassName ?? 'btn-hover-primary'}`}
-                                        href='#'
-                                        onClick={(e) => {
-                                            e.preventDefault();
-                                            e.target.blur();
-                                            if (item?.onClick) {
-                                                item?.onClick();
-                                            }
-                                        }}
-                                    >
-                                        <i className={item?.icon} />
-                                    </a>
-                                </KTTooltip>
-                            </li>
-                        )
-                    })
-                }
-            </ul>
-        </div>
-    );
+  return (
+    <div>
+      <ul className="sticky-toolbar nav flex-column pl-2 pr-2 pt-3">
+        {items.map((item, index) => {
+          return (
+            <li key={index} className="nav-item mb-2">
+              <KTTooltip position={KTTooltipPositions.left} text={item?.tooltipText}>
+                <a
+                  className={`btn btn-xs btn-icon btn-bg-light ${
+                    item?.hoverClassName ?? 'btn-hover-primary'
+                  }`}
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.target.blur();
+                    if (item?.onClick) {
+                      item?.onClick();
+                    }
+                  }}
+                >
+                  <i className={item?.icon} />
+                </a>
+              </KTTooltip>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
 }
 
 export default KTStickyToolbar;

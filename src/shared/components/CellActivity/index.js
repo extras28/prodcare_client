@@ -121,7 +121,7 @@ function CellActivity(props) {
                   {/* tool */}
                   <KTTooltip text={t('Edit')}>
                     <div
-                      className="btn btn-icon btn-sm btn-circle btn-hover-primary"
+                      className="btn btn-icon btn-xs btn-circle btn-hover-primary"
                       onClick={(e) => {
                         setEditMode((prev) => !prev);
                       }}
@@ -131,7 +131,7 @@ function CellActivity(props) {
                   </KTTooltip>
                   <KTTooltip text={t('Delete')}>
                     <div
-                      className="btn btn-icon btn-sm btn-circle btn-hover-danger"
+                      className="btn btn-icon btn-xs btn-circle btn-hover-danger"
                       onClick={(e) => {
                         handleDeleteEvent();
                       }}

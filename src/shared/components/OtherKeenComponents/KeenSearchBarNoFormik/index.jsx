@@ -1,6 +1,10 @@
 import React, { useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-
+export const KeenSearchBarNoFormikSize = {
+  default: '',
+  large: 'form-control-lg',
+  small: 'form-control-sm',
+};
 function KeenSearchBarNoFormik({
   name,
   type = 'text',
@@ -10,6 +14,7 @@ function KeenSearchBarNoFormik({
   onSubmit = null,
   value = '',
   hintText = '',
+  size = KeenSearchBarNoFormikSize.small,
 }) {
   // MARK: --- Params ---
   const typingTimeoutRef = useRef(null);
@@ -34,12 +39,12 @@ function KeenSearchBarNoFormik({
   }
 
   return (
-    <div>
+    <div className="d-flex flex-column align-items-center justify-content-center">
       <div className={`input-icon mr-2 ${className}`}>
         <input
           id={name}
           type={type}
-          className="form-control"
+          className={`form-control ${size}`}
           placeholder={placeholder}
           value={text}
           onChange={handleTextChanged}

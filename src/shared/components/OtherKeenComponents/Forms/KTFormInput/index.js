@@ -121,7 +121,7 @@ function KTFormInput({
   solidBackground = false,
   disabled = false,
   readonly = false,
-  size = KTFormInputSize.default,
+  size = KTFormInputSize.small,
   isCustom = true,
   additionalInputClassName = '',
   onChange = null,

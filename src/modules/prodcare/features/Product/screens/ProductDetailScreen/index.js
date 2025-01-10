@@ -22,18 +22,6 @@ function ProductDetailScreen(props) {
   const { current } = useSelector((state) => state?.auth);
   const { customers } = useSelector((state) => state?.app);
 
-  const situation = useMemo(() => {
-    if (issues?.length == 0) return 'GOOD';
-
-    const handled = issues?.every((item) => item?.status == 'PROCESSED') ? true : false;
-    if (handled) return 'GOOD';
-
-    const stopFighting = issues?.some((item) => item?.stop_fighting && item?.status != 'PROCESSED')
-      ? true
-      : false;
-    return !stopFighting ? 'DEGRADED' : 'DEFECTIVE';
-  }, [issues, productDetail]);
-
   const rows = useMemo(() => {
     return [
       { label: t('Serial'), value: productDetail?.serial ?? '' },
@@ -58,13 +46,17 @@ function ProductDetailScreen(props) {
       {
         label: t('Status'),
         value:
-          situation == 'GOOD'
+          productDetail?.situation == 'GOOD'
             ? t('Good')
-            : situation == 'DEFECTIVE'
+            : productDetail?.situation == 'DEFECTIVE'
             ? t('HaveErrors')
             : t('OperationalWithErrors'),
         className: `badge badge-${
-          situation == 'GOOD' ? 'success' : situation == 'DEFECTIVE' ? 'danger' : 'warning'
+          productDetail?.situation == 'GOOD'
+            ? 'success'
+            : productDetail?.situation == 'DEFECTIVE'
+            ? 'danger'
+            : 'warning'
         }`,
       },
       { label: t('WarrantyStatus'), value: productDetail?.warranty_status ?? '' },

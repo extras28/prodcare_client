@@ -78,7 +78,7 @@ function KTUploadFiles({
 
   return (
     <div>
-      <label className="btn btn-light-primary btn-sm mb-0" data-action="change">
+      <label className="btn btn-light-primary btn-xs mb-0" data-action="change">
         <div className="font-weight-bold">{buttonText}</div>
         <input
           type="file"

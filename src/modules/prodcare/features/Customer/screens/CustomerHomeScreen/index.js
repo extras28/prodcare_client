@@ -179,7 +179,7 @@ function CustomerHomePage(props) {
           <div className="d-flex align-items-center">
             <KTTooltip text={t('Edit')}>
               <a
-                className="btn btn-icon btn-sm btn-primary btn-hover-primary mr-2"
+                className="btn btn-icon btn-xs btn-primary btn-hover-primary mr-2"
                 onClick={(e) => {
                   e.preventDefault();
                   handleEditCustomer(row);
@@ -191,7 +191,7 @@ function CustomerHomePage(props) {
 
             <KTTooltip text={t('Delete')}>
               <a
-                className="btn btn-icon btn-sm btn-danger btn-hover-danger mr-2"
+                className="btn btn-icon btn-xs btn-danger btn-hover-danger mr-2"
                 onClick={(e) => {
                   e.preventDefault();
                   handleDeleteCustomer(row);
@@ -367,7 +367,7 @@ function CustomerHomePage(props) {
                 href="#"
                 className={`${
                   selectedCustomers.length === 0 ? 'd-none' : 'd-flex'
-                } btn btn-light-danger font-weight-bold align-items-center mr-2`}
+                } btn btn-sm btn-light-danger font-weight-bold align-items-center mr-2`}
                 onClick={(e) => {
                   e.preventDefault();
                   handleDeleteMultiCustomers();
@@ -382,7 +382,7 @@ function CustomerHomePage(props) {
                   e.preventDefault();
                   setModalEditCustomerShowing(true);
                 }}
-                className="btn btn-primary font-weight-bold d-flex align-items-center"
+                className="btn btn-sm btn-primary font-weight-bold d-flex align-items-center"
               >
                 <i className="far fa-plus"></i>
                 {t('NewCustomer')}

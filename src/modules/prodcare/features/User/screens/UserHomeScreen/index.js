@@ -64,7 +64,6 @@ function UserHomePage(props) {
       {
         name: t('Email'),
         sortable: false,
-        minWidth: '220px',
         cell: (row) => {
           return (
             <div
@@ -79,7 +78,6 @@ function UserHomePage(props) {
       {
         name: t('Fullname'),
         sortable: false,
-        minWidth: '180px',
         cell: (row) => {
           return (
             <p
@@ -94,7 +92,6 @@ function UserHomePage(props) {
       {
         name: t('EmployeeId'),
         sortable: false,
-        minWidth: '180px',
         cell: (row) => {
           return (
             <p
@@ -109,7 +106,6 @@ function UserHomePage(props) {
       {
         name: t('Title'),
         sortable: false,
-        minWidth: '120px',
         cell: (row) => {
           return (
             <div
@@ -125,7 +121,6 @@ function UserHomePage(props) {
       {
         name: t('Phone'),
         sortable: false,
-        minWidth: '120px',
         cell: (row) => {
           return (
             <p
@@ -140,7 +135,6 @@ function UserHomePage(props) {
       {
         name: t('DateOfBirth'),
         sortable: false,
-        minWidth: '120px',
         cell: (row) => {
           return (
             <p
@@ -166,12 +160,11 @@ function UserHomePage(props) {
       {
         name: t('Action'),
         center: 'true',
-        width: '200px',
         cell: (row) => (
           <div className="d-flex align-items-center">
             <KTTooltip text={t('Edit')}>
               <a
-                className="btn btn-icon btn-sm btn-primary btn-hover-primary mr-2"
+                className="btn btn-icon btn-xs btn-primary btn-hover-primary mr-2"
                 onClick={(e) => {
                   e.preventDefault();
                   handleEditUser(row);
@@ -183,7 +176,7 @@ function UserHomePage(props) {
 
             <KTTooltip text={t('Delete')}>
               <a
-                className="btn btn-icon btn-sm btn-danger btn-hover-danger mr-2"
+                className="btn btn-icon btn-xs btn-danger btn-hover-danger mr-2"
                 onClick={(e) => {
                   e.preventDefault();
                   handleDeleteUser(row);
@@ -194,7 +187,7 @@ function UserHomePage(props) {
             </KTTooltip>
             <KTTooltip text={t('ResetPassword')}>
               <a
-                className="btn btn-icon btn-sm btn-warning btn-hover-warning mr-2"
+                className="btn btn-icon btn-xs btn-warning btn-hover-warning mr-2"
                 onClick={(e) => {
                   e.preventDefault();
                   handleResetPasswordUser(row);
@@ -205,7 +198,7 @@ function UserHomePage(props) {
             </KTTooltip>
             {/* <KTTooltip text={t('Call')}>
               <a
-                className="btn btn-icon btn-sm btn-success btn-hover-success"
+                className="btn btn-icon btn-xs btn-success btn-hover-success"
                 href={`tel:${row.phone}`}
               >
                 <i className="far fa-phone p-0 icon-1x" />
@@ -415,7 +408,7 @@ function UserHomePage(props) {
                 href="#"
                 className={`${
                   selectedUsers.length === 0 ? 'd-none' : 'd-flex'
-                } btn btn-light-danger font-weight-bold align-items-center mr-2`}
+                } btn btn-sm btn-light-danger font-weight-bold align-items-center mr-2`}
                 onClick={(e) => {
                   e.preventDefault();
                   handleDeleteMultiUsers();
@@ -430,7 +423,7 @@ function UserHomePage(props) {
                   e.preventDefault();
                   setModalEditUserShowing(true);
                 }}
-                className="btn btn-primary font-weight-bold d-flex align-items-center"
+                className="btn btn-sm btn-primary font-weight-bold d-flex align-items-center"
               >
                 <i className="far fa-plus"></i>
                 {t('NewUser')}

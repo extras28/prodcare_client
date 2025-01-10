@@ -12,7 +12,9 @@ import KTFormInput, {
   KTFormInputGroupType,
   KTFormInputType,
 } from 'shared/components/OtherKeenComponents/Forms/KTFormInput';
-import KTFormSelect from 'shared/components/OtherKeenComponents/Forms/KTFormSelect';
+import KTFormSelect, {
+  KTFormSelectSize,
+} from 'shared/components/OtherKeenComponents/Forms/KTFormSelect';
 import AppData from 'shared/constants/AppData';
 import PreferenceKeys from 'shared/constants/PreferenceKeys';
 import Global from 'shared/utils/Global';
@@ -378,7 +380,8 @@ function QuarterReportTable(props) {
           />
           <KTFormSelect
             name="quarter"
-            isCustom
+            isCustom={false}
+            size={KTFormSelectSize.small}
             options={[
               ...AppData.quarters.map((item) => {
                 return {

@@ -149,7 +149,7 @@ function KT01Sidebar(props) {
           </a>
         </div>
         {/* button toggle */}
-        <button className="brand-toggle btn btn-sm px-0 border-0" id="kt_aside_toggle">
+        <button className="brand-toggle btn btn-xs px-0 border-0" id="kt_aside_toggle">
           <span className="svg-icon svg-icon svg-icon-xl">
             <img src={AppResource.icons.keens.toggleRight} alt="toggle" />
           </span>

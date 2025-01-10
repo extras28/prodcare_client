@@ -1,6 +1,6 @@
 import { unwrapResult } from '@reduxjs/toolkit';
 import productApi from 'api/productApi';
-import { thunkGetAllProduct } from 'app/appSlice';
+import { thunkGetAllComponent, thunkGetAllProduct } from 'app/appSlice';
 import useRouter from 'hooks/useRouter';
 import { thunkGetListComponent } from 'modules/prodcare/features/Component/componentSlice';
 import { thunkGetListIssue } from 'modules/prodcare/features/Issue/issueSlice';
@@ -28,8 +28,12 @@ import { saveAs } from 'file-saver';
 import ModalEditComponent from 'modules/prodcare/features/Component/components/ModalEditComponent';
 import 'primereact/resources/themes/lara-light-cyan/theme.css';
 import DateRangePickerInput from 'shared/components/AppDateRangePicker';
-import KTFormSelect from 'shared/components/OtherKeenComponents/Forms/KTFormSelect';
+import KTFormSelect, {
+  KTFormSelectSize,
+} from 'shared/components/OtherKeenComponents/Forms/KTFormSelect';
 import AppData from 'shared/constants/AppData';
+import KeenSelectOption from 'shared/components/OtherKeenComponents/Forms/KeenSelectOption';
+import componentApi from 'api/componentApi';
 
 ProductHomePage.propTypes = {};
 
@@ -66,6 +70,7 @@ function ProductHomePage(props) {
   const table = useMemo(
     () => (
       <TreeTable
+        style={{ fontSize: '12px' }}
         showGridlines={true}
         rowHover={true}
         loading={isGettingProductList}
@@ -81,7 +86,7 @@ function ProductHomePage(props) {
         }
         rowClassName={(node) => {
           const expanding = hidingRowIds.find((item) => item == node.key);
-          if (expanding) {
+          if (expanding && node.children.length > 0) {
             return { 'bg-light': true };
           }
           return null;
@@ -100,38 +105,19 @@ function ProductHomePage(props) {
         <Column
           style={{ width: '40px' }}
           className="pr-0"
-          body={(row) => {
-            return (
-              <span data-tag="allowRowEvents" className="ont-weight-normal">
-                {row?.data?.orderNumber}
-              </span>
-            );
-          }}
-          field="order"
+          field="orderNumber"
           header={t('STT')}
         ></Column>
         <Column
-          style={{ width: '210px' }}
-          body={(row) => {
-            return (
-              <span data-tag="allowRowEvents" className="font-weight-bolder font-weight-normal">
-                {row?.data?.name}
-              </span>
-            );
-          }}
+          style={{ width: '250px' }}
+          className="font-weight-bolder"
           field="name"
           header={t('ProductName')}
           expander
         ></Column>
         <Column
-          style={{ width: '150px' }}
-          body={(row) => {
-            return (
-              <span data-tag="allowRowEvents" className="font-weight-bolder font-weight-normal">
-                {row?.data?.serial}
-              </span>
-            );
-          }}
+          style={{ width: '125px' }}
+          className="font-weight-bolder"
           field="serial"
           header={t('Serial')}
         ></Column>
@@ -147,18 +133,7 @@ function ProductHomePage(props) {
           }}
           header={t('Customer')}
         ></Column>
-        <Column
-          style={{ width: '90px' }}
-          body={(row) => {
-            return (
-              <span data-tag="allowRowEvents" className="font-weight-normal">
-                {row?.data?.version}
-              </span>
-            );
-          }}
-          field="version"
-          header={t('SoftwareVersion')}
-        ></Column>
+        <Column style={{ width: '50px' }} field="version" header={t('SoftwareVersion')}></Column>
         <Column
           style={{ width: '120px' }}
           body={(row) => {
@@ -189,8 +164,6 @@ function ProductHomePage(props) {
           style={{ width: '100px' }}
           body={(row) => {
             const issues = row?.data?.issues;
-            const components = row?.children;
-            const temp = row?.data?.temporarily_use;
 
             let count = row?.data?.product_id
               ? row?.data?.count
@@ -209,23 +182,14 @@ function ProductHomePage(props) {
                   ? t('Good')
                   : active == 'DEFECTIVE'
                   ? t('HaveErrors') + ' (' + count + ')'
-                  : t('OperationalWithErrors')}
+                  : `${t('OperationalWithErrors')} ${count > 0 ? '(' + count + ')' : ''}`}
               </span>
             );
           }}
           field="status"
           header={t('Status')}
         ></Column>
-        {/* <Column
-          body={(row) => {
-            return (
-              <p data-tag="allowRowEvents" className="font-weight-normal ">
-                {row?.data?.mfg ? Utils.formatDateTime(row?.data?.mfg, 'YYYY-MM-DD') : ''}
-              </p>
-            );
-          }}
-          header={t('Mfg')}
-        ></Column> */}
+
         <Column
           style={{ width: '200px' }}
           body={(row) => {
@@ -247,7 +211,7 @@ function ProductHomePage(props) {
             return (
               <span
                 data-tag="allowRowEvents"
-                className={`${breakdown ? 'text-danger' : 'text-dark-75'} font-weight-normal`}
+                className={`${breakdown ? 'text-danger' : 'text-dark-75'}`}
               >
                 {row?.data?.description}
               </span>
@@ -256,19 +220,6 @@ function ProductHomePage(props) {
           field="description"
           header={t('Note')}
         ></Column>
-        {/* <Column
-          style={{ width: '100px' }}
-          body={(row) => {
-            return (
-              <span data-tag="allowRowEvents" className="font-weight-normal ">
-                {row?.data?.handed_over_time
-                  ? Utils.formatDateTime(row?.data?.handed_over_time, 'YYYY-MM-DD')
-                  : ''}
-              </span>
-            );
-          }}
-          header={t('HandedOverTime')}
-        ></Column> */}
         <Column
           style={{ width: '120px' }}
           body={(row) => {
@@ -276,7 +227,7 @@ function ProductHomePage(props) {
               <div className="d-flex align-items-center">
                 <KTTooltip text={t('Edit')}>
                   <a
-                    className="btn btn-icon btn-sm btn-primary btn-hover-primary"
+                    className="btn btn-icon btn-xs btn-primary btn-hover-primary"
                     onClick={(e) => {
                       e.preventDefault();
                       handleEditProduct(row?.data);
@@ -288,10 +239,14 @@ function ProductHomePage(props) {
 
                 <KTTooltip text={t('Delete')}>
                   <a
-                    className="btn btn-icon btn-sm btn-danger btn-hover-danger ml-2"
+                    className="btn btn-icon btn-xs btn-danger btn-hover-danger ml-2"
                     onClick={(e) => {
                       e.preventDefault();
-                      handleDeleteProduct(row?.data);
+                      if (row?.data?.hasOwnProperty('product_id')) {
+                        handleDeleteComponent(row?.data);
+                      } else {
+                        handleDeleteProduct(row?.data);
+                      }
                     }}
                   >
                     <i className="fa-regular fa-trash p-0 icon-1x" />
@@ -518,9 +473,40 @@ function ProductHomePage(props) {
     });
   }
 
-  function handleSelectedProductsChanged(state) {
-    const selectedProducts = state.selectedRows;
-    setSelectedProducts(selectedProducts);
+  function handleDeleteComponent(component) {
+    Swal.fire({
+      title: t('Confirm'),
+      text: t('MessageConfirmDeleteComponent', { name: component?.name }),
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: t('Yes'),
+      cancelButtonText: t('Cancel'),
+      customClass: {
+        confirmButton: 'btn btn-danger font-weight-bolder',
+        cancelButton: 'btn btn-light font-weight-bolder',
+      },
+    }).then(async function (result) {
+      if (result.value) {
+        try {
+          const res = await componentApi.deleteComponent({
+            componentIds: [component['id']],
+          });
+          const { result } = res;
+          if (result == 'success') {
+            Global.gNeedToRefreshProductList = true;
+            ToastHelper.showSuccess(t('Success'));
+            Global.gFiltersProductList = { ...filters };
+            setFilters({ ...filters });
+            dispatch(thunkGetListComponent(Global.gFiltersComponentList));
+            dispatch(thunkGetListIssue(Global.gFiltersIssueList));
+            dispatch(thunkGetAllProduct());
+            dispatch(thunkGetAllComponent());
+          }
+        } catch (error) {
+          console.log(`Delete Component error: ${error?.message}`);
+        }
+      }
+    });
   }
 
   function handleDeleteProduct(product) {
@@ -633,7 +619,6 @@ function ProductHomePage(props) {
           <div className="d-flex flex-wrap gap-2">
             <KeenSearchBarNoFormik
               name="searchQuery"
-              className="mt-2"
               placeholder={`${t('Search')}...`}
               value={Global.gFiltersProductList.q}
               onSubmit={(text) => {
@@ -654,9 +639,15 @@ function ProductHomePage(props) {
               <label className="mr-2 mb-0" htmlFor="customer">
                 {_.capitalize(t('Customer'))}
               </label>
-              <KTFormSelect
+              <KeenSelectOption
+                toggleClassName="btn-sm"
+                isFilter={true}
+                emptyLabel={t('All')}
+                containerClassName="m-0 min-w-200px"
+                searchable={true}
+                fieldProps={{ value: Global.gFiltersProductList.customerId }}
+                fieldHelpers={{ setValue: () => {} }}
                 name="customer"
-                isCustom
                 options={[
                   { name: 'All', value: '' },
                   ...customers.map((item) => {
@@ -666,8 +657,7 @@ function ProductHomePage(props) {
                     };
                   }),
                 ]}
-                value={Global.gFiltersProductList.customerId}
-                onChange={(newValue) => {
+                onValueChanged={(newValue) => {
                   needToRefreshData.current = true;
                   Global.gFiltersProductList = {
                     ...filters,
@@ -678,6 +668,7 @@ function ProductHomePage(props) {
                     ...Global.gFiltersProductList,
                   });
                 }}
+                disabled={current?.role === 'GUEST'}
               />
             </div>
             <div className="d-flex flex-wrap align-items-center">
@@ -686,7 +677,8 @@ function ProductHomePage(props) {
               </label>
               <KTFormSelect
                 name="status"
-                isCustom
+                isCustom={false}
+                size={KTFormSelectSize.small}
                 options={[
                   { name: 'All', value: '' },
                   ...AppData.productCurrentStatus.map((item) => {
@@ -716,7 +708,8 @@ function ProductHomePage(props) {
               </label>
               <KTFormSelect
                 name="situation"
-                isCustom
+                isCustom={false}
+                size={KTFormSelectSize.small}
                 options={[
                   { name: 'All', value: '' },
                   ...AppData.productAndComponentStatus.map((item) => {
@@ -765,7 +758,7 @@ function ProductHomePage(props) {
                 href="#"
                 className={`${
                   selectedProducts.length === 0 ? 'd-none' : 'd-flex'
-                } btn btn-light-danger font-weight-bold align-items-center mr-2`}
+                } btn btn-sm btn-light-danger font-weight-bold align-items-center mr-2`}
                 onClick={(e) => {
                   e.preventDefault();
                   handleDeleteMultiProducts();
@@ -780,7 +773,7 @@ function ProductHomePage(props) {
                   e.preventDefault();
                   exportExcelFile();
                 }}
-                className="btn btn-success font-weight-bold d-flex align-items-center"
+                className="btn btn-sm btn-success font-weight-bold d-flex align-items-center"
               >
                 <i className="fa-regular fa-file-download"></i>
                 {t('Export')}
@@ -791,7 +784,7 @@ function ProductHomePage(props) {
                   e.preventDefault();
                   setModalEditProductShowing(true);
                 }}
-                className="btn btn-primary font-weight-bold d-flex align-items-center"
+                className="btn btn-sm btn-primary font-weight-bold d-flex align-items-center"
               >
                 <i className="far fa-plus"></i>
                 {t('NewProduct')}

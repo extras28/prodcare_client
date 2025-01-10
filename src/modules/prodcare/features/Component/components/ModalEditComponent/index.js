@@ -155,6 +155,7 @@ function ModalEditComponent({
         version: componentItem ? componentItem.version : '',
         status: componentItem ? componentItem.status : 'USING',
         temporarilyUse: componentItem ? componentItem.temporarily_use : 'NO',
+        situation: componentItem ? componentItem.situation : 'GOOD',
       }}
       validationSchema={Yup.object({
         name: Yup.string().required(t('Required')),

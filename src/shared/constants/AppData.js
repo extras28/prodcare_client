@@ -83,7 +83,7 @@ const AppData = {
     {
       name: 'Unprocessed',
       value: 'UNPROCESSED',
-      bgColor: '#FFA800',
+      bgColor: '#F64E60',
       color: '#FFFFFF',
       selectedColor: '#FFFFFF',
       remainStatus: 'REMAIN',

@@ -10,12 +10,11 @@ import KTFormInput, {
   KTFormInputType,
 } from 'shared/components/OtherKeenComponents/Forms/KTFormInput';
 import KTFormTextArea from 'shared/components/OtherKeenComponents/Forms/KTFormTextArea';
+import KeenSelectOption from 'shared/components/OtherKeenComponents/Forms/KeenSelectOption';
 import ToastHelper from 'shared/helpers/ToastHelper';
 import Global from 'shared/utils/Global';
 import * as Yup from 'yup';
 import { thunkGetListProject } from '../../projectSlice';
-import KTFormSelect from 'shared/components/OtherKeenComponents/Forms/KTFormSelect';
-import KeenSelectOption from 'shared/components/OtherKeenComponents/Forms/KeenSelectOption';
 
 function ModalEditProject({
   show = false,

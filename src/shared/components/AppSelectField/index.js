@@ -38,7 +38,7 @@ function AppSelectField({ fields = [], defaultColumns = [] }) {
     <div>
       <KTBSDropdown
         toggleElement={
-          <div className="btn btn-success font-weight-bold d-flex align-items-center">
+          <div className="btn btn-sm btn-success font-weight-bold d-flex align-items-center">
             <i className="fa-regular fa-filter-list"></i>
             {t('CustomizeColumns')}
           </div>

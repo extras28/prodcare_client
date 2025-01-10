@@ -289,7 +289,7 @@
   "CustomizeColumns": "Tùy chỉnh cột hiển thị",
   "Information": "Thông tin",
   "ListOfProductsHasBeenImplemented": "Danh sách các sản phẩm {{project}} trên tuyến",
-  "SoftwareVersion": "Phiên bản phần mềm",
+  "SoftwareVersion": "SW",
   "Stored": "Lưu kho",
   "Using": "Đang sử dụng",
   "CurrentStatus": "Hiện trạng",
@@ -306,5 +306,6 @@
   "Repairing": "Đang sửa chữa",
   "Export": "Xuất excel",
   "OperationalWithErrors": "Tạm dùng",
-  "Good": "Tốt"
+  "Good": "Tốt",
+  "Level": "Cấp"
 }

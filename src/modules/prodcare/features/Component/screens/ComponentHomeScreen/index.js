@@ -9,7 +9,9 @@ import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import Empty from 'shared/components/Empty';
 import Loading from 'shared/components/Loading';
-import KTFormSelect from 'shared/components/OtherKeenComponents/Forms/KTFormSelect';
+import KTFormSelect, {
+  KTFormSelectSize,
+} from 'shared/components/OtherKeenComponents/Forms/KTFormSelect';
 import KeenSearchBarNoFormik from 'shared/components/OtherKeenComponents/KeenSearchBarNoFormik';
 import KTTooltip from 'shared/components/OtherKeenComponents/KTTooltip';
 import Pagination from 'shared/components/Pagination';
@@ -62,7 +64,7 @@ function ComponentHomePage(props) {
       {
         name: t('Serial'),
         sortable: false,
-        width: '170px',
+        // width: '125px',
         cell: (row) => {
           return (
             <p
@@ -175,9 +177,9 @@ function ComponentHomePage(props) {
         },
       },
       {
-        name: t('ComponentLevel'),
+        name: t('Level'),
         sortable: false,
-        width: '100px',
+        width: '50px',
         cell: (row) => {
           return (
             <div
@@ -192,7 +194,7 @@ function ComponentHomePage(props) {
       {
         name: t('SoftwareVersion'),
         sortable: false,
-        width: '100px',
+        width: '40px',
         cell: (row) => {
           return (
             <div
@@ -242,7 +244,7 @@ function ComponentHomePage(props) {
           <div className="d-flex align-items-center">
             <KTTooltip text={t('Edit')}>
               <a
-                className="btn btn-icon btn-sm btn-primary btn-hover-primary mr-2"
+                className="btn btn-icon btn-xs btn-primary btn-hover-primary mr-2"
                 onClick={(e) => {
                   e.preventDefault();
                   handleEditComponent(row);
@@ -254,7 +256,7 @@ function ComponentHomePage(props) {
 
             <KTTooltip text={t('Delete')}>
               <a
-                className="btn btn-icon btn-sm btn-danger btn-hover-danger mr-2"
+                className="btn btn-icon btn-xs btn-danger btn-hover-danger mr-2"
                 onClick={(e) => {
                   e.preventDefault();
                   handleDeleteComponent(row);
@@ -368,8 +370,7 @@ function ComponentHomePage(props) {
           if (result == 'success') {
             Global.gNeedToRefreshComponentList = true;
             ToastHelper.showSuccess(t('Success'));
-            Global.gFiltersComponentList = { ...filters };
-            setFilters({ ...filters });
+            setFilters({ ...Global.gFiltersComponentList });
           }
         } catch (error) {
           console.log(`Delete Component error: ${error?.message}`);
@@ -440,7 +441,8 @@ function ComponentHomePage(props) {
               </label>
               <KTFormSelect
                 name="product"
-                isCustom
+                isCustom={false}
+                size={KTFormSelectSize.small}
                 options={[
                   { name: 'All', value: '' },
                   ...products.map((item) => {
@@ -500,7 +502,8 @@ function ComponentHomePage(props) {
               </label>
               <KTFormSelect
                 name="status"
-                isCustom
+                isCustom={false}
+                size={KTFormSelectSize.small}
                 options={[
                   { name: 'All', value: '' },
                   ...AppData.productCurrentStatus.map((item) => {
@@ -530,7 +533,8 @@ function ComponentHomePage(props) {
               </label>
               <KTFormSelect
                 name="componentLevel"
-                isCustom
+                isCustom={false}
+                size={KTFormSelectSize.small}
                 options={[
                   { name: 'All', value: '' },
                   ...AppData.componentLevel.map((item) => {
@@ -557,7 +561,8 @@ function ComponentHomePage(props) {
               </label>
               <KTFormSelect
                 name="situation"
-                isCustom
+                isCustom={false}
+                size={KTFormSelectSize.small}
                 options={[
                   { name: 'All', value: '' },
                   ...AppData.productAndComponentStatus.map((item) => {
@@ -588,7 +593,7 @@ function ComponentHomePage(props) {
                 href="#"
                 className={`${
                   selectedComponents.length === 0 ? 'd-none' : 'd-flex'
-                } btn btn-light-danger font-weight-bold align-items-center mr-2`}
+                } btn btn-sm btn-light-danger font-weight-bold align-items-center mr-2`}
                 onClick={(e) => {
                   e.preventDefault();
                   handleDeleteMultiComponents();
@@ -603,7 +608,7 @@ function ComponentHomePage(props) {
                   e.preventDefault();
                   setModalEditComponentShowing(true);
                 }}
-                className="btn btn-primary font-weight-bold d-flex align-items-center"
+                className="btn btn-sm btn-primary font-weight-bold d-flex align-items-center"
               >
                 <i className="far fa-plus"></i>
                 {t('NewComponent')}

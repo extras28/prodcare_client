@@ -25,7 +25,12 @@ function Pagination({
   }
 
   const arrButtons = [];
-  let firstIndex = currentPage - 3 > 0 ? Math.min(currentPage - 3, totalPages - 5) >=0 ?Math.min(currentPage - 3, totalPages - 5) : 0 : 0;
+  let firstIndex =
+    currentPage - 3 > 0
+      ? Math.min(currentPage - 3, totalPages - 5) >= 0
+        ? Math.min(currentPage - 3, totalPages - 5)
+        : 0
+      : 0;
   let lastIndex = currentPage + 1 > totalPages - 1 ? totalPages - 1 : Math.max(currentPage + 1, 2);
 
   for (let i = firstIndex; i <= lastIndex; i++) {
@@ -34,7 +39,9 @@ function Pagination({
         key={i}
         page={i + 1}
         onClick={handlePageChange}
-        className={`btn btn-icon btn-sm border-0 btn-light mr-2 my-1 ${i === currentPage - 1 ? 'active btn-hover-primary' : ''}`}
+        className={`btn btn-icon btn-xs border-0 btn-light mr-2 my-1 ${
+          i === currentPage - 1 ? 'active btn-hover-primary' : ''
+        }`}
       >
         {Utils.formatNumber(i + 1)}
       </button>
@@ -67,14 +74,14 @@ function Pagination({
         <div className="d-flex flex-wrap py-2 mr-3">
           <button
             onClick={() => onChangePage && onChangePage(1)}
-            className="btn btn-icon btn-sm btn-light btn-hover-primary mr-2 my-1"
+            className="btn btn-icon btn-xs btn-light btn-hover-primary mr-2 my-1"
             disabled={currentPage <= 1}
           >
             <i className="fad fa-angle-double-left icon-1x"></i>
           </button>
           <button
             onClick={() => onChangePage && onChangePage(currentPage - 1)}
-            className="btn btn-icon btn-sm btn-light btn-hover-primary mr-2 my-1"
+            className="btn btn-icon btn-xs btn-light btn-hover-primary mr-2 my-1"
             disabled={currentPage <= 1}
           >
             <i className="fad fa-angle-left icon-1x"></i>
@@ -84,14 +91,14 @@ function Pagination({
 
           <button
             onClick={() => onChangePage && onChangePage(currentPage + 1)}
-            className="btn btn-icon btn-sm btn-light btn-hover-primary mr-2 my-1"
+            className="btn btn-icon btn-xs btn-light btn-hover-primary mr-2 my-1"
             disabled={currentPage >= totalPages}
           >
             <i className="fad fa-angle-right icon-1x"></i>
           </button>
           <button
             onClick={() => onChangePage && onChangePage(totalPages)}
-            className="btn btn-icon btn-sm btn-light btn-hover-primary mr-2 my-1"
+            className="btn btn-icon btn-xs btn-light btn-hover-primary mr-2 my-1"
             disabled={currentPage >= totalPages}
           >
             <i className="fad fa-angle-double-right icon-1x"></i>

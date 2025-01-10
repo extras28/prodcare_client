@@ -21,15 +21,6 @@ function ComponentDetailScreen(props) {
   const [modalComponentEditShowing, setModalEditComponentShowing] = useState(false);
   const { current } = useSelector((state) => state?.auth);
   const { customers, products } = useSelector((state) => state?.app);
-  const situation = useMemo(() => {
-    if (issues?.length == 0) return 'GOOD';
-
-    if (componentDetail?.temporarily_use == 'YES') return 'DEGRADED';
-
-    const handled = issues?.every((item) => item?.status == 'PROCESSED') ? true : false;
-    if (handled) return 'GOOD';
-    else return 'DEFECTIVE';
-  }, [componentDetail, issues]);
 
   const rows = useMemo(() => {
     return [
@@ -48,13 +39,17 @@ function ComponentDetailScreen(props) {
       {
         label: t('Status'),
         value:
-          situation == 'GOOD'
+          componentDetail?.situation == 'GOOD'
             ? t('Good')
-            : situation == 'DEFECTIVE'
+            : componentDetail?.situation == 'DEFECTIVE'
             ? t('HaveErrors')
             : t('OperationalWithErrors'),
         valueClassName: `badge badge-${
-          situation == 'GOOD' ? 'success' : situation == 'DEFECTIVE' ? 'danger' : 'warning'
+          componentDetail?.situation == 'GOOD'
+            ? 'success'
+            : componentDetail?.situation == 'DEFECTIVE'
+            ? 'danger'
+            : 'warning'
         }`,
       },
       {

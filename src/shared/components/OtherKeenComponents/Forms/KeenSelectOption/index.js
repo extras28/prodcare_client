@@ -6,6 +6,7 @@ import SearchBarNoFormik from '../SearchBarNoFormik';
 import Utils from 'shared/utils/Utils';
 
 function KeenSelectOption({
+  isFilter = false,
   name,
   initialValue = '',
   fieldProps = {},
@@ -22,19 +23,31 @@ function KeenSelectOption({
   searchable = false,
   footerEl = null,
   menuClassName = 'w-100',
+  emptyLabel = '',
+  toggleClassName = 'btn-sm',
 }) {
   const value = fieldProps?.value ?? initialValue;
   const { t } = useTranslation();
-  const [dropdownValue, setDropdownValue] = useState(t('NoChoose'));
+  const [dropdownValue, setDropdownValue] = useState(!emptyLabel ? t('NoChoose') : emptyLabel);
   const [searchText, setSearchText] = useState('');
 
   const refOptionMenu = useMemo(() => {
     let filteredOptions = options;
     if (searchable) {
-      filteredOptions = _.filter(options, (item) => {
-        const itemName = Utils.removeVietnameseTones(item?.name).toLowerCase();
-        return itemName?.includes(Utils.removeVietnameseTones(searchText).toLowerCase());
-      });
+      if (isFilter && searchText !== '') {
+        filteredOptions = [
+          options.find((item) => item?.value === ''),
+          ..._.filter(options, (item) => {
+            const itemName = Utils.removeVietnameseTones(item?.name).toLowerCase();
+            return itemName?.includes(Utils.removeVietnameseTones(searchText).toLowerCase());
+          }),
+        ];
+      } else {
+        filteredOptions = _.filter(options, (item) => {
+          const itemName = Utils.removeVietnameseTones(item?.name).toLowerCase();
+          return itemName?.includes(Utils.removeVietnameseTones(searchText).toLowerCase());
+        });
+      }
     }
     return (
       <>
@@ -47,7 +60,7 @@ function KeenSelectOption({
                 setDropdownValue(item.text ?? item.name);
                 handleOptionChanged(item.value);
               }}
-              className={`d-flex flex-row align-items-center border-top border-light ${
+              className={`d-flex flex-row align-items-center border-top border-light ${toggleClassName} ${
                 index === 0 ? 'border-top-0' : ''
               }`}
             >
@@ -85,7 +98,7 @@ function KeenSelectOption({
 
   useEffect(() => {
     if (value === '') {
-      setDropdownValue(t('NoChoose'));
+      setDropdownValue(!emptyLabel ? t('NoChoose') : emptyLabel);
     } else {
       setDropdownValue(
         (options.find((item) => item.value === value)?.text ??
@@ -125,7 +138,7 @@ function KeenSelectOption({
           <Dropdown.Toggle
             id={name}
             disabled={disabled}
-            className={`overflow-hidden cursor-pointer border shadow-none d-flex align-items-center justify-content-between ${
+            className={`overflow-hidden cursor-pointer border shadow-none d-flex align-items-center justify-content-between ${toggleClassName} ${
               showError ? 'is-invalid' : ''
             } w-100`}
             multiple={fieldProps?.multiple}

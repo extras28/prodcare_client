@@ -54,7 +54,7 @@ function DateRangePickerInput({
 
   return (
     <div
-      className={`DateRangePickerInput cursor-pointer d-flex flex-wrap align-items-center justify-content-between ${className}`}
+      className={`DateRangePickerInput cursor-pointer d-flex flex-row align-items-center justify-content-between ${className}`}
       onClick={() => dateRangePickerInput.current.ref.focus()}
     >
       <div>

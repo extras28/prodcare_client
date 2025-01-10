@@ -1,8 +1,8 @@
 const customDataTableStyle = {
   rows: {
     style: {
-      minHeight: '64px', // override the row height
-      // fontSize: '1rem',
+      minHeight: 'auto', // override the row height
+      fontSize: '12px',
       color: '#3F4254',
       paddingLeft: '0px',
       '&:not(:last-of-type)': {
