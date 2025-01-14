@@ -307,5 +307,8 @@
   "Export": "Xuất excel",
   "OperationalWithErrors": "Tạm dùng",
   "Good": "Tốt",
-  "Level": "Cấp"
+  "Level": "Cấp",
+  "ComponentLevel1": "Thành phần cấp 1",
+  "ComponentLevel2": "Thành phần cấp 2",
+  "ComponentLevel3": "Thành phần cấp 3"
 }

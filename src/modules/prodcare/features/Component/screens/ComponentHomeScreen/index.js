@@ -64,7 +64,6 @@ function ComponentHomePage(props) {
       {
         name: t('Serial'),
         sortable: false,
-        // width: '125px',
         cell: (row) => {
           return (
             <p
@@ -91,7 +90,6 @@ function ComponentHomePage(props) {
         },
       },
       {
-        id: 2,
         name: t('Customer'),
         sortable: false,
         cell: (row) => {
@@ -118,7 +116,6 @@ function ComponentHomePage(props) {
           );
         },
       },
-
       {
         name: t('CurrentStatus'),
         sortable: false,

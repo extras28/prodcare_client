@@ -46,8 +46,8 @@ function AppSelectField({ fields = [], defaultColumns = [] }) {
         dropdownMenuClassName="min-w-200px"
         contentEl={
           <div>
-            {fields?.map((item) => (
-              <label className="checkbox checkbox-success px-2 pb-2">
+            {fields?.map((item, index) => (
+              <label key={index} className="checkbox checkbox-success px-2 pb-2">
                 <input
                   type="checkbox"
                   name="Checkboxes5"

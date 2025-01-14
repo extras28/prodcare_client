@@ -23,6 +23,7 @@ import ModalEditProduct from '../../components/ModalEditProduct';
 import ModalProductActivity from '../../components/ModalProductActivity';
 import { setPaginationPerPage, thunkGetListProduct } from '../../productSlice';
 
+import componentApi from 'api/componentApi';
 import ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
 import ModalEditComponent from 'modules/prodcare/features/Component/components/ModalEditComponent';
@@ -31,9 +32,8 @@ import DateRangePickerInput from 'shared/components/AppDateRangePicker';
 import KTFormSelect, {
   KTFormSelectSize,
 } from 'shared/components/OtherKeenComponents/Forms/KTFormSelect';
-import AppData from 'shared/constants/AppData';
 import KeenSelectOption from 'shared/components/OtherKeenComponents/Forms/KeenSelectOption';
-import componentApi from 'api/componentApi';
+import AppData from 'shared/constants/AppData';
 
 ProductHomePage.propTypes = {};
 
@@ -193,19 +193,8 @@ function ProductHomePage(props) {
         <Column
           style={{ width: '200px' }}
           body={(row) => {
-            const issues = row?.data?.issues;
+            let active = row?.data?.situation;
 
-            let active = 'GOOD';
-
-            if (issues?.length > 0) {
-              const allProcessed = issues.every((item) => item?.status == 'PROCESSED');
-              if (!allProcessed) {
-                const hasStopFighting = issues.some(
-                  (item) => item?.stop_fighting && item?.status != 'PROCESSED'
-                );
-                active = hasStopFighting ? 'DEFECTIVE' : 'DEGRADED';
-              }
-            }
             const breakdown =
               active == 'DEFECTIVE' || row?.data?.status === 'REPAIRING' ? true : false;
             return (
@@ -293,44 +282,93 @@ function ProductHomePage(props) {
 
     const excelComponents = await getAllProduct();
 
+    let highestLevel = 1;
+
+    function formatComponents(data, parent = null, grandparent = null) {
+      const formattedList = [];
+
+      data.forEach((item) => {
+        if (item.level > highestLevel) {
+          highestLevel = item.level;
+        }
+        if (!item.children || item.children.length === 0) {
+          formattedList.push({
+            ...item,
+            parent: parent ? { id: parent.id, name: parent.name } : null,
+            grandparent: grandparent ? { id: grandparent.id, name: grandparent.name } : null,
+          });
+        } else {
+          const childComponents = formatComponents(item.children, item, parent);
+          formattedList.push(...childComponents);
+        }
+      });
+
+      return formattedList;
+    }
+
+    const formattedComponents = formatComponents(excelComponents);
+
+    const headerColumns = [
+      t('Customer'),
+      t('Product'),
+      t('ComponentLevel1'),
+      t('ComponentLevel2'),
+      t('ComponentLevel3'),
+      t('Serial'),
+      t('SoftwareVersion'),
+      t('CurrentStatus'),
+      t('Status'),
+      t('Note'),
+      'Is First Row', // Helper column
+    ];
+
+    const rows = formattedComponents.map((item, index) => {
+      const customer = item?.product?.customer;
+      const issues = item?.issues;
+
+      const breakdown =
+        issues?.length > 0 && issues?.every((item) => item?.status !== 'PROCESSED') ? true : false;
+
+      let defaultColumns = [
+        customer ? `${customer?.['military_region']} - ${customer?.['name']}` : '',
+        item?.product?.name,
+        item?.level == 1
+          ? item?.name
+          : item?.level == 2
+          ? item?.parent?.name
+          : item?.level == 3
+          ? item?.grandparent?.name
+          : '',
+        item?.level == 2 ? item?.name : item?.level == 3 ? item?.parent?.name : '',
+        item?.level == 3 ? item?.name : '',
+        item?.serial,
+        item?.version ?? '',
+        item?.status
+          ? t(AppData.productCurrentStatus.find((st) => st?.value === item?.status)?.name)
+          : '',
+        breakdown ? t('HaveErrors') : t('Active'),
+        item?.description ?? '',
+        index === 0 ||
+        excelComponents[index - 1]?.product?.customer?.['name'] !== customer?.['name']
+          ? 'Yes'
+          : 'No', // Helper column logic
+      ];
+
+      return highestLevel === 1
+        ? defaultColumns.filter((item, index) => index < 3 || index > 4)
+        : highestLevel === 2
+        ? defaultColumns.filter((item, index) => index !== 4)
+        : defaultColumns;
+    });
+
     const listData2 = [
-      [
-        t('Customer'),
-        t('Product'),
-        t('Component'),
-        t('Serial'),
-        t('SoftwareVersion'),
-        t('CurrentStatus'),
-        t('Status'),
-        t('Note'),
-        'Is First Row', // Helper column
-      ],
-      ...excelComponents.map((item, index) => {
-        const customer = item?.product?.customer;
-        const issues = item?.issues;
+      highestLevel === 1
+        ? headerColumns.filter((item, index) => index < 3 || index > 4)
+        : highestLevel === 2
+        ? headerColumns.filter((item, index) => index !== 4)
+        : headerColumns,
 
-        const breakdown =
-          issues?.length > 0 && issues?.every((item) => item?.status !== 'PROCESSED')
-            ? true
-            : false;
-
-        return [
-          customer ? `${customer?.['military_region']} - ${customer?.['name']}` : '',
-          item?.product?.name,
-          item?.name,
-          item?.serial,
-          item?.version ?? '',
-          item?.status
-            ? t(AppData.productCurrentStatus.find((st) => st?.value === item?.status)?.name)
-            : '',
-          breakdown ? t('HaveErrors') : t('Active'),
-          item?.description ?? '',
-          index === 0 ||
-          excelComponents[index - 1]?.product?.customer?.['name'] !== customer?.['name']
-            ? 'Yes'
-            : 'No', // Helper column logic
-        ];
-      }),
+      ...rows,
     ];
 
     listData2.forEach((row, rowIndex) => {
@@ -383,7 +421,6 @@ function ProductHomePage(props) {
       }
     });
 
-    // Merge cells in column A (Customer) and column B (Product)
     const mergeCellsByColumn = (colIndex) => {
       let startRow = 2; // Skip the header row
       for (let i = 2; i < listData2.length; i++) {
@@ -400,12 +437,39 @@ function ProductHomePage(props) {
 
     mergeCellsByColumn(1); // Merge column A
     mergeCellsByColumn(2); // Merge column B
+    if (highestLevel > 1) mergeCellsByColumn(3); // Merge column C
+    if (highestLevel > 2) mergeCellsByColumn(4); // Merge column D
 
     worksheet2.getColumn(4).width = 30;
-    worksheet2.getColumn(5).width = 15;
-    worksheet2.getColumn(6).width = 15;
-    worksheet2.getColumn(7).width = 15;
-    worksheet2.getColumn(8).width = 40;
+    if (highestLevel == 1) {
+      worksheet2.getColumn(5).width = 15;
+      worksheet2.getColumn(6).width = 15;
+      worksheet2.getColumn(8).width = 40;
+    } else {
+      worksheet2.getColumn(8).width = 15;
+    }
+
+    switch (highestLevel) {
+      case 1:
+        worksheet2.getColumn(5).width = 15;
+        worksheet2.getColumn(6).width = 15;
+        worksheet2.getColumn(7).width = 15;
+        break;
+
+      case 2:
+        worksheet2.getColumn(6).width = 15;
+        worksheet2.getColumn(7).width = 15;
+        worksheet2.getColumn(8).width = 15;
+        break;
+      case 3:
+        worksheet2.getColumn(7).width = 15;
+        worksheet2.getColumn(8).width = 15;
+        worksheet2.getColumn(9).width = 15;
+        break;
+
+      default:
+        break;
+    }
 
     const buffer = await workbook.xlsx.writeBuffer();
     const blob = new Blob([buffer], {
@@ -803,7 +867,7 @@ function ProductHomePage(props) {
               <Pagination
                 rowsPerPage={pagination?.perPage}
                 rowCount={pagination?.total}
-                currentPage={pagination?.currentPage}
+                currentPage={Number(pagination?.currentPage)}
                 onChangePage={(newPage) => {
                   let iNewPage = parseInt(newPage);
                   iNewPage -= 1;

@@ -1139,8 +1139,8 @@ function IssueHomePage(props) {
                 size={KTFormSelectSize.small}
                 options={[
                   { name: 'All', value: '' },
-                  { name: 'Yes', value: true },
-                  { name: 'No', value: false },
+                  { name: 'Yes', value: 'true' },
+                  { name: 'No', value: 'false' },
                 ]}
                 value={Global.gFiltersIssueList.stopFighting}
                 onChange={(newValue) => {
