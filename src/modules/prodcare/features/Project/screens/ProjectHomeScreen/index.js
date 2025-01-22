@@ -41,6 +41,18 @@ function ProjectHomePage(props) {
   const columns = useMemo(() => {
     const tableColumns = [
       {
+        name: t('STT'),
+        width: '60px',
+        sortable: false,
+        cell: (row) => {
+          return (
+            <p data-tag="allowRowEvents" className={`font-weight-normal m-0 text-maxline-3`}>
+              {t(_.capitalize(row?.orderNumber))}
+            </p>
+          );
+        },
+      },
+      {
         name: t('ProductId'),
         sortable: false,
         // minWidth: '120px',

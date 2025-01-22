@@ -2210,6 +2210,47 @@ function ModalEditIssue({
                   />
                 </div>
 
+                {/* HandlingMeasures */}
+                <div className="col-4">
+                  <KTFormGroup
+                    label={<>{t('HandlingMeasures')}</>}
+                    inputName="handlingMeasures"
+                    inputElement={
+                      <FastField name="handlingMeasures">
+                        {({ field, form, meta }) => (
+                          <KeenSelectOption
+                            // searchable={true}
+                            fieldProps={field}
+                            fieldHelpers={formikProps.getFieldHelpers(field.name)}
+                            fieldMeta={meta}
+                            name={field.name}
+                            options={AppData.handlingMeasures.map((item) => {
+                              return { name: item.name, value: item.value };
+                            })}
+                            onValueChanged={(newValue) => {
+                              form.setFieldValue(field.name, newValue);
+                              setChangeObj((prev) => {
+                                return {
+                                  ...prev,
+                                  [`${t('HandlingMeasures')}`]: `${t(
+                                    AppData.handlingMeasures.find(
+                                      (item) => item.value === issueItem?.['handling_measures']
+                                    )?.name
+                                  )} -> ${t(
+                                    AppData.handlingMeasures.find((item) => item.value === newValue)
+                                      ?.name
+                                  )}`,
+                                };
+                              });
+                            }}
+                            disabled={current?.role === 'GUEST'}
+                          />
+                        )}
+                      </FastField>
+                    }
+                  />
+                </div>
+
                 {/* HandlingPlan */}
                 <div className="col-lg-4 col-md-6">
                   <KTFormGroup

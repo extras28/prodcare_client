@@ -42,25 +42,18 @@ function UserHomePage(props) {
   const refLoading = useRef(false);
   const columns = useMemo(() => {
     const tableColumns = [
-      // {
-      //   name: t('Avatar'),
-      //   sortable: false,
-      //   // "minWidth": '100px',
-      //   center: 'true',
-      //   cell: (row) => {
-      //     return (
-      //       <img
-      //         src={Utils.getFullUrl(row?.logo)}
-      //         style={{
-      //           aspectRatio: '1/1',
-      //           objectFit: 'cover',
-      //           height: 30,
-      //           borderRadius: 10,
-      //         }}
-      //       />
-      //     );
-      //   },
-      // },
+      {
+        name: t('STT'),
+        width: '60px',
+        sortable: false,
+        cell: (row) => {
+          return (
+            <p data-tag="allowRowEvents" className={`font-weight-normal m-0 text-maxline-3`}>
+              {t(_.capitalize(row?.orderNumber))}
+            </p>
+          );
+        },
+      },
       {
         name: t('Email'),
         sortable: false,

@@ -1,13 +1,12 @@
 import { accountApi } from 'api/accountApi';
 import { thunkGetCurrentColumn } from 'app/appSlice';
-import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
-import KTBSDropdown from '../OtherKeenComponents/KTBSDropdown';
+import KTBSDropdown, { KTBSDropdownAutoCloseBehavior } from '../OtherKeenComponents/KTBSDropdown';
 
 AppSelectField.propTypes = {};
 
-function AppSelectField({ fields = [], defaultColumns = [] }) {
+function AppSelectField({ fields = [] }) {
   // MARK: --- params -
   const { t } = useTranslation();
   const { currentColumns } = useSelector((state) => state?.app);
@@ -45,7 +44,7 @@ function AppSelectField({ fields = [], defaultColumns = [] }) {
         }
         dropdownMenuClassName="min-w-200px"
         contentEl={
-          <div>
+          <div className="overflow-auto max-h-500px">
             {fields?.map((item, index) => (
               <label key={index} className="checkbox checkbox-success px-2 pb-2">
                 <input
@@ -63,8 +62,7 @@ function AppSelectField({ fields = [], defaultColumns = [] }) {
             ))}
           </div>
         }
-        autoCloseBehavior={'false'}
-        staticDisplay={true}
+        autoCloseBehavior={KTBSDropdownAutoCloseBehavior.outside}
       />
     </div>
   );

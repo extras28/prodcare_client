@@ -34,6 +34,7 @@ import KTFormSelect, {
 } from 'shared/components/OtherKeenComponents/Forms/KTFormSelect';
 import KeenSelectOption from 'shared/components/OtherKeenComponents/Forms/KeenSelectOption';
 import AppData from 'shared/constants/AppData';
+import Loading from 'shared/components/Loading';
 
 ProductHomePage.propTypes = {};
 
@@ -68,187 +69,201 @@ function ProductHomePage(props) {
   const [hidingRowIds, setHidingRowIds] = useState([]);
 
   const table = useMemo(
-    () => (
-      <TreeTable
-        style={{ fontSize: '12px' }}
-        showGridlines={true}
-        rowHover={true}
-        loading={isGettingProductList}
-        emptyMessage={
-          <div className="pt-12">
-            <Empty
-              text={t('NoData')}
-              visible={false}
-              imageEmpty={AppResource.icons.icEmptyState}
-              imageEmptyPercentWidth={10}
-            />
-          </div>
-        }
-        rowClassName={(node) => {
-          const expanding = hidingRowIds.find((item) => item == node.key);
-          if (expanding && node.children.length > 0) {
-            return { 'bg-light': true };
+    () =>
+      isGettingProductList ? (
+        <div className="d-flex justify-content-center align-items-center">
+          <Loading showBackground={false} message={`${t('Loading')}...`} />
+        </div>
+      ) : (
+        <TreeTable
+          style={{ fontSize: '12px' }}
+          showGridlines={true}
+          rowHover={true}
+          loading={isGettingProductList}
+          emptyMessage={
+            <div className="pt-12">
+              <Empty
+                text={t('NoData')}
+                visible={false}
+                imageEmpty={AppResource.icons.icEmptyState}
+                imageEmptyPercentWidth={10}
+              />
+            </div>
           }
-          return null;
-        }}
-        onRowClick={(row) => {
-          showProductIssue(row);
-        }}
-        onExpand={(e) => {
-          setHidingRowIds((pre) => pre.concat(e.node.key));
-        }}
-        onCollapse={(e) => {
-          setHidingRowIds((pre) => pre.filter((item) => item != e.node.key));
-        }}
-        value={products}
-      >
-        <Column
-          style={{ width: '40px' }}
-          className="pr-0"
-          field="orderNumber"
-          header={t('STT')}
-        ></Column>
-        <Column
-          style={{ width: '250px' }}
-          className="font-weight-bolder"
-          field="name"
-          header={t('ProductName')}
-          expander
-        ></Column>
-        <Column
-          style={{ width: '125px' }}
-          className="font-weight-bolder"
-          field="serial"
-          header={t('Serial')}
-        ></Column>
-        <Column
-          style={{ width: '150px' }}
-          body={(row) => {
-            const ct = customers.find((item) => item.id === row?.data?.['customer_id']);
-            return (
-              <span data-tag="allowRowEvents" className="font-weight-normal  text-maxline-3">
-                {ct ? `${ct?.['name']} - ${ct?.['military_region']}` : ''}
-              </span>
-            );
+          rowClassName={(node) => {
+            const expanding = hidingRowIds.find((item) => item == node.key);
+            if (expanding && node.children.length > 0) {
+              return { 'bg-light': true };
+            }
+            return null;
           }}
-          header={t('Customer')}
-        ></Column>
-        <Column style={{ width: '50px' }} field="version" header={t('SoftwareVersion')}></Column>
-        <Column
-          style={{ width: '120px' }}
-          body={(row) => {
-            return (
-              <span
-                data-tag="allowRowEvents"
-                className={`badge badge-${
-                  row?.data?.status === 'USING'
-                    ? 'primary'
-                    : row?.data?.status === 'REPAIRING'
-                    ? 'danger'
-                    : 'warning'
-                }`}
-              >
-                {row?.data?.status
-                  ? t(
-                      AppData.productCurrentStatus.find((item) => item?.value === row?.data?.status)
-                        ?.name
-                    )
-                  : ''}
-              </span>
-            );
+          onRowClick={(row) => {
+            showProductIssue(row);
           }}
-          field="currentStatus"
-          header={t('CurrentStatus')}
-        ></Column>
-        <Column
-          style={{ width: '100px' }}
-          body={(row) => {
-            const issues = row?.data?.issues;
-
-            let count = row?.data?.product_id
-              ? row?.data?.count
-              : issues?.filter((is) => is?.status != 'PROCESSED')?.length;
-
-            let active = row?.data?.situation;
-
-            return (
-              <span
-                data-tag="allowRowEvents"
-                className={`${hidingRowIds.includes(row?.key) ? 'd-none' : ''} badge badge-${
-                  active == 'GOOD' ? 'success' : active == 'DEFECTIVE' ? 'danger' : 'warning'
-                }`}
-              >
-                {active == 'GOOD'
-                  ? t('Good')
-                  : active == 'DEFECTIVE'
-                  ? t('HaveErrors') + ' (' + count + ')'
-                  : `${t('OperationalWithErrors')} ${count > 0 ? '(' + count + ')' : ''}`}
-              </span>
-            );
+          onExpand={(e) => {
+            setHidingRowIds((pre) => pre.concat(e.node.key));
           }}
-          field="status"
-          header={t('Status')}
-        ></Column>
-
-        <Column
-          style={{ width: '200px' }}
-          body={(row) => {
-            let active = row?.data?.situation;
-
-            const breakdown =
-              active == 'DEFECTIVE' || row?.data?.status === 'REPAIRING' ? true : false;
-            return (
-              <span
-                data-tag="allowRowEvents"
-                className={`${breakdown ? 'text-danger' : 'text-dark-75'}`}
-              >
-                {row?.data?.description}
-              </span>
-            );
+          onCollapse={(e) => {
+            setHidingRowIds((pre) => pre.filter((item) => item != e.node.key));
           }}
-          field="description"
-          header={t('Note')}
-        ></Column>
-        <Column
-          style={{ width: '120px' }}
-          body={(row) => {
-            return (
-              <div className="d-flex align-items-center">
-                <KTTooltip text={t('Edit')}>
-                  <a
-                    className="btn btn-icon btn-xs btn-primary btn-hover-primary"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleEditProduct(row?.data);
-                    }}
-                  >
-                    <i className="fa-regular fa-pen p-0 icon-1x" />
-                  </a>
-                </KTTooltip>
+          value={products}
+        >
+          <Column
+            style={{ width: '40px' }}
+            className="pr-0"
+            field="orderNumber"
+            header={t('STT')}
+          ></Column>
+          <Column
+            style={{ width: '250px' }}
+            className="font-weight-bolder"
+            field="name"
+            header={t('ProductName')}
+            expander
+          ></Column>
+          <Column
+            style={{ width: '125px' }}
+            className="font-weight-bolder"
+            field="serial"
+            header={t('Serial')}
+          ></Column>
+          <Column
+            style={{ width: '150px' }}
+            body={(row) => {
+              const ct = customers.find((item) => item.id === row?.data?.['customer_id']);
+              return (
+                <span data-tag="allowRowEvents" className="font-weight-normal  text-maxline-3">
+                  {ct ? `${ct?.['name']} - ${ct?.['military_region']}` : ''}
+                </span>
+              );
+            }}
+            header={t('Customer')}
+          ></Column>
+          <Column style={{ width: '50px' }} field="version" header={t('SoftwareVersion')}></Column>
+          <Column
+            style={{ width: '120px' }}
+            body={(row) => {
+              return (
+                <span
+                  data-tag="allowRowEvents"
+                  className={`badge badge-${
+                    row?.data?.status === 'USING'
+                      ? 'primary'
+                      : row?.data?.status === 'REPAIRING'
+                      ? 'danger'
+                      : 'warning'
+                  }`}
+                >
+                  {row?.data?.status
+                    ? t(
+                        AppData.productCurrentStatus.find(
+                          (item) => item?.value === row?.data?.status
+                        )?.name
+                      )
+                    : ''}
+                </span>
+              );
+            }}
+            field="currentStatus"
+            header={t('CurrentStatus')}
+          ></Column>
+          <Column
+            style={{ width: '100px' }}
+            body={(row) => {
+              const issues = row?.data?.issues;
 
-                <KTTooltip text={t('Delete')}>
-                  <a
-                    className="btn btn-icon btn-xs btn-danger btn-hover-danger ml-2"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      if (row?.data?.hasOwnProperty('product_id')) {
-                        handleDeleteComponent(row?.data);
-                      } else {
-                        handleDeleteProduct(row?.data);
-                      }
-                    }}
-                  >
-                    <i className="fa-regular fa-trash p-0 icon-1x" />
-                  </a>
-                </KTTooltip>
-              </div>
-            );
-          }}
-          header={t('Action')}
-        ></Column>
-      </TreeTable>
-    ),
-    [current, LanguageHelper.getCurrentLanguage(), projects, customers, products, hidingRowIds]
+              let count = row?.data?.product_id
+                ? row?.data?.count
+                : issues?.filter((is) => is?.status != 'PROCESSED')?.length;
+
+              let active = row?.data?.situation;
+
+              return (
+                <span
+                  data-tag="allowRowEvents"
+                  className={`${hidingRowIds.includes(row?.key) ? 'd-none' : ''} badge badge-${
+                    active == 'GOOD' ? 'success' : active == 'DEFECTIVE' ? 'danger' : 'warning'
+                  }`}
+                >
+                  {active == 'GOOD'
+                    ? t('Good')
+                    : active == 'DEFECTIVE'
+                    ? t('HaveErrors') + ' (' + count + ')'
+                    : `${t('OperationalWithErrors')} ${count > 0 ? '(' + count + ')' : ''}`}
+                </span>
+              );
+            }}
+            field="status"
+            header={t('Status')}
+          ></Column>
+
+          <Column
+            style={{ width: '200px' }}
+            body={(row) => {
+              let active = row?.data?.situation;
+
+              const breakdown =
+                active == 'DEFECTIVE' || row?.data?.status === 'REPAIRING' ? true : false;
+              return (
+                <span
+                  data-tag="allowRowEvents"
+                  className={`${breakdown ? 'text-danger' : 'text-dark-75'}`}
+                >
+                  {row?.data?.description}
+                </span>
+              );
+            }}
+            field="description"
+            header={t('Note')}
+          ></Column>
+          <Column
+            style={{ width: '120px' }}
+            body={(row) => {
+              return (
+                <div className="d-flex align-items-center">
+                  <KTTooltip text={t('Edit')}>
+                    <a
+                      className="btn btn-icon btn-xs btn-primary btn-hover-primary"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleEditProduct(row?.data);
+                      }}
+                    >
+                      <i className="fa-regular fa-pen p-0 icon-1x" />
+                    </a>
+                  </KTTooltip>
+
+                  <KTTooltip text={t('Delete')}>
+                    <a
+                      className="btn btn-icon btn-xs btn-danger btn-hover-danger ml-2"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        if (row?.data?.hasOwnProperty('product_id')) {
+                          handleDeleteComponent(row?.data);
+                        } else {
+                          handleDeleteProduct(row?.data);
+                        }
+                      }}
+                    >
+                      <i className="fa-regular fa-trash p-0 icon-1x" />
+                    </a>
+                  </KTTooltip>
+                </div>
+              );
+            }}
+            header={t('Action')}
+          ></Column>
+        </TreeTable>
+      ),
+    [
+      current,
+      LanguageHelper.getCurrentLanguage(),
+      projects,
+      customers,
+      products,
+      hidingRowIds,
+      isGettingProductList,
+    ]
   );
 
   // MARK: --- Functions ---
