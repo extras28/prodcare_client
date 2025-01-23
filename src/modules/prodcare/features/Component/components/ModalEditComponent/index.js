@@ -488,7 +488,7 @@ function ModalEditComponent({
                             fieldHelpers={formikProps.getFieldHelpers(field.name)}
                             fieldMeta={meta}
                             name={field.name}
-                            options={AppData.urgencyPoints.map((item) => {
+                            options={AppData.componentLevel.map((item) => {
                               return { name: item.name, value: item.value };
                             })}
                             onValueChanged={(newValue) => {

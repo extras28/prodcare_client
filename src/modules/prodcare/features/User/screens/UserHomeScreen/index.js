@@ -44,6 +44,7 @@ function UserHomePage(props) {
     const tableColumns = [
       {
         name: t('STT'),
+        center: 'true',
         width: '60px',
         sortable: false,
         cell: (row) => {
@@ -141,6 +142,7 @@ function UserHomePage(props) {
       },
       {
         name: t('Role'),
+        center: 'true',
         sortable: false,
         cell: (row) => {
           return (

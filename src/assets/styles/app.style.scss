@@ -317,9 +317,14 @@ body {
   padding: 0 !important;
 }
 
+.p-treetable-thead {
+  border: 1px;
+  border-style: solid !important;
+  border-color: #ebedf3;
+}
 .p-treetable-tbody > tr {
-  border-bottom: 1px;
-  border-style: dashed !important;
+  border: 1px;
+  border-style: solid !important;
   border-color: #ebedf3;
 }
 

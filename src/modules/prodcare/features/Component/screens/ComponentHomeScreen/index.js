@@ -51,7 +51,7 @@ function ComponentHomePage(props) {
     const tableColumns = [
       {
         name: t('STT'),
-        sortable: false,
+        center: 'true',
         width: '60px',
         cell: (row) => {
           return (
@@ -118,7 +118,7 @@ function ComponentHomePage(props) {
       },
       {
         name: t('CurrentStatus'),
-        sortable: false,
+        center: 'true',
         cell: (row) => {
           return (
             <span
@@ -140,7 +140,7 @@ function ComponentHomePage(props) {
       },
       {
         name: t('Status'),
-        sortable: false,
+        center: 'true',
         cell: (row) => {
           const issues = row?.issues;
 
@@ -175,7 +175,7 @@ function ComponentHomePage(props) {
       },
       {
         name: t('Level'),
-        sortable: false,
+        center: 'true',
         width: '50px',
         cell: (row) => {
           return (

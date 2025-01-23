@@ -1,5 +1,5 @@
-import 'assets/styles/keen/theme01/layout/header/base/dark.css';
-import 'assets/styles/keen/theme01/layout/header/menu/dark.css';
+import 'assets/styles/keen/theme01/layout/header/base/light.css';
+import 'assets/styles/keen/theme01/layout/header/menu/light.css';
 import useRouter from 'hooks/useRouter';
 import _ from 'lodash';
 import DropdownAccountMenu from 'modules/Authentication/components/DropdownAccountMenu';
@@ -41,9 +41,7 @@ function KT01Header(props) {
           <div className="topbar-item ml-4">
             <div className="d-flex align-items-center cursor-pointer">
               <div className="font-size-h3">
-                <span className="font-weight-bold mr-1" style={{ color: '#9A9CAE' }}>{`${t(
-                  'Product'
-                )}: `}</span>
+                <span className="font-weight-bold mr-1">{`${t('Product')}: `}</span>
                 <span className="text-primary font-weight-bold">
                   {currentProject?.['project_name']}
                 </span>
@@ -251,9 +249,7 @@ function KT01Header(props) {
               <div className="topbar-item ml-4">
                 <div className="d-flex align-items-center cursor-pointer">
                   <div>
-                    <span className="font-weight-bold mr-1" style={{ color: '#9A9CAE' }}>{`${t(
-                      'Hello'
-                    )}, `}</span>
+                    <span className="font-weight-bold mr-1">{`${t('Hello')}, `}</span>
                     <span className="text-primary font-weight-bold mr-3">
                       {AccountHelper.getDisplayName(currentLoggedInUser)}
                     </span>

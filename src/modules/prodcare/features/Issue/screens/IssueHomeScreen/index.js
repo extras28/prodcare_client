@@ -4,6 +4,8 @@ import { thunkGetAllComponent, thunkGetAllCustomer, thunkGetAllProduct } from 'a
 import customDataTableStyle from 'assets/styles/customDataTableStyle';
 import useRouter from 'hooks/useRouter';
 import _ from 'lodash';
+import { thunkGetComponentDetail } from 'modules/prodcare/features/Component/componentSlice';
+import { thunkGetProductDetail } from 'modules/prodcare/features/Product/productSlice';
 import moment from 'moment';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import DataTable from 'react-data-table-component';
@@ -13,9 +15,11 @@ import AppDateRangePicker from 'shared/components/AppDateRangePicker';
 import AppSelectField from 'shared/components/AppSelectField';
 import Empty from 'shared/components/Empty';
 import Loading from 'shared/components/Loading';
+import KeenSelectOption from 'shared/components/OtherKeenComponents/Forms/KeenSelectOption';
 import KTFormSelect, {
   KTFormSelectSize,
 } from 'shared/components/OtherKeenComponents/Forms/KTFormSelect';
+import KeenSearchBarNoFormik from 'shared/components/OtherKeenComponents/KeenSearchBarNoFormik';
 import KTTooltip from 'shared/components/OtherKeenComponents/KTTooltip';
 import Pagination from 'shared/components/Pagination';
 import AppData from 'shared/constants/AppData';
@@ -30,10 +34,6 @@ import ModalEditIssue from '../../components/ModalEditIssue';
 import ModalEvaluateIssue from '../../components/ModalEvaluateIssue';
 import ModalUploadIssueFile from '../../components/ModalUploadIssueFile';
 import { setPaginationPerPage, thunkGetListIssue } from '../../issueSlice';
-import KeenSearchBarNoFormik from 'shared/components/OtherKeenComponents/KeenSearchBarNoFormik';
-import { thunkGetComponentDetail } from 'modules/prodcare/features/Component/componentSlice';
-import { thunkGetProductDetail } from 'modules/prodcare/features/Product/productSlice';
-import KeenSelectOption from 'shared/components/OtherKeenComponents/Forms/KeenSelectOption';
 
 IssueHomePage.propTypes = {};
 
@@ -76,6 +76,7 @@ function IssueHomePage(props) {
         id: 37,
         name: t('STT'),
         width: '60px',
+        center: 'true',
         sortable: false,
         cell: (row) => {
           return (
@@ -88,6 +89,7 @@ function IssueHomePage(props) {
       {
         id: 1,
         name: t('Status'),
+        center: 'true',
         sortable: false,
         width: '100px',
         cell: (row) => {
@@ -186,6 +188,7 @@ function IssueHomePage(props) {
         name: t('ErrorLevel'),
         sortable: false,
         width: '130px',
+        center: 'true',
         cell: (row) => {
           function getErrorLevelColor() {
             switch (row?.level) {

@@ -41,6 +41,7 @@ function CustomerHomePage(props) {
       {
         name: t('STT'),
         sortable: false,
+        center: 'true',
         width: '60px',
         cell: (row) => {
           return (

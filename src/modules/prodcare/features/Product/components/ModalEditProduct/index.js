@@ -133,7 +133,7 @@ function ModalEditProduct({
           : '',
       }}
       validationSchema={Yup.object({
-        // productId: Yup.string().required(t('Required')),
+        customerId: Yup.string().required(t('Required')),
         serial: Yup.string().required(t('Required')),
         name: Yup.string().required(t('Required')),
       })}
@@ -248,7 +248,11 @@ function ModalEditProduct({
               {/* customerId */}
               <div className="col-12">
                 <KTFormGroup
-                  label={<>{t('Customer')}</>}
+                  label={
+                    <>
+                      {t('Customer')} <span className="text-danger">*</span>
+                    </>
+                  }
                   inputName="customerId"
                   inputElement={
                     <FastField name="customerId">

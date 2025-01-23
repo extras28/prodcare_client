@@ -8,11 +8,11 @@ const customDataTableStyle = {
       '&:not(:last-of-type)': {
         borderBottomWidth: '1px',
         borderBottomColor: '#ebedf3',
-        borderBottomStyle: 'dashed',
+        borderBottomStyle: 'solid',
       },
-      // '&:last-of-type': {
-      //   borderBottom: '1px solid #ebedf3',
-      // },
+      '&:last-of-type': {
+        borderBottom: '1px solid #ebedf3',
+      },
     },
     highlightOnHoverStyle: {
       backgroundColor: '#F3F6F9 ',
@@ -21,7 +21,7 @@ const customDataTableStyle = {
   headRow: {
     style: {
       borderBottomColor: '#ebedf3',
-      borderBottomStyle: 'dashed',
+      borderBottomStyle: 'solid',
       backgroundColor: '#ebedf3',
     },
   },
@@ -32,9 +32,9 @@ const customDataTableStyle = {
       // marginLeft: 'px',
       padding: '0.2rem',
       '&:first-of-type': {
-        // borderLeft: '1px solid #ebedf3',
+        borderLeft: '1px solid #ebedf3',
       },
-      // borderRight: '1px solid #ebedf3',
+      borderRight: '1px solid #ebedf3',
     },
   },
   headCells: {
@@ -48,10 +48,10 @@ const customDataTableStyle = {
       // letterSpacing: '0.1rem',
       // lineHeight: '1.5 !important',
       padding: '0 0.2rem',
-      // borderRight: '1px solid #ebedf3',
+      borderRight: '1px solid #ebedf3',
       // borderTop: '1px solid #ebedf3',
       '&:first-of-type': {
-        // borderLeft: '1px solid #ebedf3',
+        borderLeft: '1px solid #ebedf3',
       },
     },
     activeSortStyle: {

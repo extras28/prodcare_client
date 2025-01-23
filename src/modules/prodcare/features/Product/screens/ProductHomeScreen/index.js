@@ -29,12 +29,12 @@ import { saveAs } from 'file-saver';
 import ModalEditComponent from 'modules/prodcare/features/Component/components/ModalEditComponent';
 import 'primereact/resources/themes/lara-light-cyan/theme.css';
 import DateRangePickerInput from 'shared/components/AppDateRangePicker';
+import Loading from 'shared/components/Loading';
 import KTFormSelect, {
   KTFormSelectSize,
 } from 'shared/components/OtherKeenComponents/Forms/KTFormSelect';
 import KeenSelectOption from 'shared/components/OtherKeenComponents/Forms/KeenSelectOption';
 import AppData from 'shared/constants/AppData';
-import Loading from 'shared/components/Loading';
 
 ProductHomePage.propTypes = {};
 
@@ -110,24 +110,25 @@ function ProductHomePage(props) {
         >
           <Column
             style={{ width: '40px' }}
-            className="pr-0"
+            className="pr-0 border-right"
             field="orderNumber"
             header={t('STT')}
           ></Column>
           <Column
             style={{ width: '250px' }}
-            className="font-weight-bolder"
+            className="font-weight-bolder border-right"
             field="name"
             header={t('ProductName')}
             expander
           ></Column>
           <Column
             style={{ width: '125px' }}
-            className="font-weight-bolder"
+            className="font-weight-bolder border-right"
             field="serial"
             header={t('Serial')}
           ></Column>
           <Column
+            className="border-right"
             style={{ width: '150px' }}
             body={(row) => {
               const ct = customers.find((item) => item.id === row?.data?.['customer_id']);
@@ -139,8 +140,16 @@ function ProductHomePage(props) {
             }}
             header={t('Customer')}
           ></Column>
-          <Column style={{ width: '50px' }} field="version" header={t('SoftwareVersion')}></Column>
           <Column
+            className="border-right"
+            style={{ width: '50px' }}
+            field="version"
+            header={t('SoftwareVersion')}
+          ></Column>
+          <Column
+            align="center"
+            alignHeader="center"
+            className="border-right"
             style={{ width: '120px' }}
             body={(row) => {
               return (
@@ -168,6 +177,9 @@ function ProductHomePage(props) {
             header={t('CurrentStatus')}
           ></Column>
           <Column
+            align="center"
+            alignHeader="center"
+            className="border-right"
             style={{ width: '100px' }}
             body={(row) => {
               const issues = row?.data?.issues;
@@ -198,6 +210,7 @@ function ProductHomePage(props) {
           ></Column>
 
           <Column
+            className="border-right"
             style={{ width: '200px' }}
             body={(row) => {
               let active = row?.data?.situation;
@@ -217,10 +230,12 @@ function ProductHomePage(props) {
             header={t('Note')}
           ></Column>
           <Column
+            align="center"
+            alignHeader="center"
             style={{ width: '120px' }}
             body={(row) => {
               return (
-                <div className="d-flex align-items-center">
+                <div className="d-flex align-items-center justify-content-center">
                   <KTTooltip text={t('Edit')}>
                     <a
                       className="btn btn-icon btn-xs btn-primary btn-hover-primary"

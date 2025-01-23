@@ -55,6 +55,7 @@ const AppData = {
     { name: 'Level1', value: '1' },
     { name: 'Level2', value: '2' },
     { name: 'Level3', value: '3' },
+    { name: 'Level4', value: '4' },
   ],
 
   responsibleType: [

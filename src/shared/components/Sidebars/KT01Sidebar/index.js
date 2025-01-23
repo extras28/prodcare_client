@@ -21,12 +21,6 @@ function KT01Sidebar(props) {
         icon: 'fa-regular fa-grid-2',
         path: '/prodcare/dashboard',
       },
-      // {
-      //   type: 'item',
-      //   text: 'ProductionBatches',
-      //   icon: 'fa-regular fa-box',
-      //   path: '/prodcare/production-batches',
-      // },
       { type: 'section', text: 'OperatingProductions' },
       {
         type: 'item',

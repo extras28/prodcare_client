@@ -34306,7 +34306,8 @@ a {
 
 i {
   font-size: 1.25rem;
-  color: #B5B5C3; }
+  /* color: #B5B5C3;  */
+}
 
 .icon-ss {
   font-size: 0.5rem !important; }

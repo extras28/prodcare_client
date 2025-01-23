@@ -1,7 +1,10 @@
 import { unwrapResult } from '@reduxjs/toolkit';
+import customerApi from 'api/customerApi';
 import projectApi from 'api/projectApi';
+import userApi from 'api/userApi';
+import { thunkGetAllProject } from 'app/appSlice';
 import customDataTableStyle from 'assets/styles/customDataTableStyle';
-import useRouter from 'hooks/useRouter';
+import { thunkGetListProduct } from 'modules/prodcare/features/Product/productSlice';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import DataTable from 'react-data-table-component';
 import { useTranslation } from 'react-i18next';
@@ -18,10 +21,6 @@ import Global from 'shared/utils/Global';
 import Swal from 'sweetalert2';
 import ModalEditProject from '../../components/ModalEditProject';
 import { setPaginationPerPage, thunkGetListProject } from '../../projectSlice';
-import userApi from 'api/userApi';
-import customerApi from 'api/customerApi';
-import { thunkGetListProduct } from 'modules/prodcare/features/Product/productSlice';
-import { thunkGetAllProject } from 'app/appSlice';
 
 ProjectHomePage.propTypes = {};
 
@@ -43,6 +42,7 @@ function ProjectHomePage(props) {
       {
         name: t('STT'),
         width: '60px',
+        center: 'true',
         sortable: false,
         cell: (row) => {
           return (
