@@ -17,7 +17,7 @@ function ProdCare(props) {
 
   return (
     <KT01BaseLayout>
-      <div id="prodcare-container" className="container-fluid min-h-100 px-2">
+      <div id="prodcare-container" className="container-fluid min-h-100 px-6">
         <Routes>
           <Route path="/" element={<Navigate to="dashboard" />} />
           <Route path="/dashboard/*" element={<Dashboard />} />

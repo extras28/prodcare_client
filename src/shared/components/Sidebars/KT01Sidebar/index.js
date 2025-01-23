@@ -1,4 +1,4 @@
-import 'assets/styles/keen/theme01/layout/aside/dark.css';
+import 'assets/styles/keen/theme01/layout/aside/light.css';
 import useRouter from 'hooks/useRouter';
 import { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';

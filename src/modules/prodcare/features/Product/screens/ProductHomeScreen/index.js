@@ -109,6 +109,8 @@ function ProductHomePage(props) {
           value={products}
         >
           <Column
+            align="center"
+            alignHeader="center"
             style={{ width: '40px' }}
             className="pr-0 border-right"
             field="orderNumber"
