@@ -26,5 +26,9 @@ const componentApi = {
     const url = `/component/detail/${params.componentId}`;
     return axiosClient.get(url);
   },
+  getChildrenById: (params) => {
+    const url = `/component/children/${params.componentId}`;
+    return axiosClient.get(url);
+  },
 };
 export default componentApi;

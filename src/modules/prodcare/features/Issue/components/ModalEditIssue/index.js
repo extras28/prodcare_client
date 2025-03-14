@@ -560,6 +560,30 @@ function ModalEditIssue({
                       </Field>
                     }
                   />
+                  {issueItem && issueItem?.componentPath ? (
+                    <div className="mb-6">
+                      {issueItem?.componentPath?.split('=>')?.[0] ? (
+                        <div>{`+ ${t('Level1')}: ${
+                          issueItem?.componentPath?.split('=>')?.[0]
+                        }`}</div>
+                      ) : null}
+                      {issueItem?.componentPath?.split('=>')?.[1] ? (
+                        <div>{`+ ${t('Level2')}: ${
+                          issueItem?.componentPath?.split('=>')?.[1]
+                        }`}</div>
+                      ) : null}
+                      {issueItem?.componentPath?.split('=>')?.[2] ? (
+                        <div>{`+ ${t('Level3')}: ${
+                          issueItem?.componentPath?.split('=>')?.[2]
+                        }`}</div>
+                      ) : null}
+                      {issueItem?.componentPath?.split('=>')?.[3] ? (
+                        <div className="text-danger">{`+ ${t('Level4')}: ${
+                          issueItem?.componentPath?.split('=>')?.[3]
+                        }`}</div>
+                      ) : null}
+                    </div>
+                  ) : null}
                 </div>
 
                 {/* DescriptionByCustomer */}

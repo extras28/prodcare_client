@@ -190,7 +190,7 @@ function ProductHomePage(props) {
                 ? row?.data?.count
                 : issues?.filter((is) => is?.status != 'PROCESSED')?.length;
 
-              let active = row?.data?.situation;
+              let active = count > 0 ? 'DEFECTIVE' : 'GOOD';
 
               return (
                 <span

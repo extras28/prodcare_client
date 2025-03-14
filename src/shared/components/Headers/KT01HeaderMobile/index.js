@@ -1,4 +1,4 @@
-import 'assets/styles/keen/theme01/layout/brand/light.css';
+import 'assets/styles/keen/theme01/layout/brand/dark.css';
 import { useEffect, useMemo } from 'react';
 import './style.scss';
 import AppResource from 'shared/constants/AppResource';

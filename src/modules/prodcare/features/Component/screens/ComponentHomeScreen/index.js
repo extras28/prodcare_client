@@ -138,41 +138,41 @@ function ComponentHomePage(props) {
           );
         },
       },
-      {
-        name: t('Status'),
-        center: 'true',
-        cell: (row) => {
-          const issues = row?.issues;
+      // {
+      //   name: t('Status'),
+      //   center: 'true',
+      //   cell: (row) => {
+      //     const issues = row?.issues;
 
-          let active = 'GOOD';
+      //     let active = 'GOOD';
 
-          if (row?.temporarily_use == 'YES') active = 'DEGRADED';
-          else if (issues?.length > 0) {
-            const allGood = issues.every((item) => item?.status == 'PROCESSED');
-            if (!allGood) {
-              active = 'DEFECTIVE';
-            }
-          }
+      //     if (row?.temporarily_use == 'YES') active = 'DEGRADED';
+      //     else if (issues?.length > 0) {
+      //       const allGood = issues.every((item) => item?.status == 'PROCESSED');
+      //       if (!allGood) {
+      //         active = 'DEFECTIVE';
+      //       }
+      //     }
 
-          return (
-            <span
-              data-tag="allowRowEvents"
-              className={`badge badge-${
-                active == 'GOOD' ? 'success' : active == 'DEFECTIVE' ? 'danger' : 'warning'
-              }`}
-            >
-              {active == 'GOOD'
-                ? t('Good')
-                : active == 'DEFECTIVE'
-                ? t('HaveErrors') +
-                  ' (' +
-                  issues.filter((item) => item?.status != 'PROCESSED')?.length +
-                  ')'
-                : t('OperationalWithErrors')}
-            </span>
-          );
-        },
-      },
+      //     return (
+      //       <span
+      //         data-tag="allowRowEvents"
+      //         className={`badge badge-${
+      //           active == 'GOOD' ? 'success' : active == 'DEFECTIVE' ? 'danger' : 'warning'
+      //         }`}
+      //       >
+      //         {active == 'GOOD'
+      //           ? t('Good')
+      //           : active == 'DEFECTIVE'
+      //           ? t('HaveErrors') +
+      //             ' (' +
+      //             issues.filter((item) => item?.status != 'PROCESSED')?.length +
+      //             ')'
+      //           : t('OperationalWithErrors')}
+      //       </span>
+      //     );
+      //   },
+      // },
       {
         name: t('Level'),
         center: 'true',
@@ -552,7 +552,7 @@ function ComponentHomePage(props) {
                 }}
               />
             </div>
-            <div className="d-flex flex-wrap align-items-center">
+            {/* <div className="d-flex flex-wrap align-items-center">
               <label className="mr-2 mb-0" htmlFor="situation">
                 {_.capitalize(t('Status'))}
               </label>
@@ -582,7 +582,7 @@ function ComponentHomePage(props) {
                   });
                 }}
               />
-            </div>
+            </div> */}
           </div>
           {current?.role === 'GUEST' ? null : (
             <div className="card-toolbar gap-2">

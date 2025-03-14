@@ -59,6 +59,7 @@ function KT01Header(props) {
           const selectedProject = projects?.find((item) => item?.id === newValue);
           localStorage.setItem(PreferenceKeys.currentProject, JSON.stringify(selectedProject));
           dispatch(setCurrentProject(selectedProject)); // Trigger a re-render by updating state
+          router.navigate('/prodcare/dashboard');
         }}
       />
     );

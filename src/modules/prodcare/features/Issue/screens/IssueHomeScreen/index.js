@@ -34,6 +34,7 @@ import ModalEditIssue from '../../components/ModalEditIssue';
 import ModalEvaluateIssue from '../../components/ModalEvaluateIssue';
 import ModalUploadIssueFile from '../../components/ModalUploadIssueFile';
 import { setPaginationPerPage, thunkGetListIssue } from '../../issueSlice';
+import ExcelJS from 'exceljs';
 
 IssueHomePage.propTypes = {};
 
@@ -142,11 +143,64 @@ function IssueHomePage(props) {
                   }
                 }}
               >
-                {`${pd?.name} ${pd?.serial ? ' (' + pd?.serial + ')' : ''}${
+                {/* {`${pd?.name} ${pd?.serial ? ' (' + pd?.serial + ')' : ''}${
                   row?.componentPath ? '/' + row?.componentPath : ''
-                }`}
+                }`} */}
+                {`${pd?.name} ${pd?.serial ? ' (' + pd?.serial + ')' : ''}`}
               </a>
             </KTTooltip>
+          );
+        },
+      },
+      {
+        id: 38,
+        name: t('Level1'),
+        sortable: false,
+        // minWidth: '150px',
+        cell: (row) => {
+          return (
+            <p data-tag="allowRowEvents" className="">{`${
+              row?.componentPath?.split('=>')?.[0] ? row?.componentPath?.split('=>')?.[0] : ''
+            }`}</p>
+          );
+        },
+      },
+      {
+        id: 39,
+        name: t('Level2'),
+        sortable: false,
+        // minWidth: '150px',
+        cell: (row) => {
+          return (
+            <p data-tag="allowRowEvents" className="">{`${
+              row?.componentPath?.split('=>')?.[1] ? row?.componentPath?.split('=>')?.[1] : ''
+            }`}</p>
+          );
+        },
+      },
+      {
+        id: 40,
+        name: t('Level3'),
+        sortable: false,
+        // minWidth: '150px',
+        cell: (row) => {
+          return (
+            <p data-tag="allowRowEvents" className="">{`${
+              row?.componentPath?.split('=>')?.[2] ? row?.componentPath?.split('=>')?.[2] : ''
+            }`}</p>
+          );
+        },
+      },
+      {
+        id: 41,
+        name: t('Level4'),
+        sortable: false,
+        // minWidth: '150px',
+        cell: (row) => {
+          return (
+            <p data-tag="allowRowEvents" className="">{`${
+              row?.componentPath?.split('=>')?.[3] ? row?.componentPath?.split('=>')?.[3] : ''
+            }`}</p>
           );
         },
       },
@@ -416,22 +470,7 @@ function IssueHomePage(props) {
           );
         },
       },
-      {
-        id: 19,
-        name: t('ErrorEquipmentCount'),
-        sortable: false,
-        // minWidth: '120px',
-        cell: (row) => {
-          return (
-            <div
-              data-tag="allowRowEvents"
-              className="text-dark-75 m-0 text-maxline-5 d-flex align-items-center"
-            >
-              {row?.price}
-            </div>
-          );
-        },
-      },
+
       {
         id: 20,
         name: t('HandlingMeasures'),
@@ -518,6 +557,22 @@ function IssueHomePage(props) {
         },
       },
       {
+        id: 19,
+        name: t('Cost'),
+        sortable: false,
+        // minWidth: '120px',
+        cell: (row) => {
+          return (
+            <div
+              data-tag="allowRowEvents"
+              className="text-dark-75 m-0 text-maxline-5 d-flex align-items-center"
+            >
+              {row?.price}
+            </div>
+          );
+        },
+      },
+      {
         id: 25,
         name: t('CompletionTime'),
         sortable: false,
@@ -592,12 +647,16 @@ function IssueHomePage(props) {
               data-tag="allowRowEvents"
               className="text-dark-75 font-weight-normal m-0 text-maxline-5 mr-4"
             >
-              {AppData.errorRemainStatus.find((item) => item.value === row?.['remain_status'])}
+              {t(
+                AppData.errorRemainStatus.find((item) => item.value === row?.['remain_status'])
+                  ?.name
+              )}
             </p>
           );
         },
       },
       {
+        id: 42,
         name: t('OverdueKpi'),
         sortable: false,
         // width: '150px',
@@ -663,11 +722,6 @@ function IssueHomePage(props) {
         sortable: false,
 
         cell: (row) => {
-          const data = [
-            { name: 'Restriction', value: 'RESTRICTION' },
-            { name: 'Yes', value: 'YES' },
-            { name: 'No', value: 'No' },
-          ];
           return (
             <p
               data-tag="allowRowEvents"
@@ -684,11 +738,6 @@ function IssueHomePage(props) {
         sortable: false,
 
         cell: (row) => {
-          const data = [
-            { name: 'Restriction', value: 'RESTRICTION' },
-            { name: 'Yes', value: 'YES' },
-            { name: 'No', value: 'No' },
-          ];
           return (
             <p
               data-tag="allowRowEvents"
@@ -708,11 +757,6 @@ function IssueHomePage(props) {
         sortable: false,
 
         cell: (row) => {
-          const data = [
-            { name: 'Restriction', value: 'RESTRICTION' },
-            { name: 'Yes', value: 'YES' },
-            { name: 'No', value: 'No' },
-          ];
           return (
             <p
               data-tag="allowRowEvents"
@@ -728,11 +772,6 @@ function IssueHomePage(props) {
         name: t('HandlingPlan'),
         sortable: false,
         cell: (row) => {
-          const data = [
-            { name: 'Restriction', value: 'RESTRICTION' },
-            { name: 'Yes', value: 'YES' },
-            { name: 'No', value: 'No' },
-          ];
           return (
             <p
               data-tag="allowRowEvents"
@@ -934,8 +973,141 @@ function IssueHomePage(props) {
     });
   }
 
-  function handleViewIsseDetail(row) {
-    router.navigate(`/prodcare/operating/issue/detail/${row?.id}`);
+  async function handleExportExcelFile() {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet(t('Issue'), {
+      views: [{ zoomScale: 85 }], // Set default zoom to 85%
+    });
+
+    const headers = fullColumns.slice(0, -1).map((item) => item?.name);
+    const allIssue = await issueApi.getListIssue({
+      projectId: JSON.parse(localStorage.getItem(PreferenceKeys.currentProject))?.id,
+    });
+
+    const rows = allIssue?.issues?.map((row) => {
+      const ct = customers.find((item) => item.id === row['customer_id']);
+      const pd = products.find((item) => item.id == row?.product_id);
+
+      return [
+        row?.orderNumber,
+        t(_.capitalize(row?.status)),
+        ct ? `${ct?.['name']} - ${ct?.['military_region']}` : '',
+        `${pd?.name} ${pd?.serial ? ' (' + pd?.serial + ')' : ''}`,
+        `${row?.componentPath?.split('=>')?.[0] ? row?.componentPath?.split('=>')?.[0] : ''}`,
+        `${row?.componentPath?.split('=>')?.[1] ? row?.componentPath?.split('=>')?.[1] : ''}`,
+        `${row?.componentPath?.split('=>')?.[2] ? row?.componentPath?.split('=>')?.[2] : ''}`,
+        `${row?.componentPath?.split('=>')?.[3] ? row?.componentPath?.split('=>')?.[3] : ''}`,
+        row?.description,
+        t(AppData.responsibleType.find((item) => item.value === row?.responsible_type)?.name),
+        t(_.capitalize(AppData.errorLevel.find((item) => item.value === row?.level)?.name)),
+        row?.reception_time ? Utils.formatDateTime(row?.reception_time, 'YYYY-MM-DD') : '',
+        t(`${_.capitalize(row?.stop_fighting ? 'Yes' : 'No')}`),
+        users.find((item) => item.email === row?.['account_id'])?.name ?? '',
+        t(AppData.scopeOfImpacts.find((item) => item.value === row?.['scope_of_impact'])?.name),
+        t(AppData.impactPoints.find((item) => item.value === row?.['impact_point'])?.name),
+        t(AppData.urgencyLevels.find((item) => item.value === row?.['urgency_level'])?.name),
+        t(AppData.urgencyPoints.find((item) => item.value === row?.['urgency_point'])?.name),
+        t(
+          AppData.overdueKpiReasons.find((item) => item.value === row?.['overdue_kpi_reason'])?.name
+        ),
+        row?.note ?? '',
+        row?.responsible_type_description ?? '',
+        row?.reason ?? '',
+        row?.unhandle_reason_description ?? '',
+        t(AppData.handlingMeasures.find((item) => item.value === row?.['handling_measures'])?.name),
+        t(AppData.productStatus.find((item) => item.value === row?.['product_status'])?.name),
+        row?.repair_part ?? '',
+        row?.repair_part_count ?? '',
+        row?.unit ?? '',
+        row?.price ?? '',
+        row?.completion_time ? Utils.formatDateTime(row?.completion_time, 'YYYY-MM-DD') : '',
+        row?.handling_time ?? '',
+        row?.responsible_handling_unit ?? '',
+        row?.reporting_person ?? '',
+        t(AppData.errorRemainStatus.find((item) => item.value === row?.['remain_status']).name),
+        t(
+          [
+            { name: 'Yes', value: true },
+            { name: 'No', value: false },
+          ].find((item) => item.value === row?.['overdue_kpi'])?.name
+        ),
+        t(
+          [
+            { name: 'UnderWarranty', value: 'UNDER' },
+            { name: 'OutOfWarranty', value: 'OVER' },
+          ].find((item) => item.value === row?.['warranty_status'])?.name
+        ),
+        t(
+          [
+            { name: 'Restriction', value: 'RESTRICTION' },
+            { name: 'Yes', value: 'YES' },
+            { name: 'No', value: 'No' },
+          ].find((item) => item.value === row?.['impact'])?.name
+        ),
+        row?.stop_fighting_days ?? '',
+        t(
+          AppData.errorUnhandleReason.find((item) => item.value === row?.['unhandle_reason'])?.name
+        ),
+        row?.material_status ?? '',
+        row?.handling_plan ?? '',
+      ];
+    });
+
+    const data = [headers, ...rows];
+
+    data.forEach((row, rowIndex) => {
+      const excelRow = worksheet.getRow(rowIndex + 1);
+      row.forEach((value, colIndex) => {
+        const cell = excelRow.getCell(colIndex + 1);
+        cell.value = value;
+        cell.alignment = { vertical: 'middle', wrapText: true };
+        cell.font = { name: 'Times New Roman', size: 11 };
+      });
+
+      if (row[1] === t(_.capitalize('UNPROCESSED'))) {
+        excelRow.eachCell((cell, colNumber) => {
+          // Skip columns A (1) and B (2)
+          cell.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FF0000' }, // Red color
+          };
+        });
+      }
+    });
+
+    // Apply styles to the first row (header row)
+    const headerRow = worksheet.getRow(1);
+    headerRow.eachCell((cell) => {
+      cell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true }; // Align text to the center
+      cell.font = { name: 'Times New Roman', size: 12, bold: true }; // Bold and green
+    });
+
+    worksheet.columns.forEach((column, index) => {
+      if (index === worksheet.columns.length - 1) {
+        column.hidden = true; // Hide the helper column
+      } else {
+        column.width = 30; // Adjust as necessary
+      }
+    });
+
+    worksheet.getColumn(1).width = 5;
+    // Adding borders to list sheet cells
+    worksheet.eachRow((row) => {
+      row.eachCell((cell) => {
+        cell.border = {
+          top: { style: 'thin' },
+          left: { style: 'thin' },
+          bottom: { style: 'thin' },
+          right: { style: 'thin' },
+        };
+      });
+    });
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    });
+    saveAs(blob, currentProject?.project_name);
   }
 
   // MARK: --- Hooks ---
@@ -1303,23 +1475,24 @@ function IssueHomePage(props) {
                 <i className="far fa-ban"></i>
                 {`${t('Delete')} (${selectedIssues.length})`}
               </a>
-              {/* <button
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setModalUploadIssueShowing(true);
-                }}
-                className="btn btn-success font-weight-bold d-flex align-items-center"
-              >
-                <i className="fa-regular fa-file-arrow-up"></i>
-                {t('Upload')}
-              </button> */}
+
               <AppSelectField
                 fields={fullColumns}
                 defaultColumns={fullColumns.filter((item) =>
                   [1, 2, 3, 4, 5, 6, 7, 8, 36].includes(item)
                 )}
               />
+              <button
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleExportExcelFile(issues);
+                }}
+                className="btn btn-sm btn-success font-weight-bold d-flex align-items-center"
+              >
+                <i className="fa-regular fa-file-arrow-down"></i>
+                {t('Export')}
+              </button>
               <a
                 href="#"
                 onClick={(e) => {

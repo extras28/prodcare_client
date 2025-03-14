@@ -9,6 +9,7 @@ import ModalEditComponent from '../../components/ModalEditComponent';
 import ComponentActivityTab from '../../components/ComponentActivityTab';
 import { clearComponentDetail, thunkGetComponentDetail } from '../../componentSlice';
 import AppData from 'shared/constants/AppData';
+import Global from 'shared/utils/Global';
 
 ComponentDetailScreen.propTypes = {};
 
@@ -23,6 +24,10 @@ function ComponentDetailScreen(props) {
   const { customers, products } = useSelector((state) => state?.app);
 
   const rows = useMemo(() => {
+    let count = issues?.filter((is) => is?.status != 'PROCESSED')?.length;
+
+    let active = count > 0 ? 'DEFECTIVE' : 'GOOD';
+
     return [
       { label: t('ComponentName'), value: componentDetail?.name ?? '' },
       { label: t('Serial'), value: componentDetail?.serial ?? '' },
@@ -39,17 +44,13 @@ function ComponentDetailScreen(props) {
       {
         label: t('Status'),
         value:
-          componentDetail?.situation == 'GOOD'
+          active == 'GOOD'
             ? t('Good')
-            : componentDetail?.situation == 'DEFECTIVE'
+            : active == 'DEFECTIVE'
             ? t('HaveErrors')
             : t('OperationalWithErrors'),
         valueClassName: `badge badge-${
-          componentDetail?.situation == 'GOOD'
-            ? 'success'
-            : componentDetail?.situation == 'DEFECTIVE'
-            ? 'danger'
-            : 'warning'
+          active == 'GOOD' ? 'success' : active == 'DEFECTIVE' ? 'danger' : 'warning'
         }`,
       },
       {
@@ -101,6 +102,8 @@ function ComponentDetailScreen(props) {
   useEffect(() => {
     getComponentDetail();
 
+    // dispatch(thunkGetListIssue({ ...Global.gFiltersIssueList, componentId: componentDetail?.id }));
+
     return () => {
       dispatch(clearComponentDetail());
     };
@@ -116,13 +119,13 @@ function ComponentDetailScreen(props) {
               key={index}
               className={`${
                 current?.role === 'GUEST' && index === rows?.length - 1 ? '' : 'border-bottom'
-              } py-2 ${item?.className}`}
+              } py-2 ${item?.className} d-flex justify-content-between`}
               onClick={item?.onClick}
             >
-              <p className="font-weight-bolder mb-1 text-dark-75">{item?.label}</p>
-              <p className={`${index === 0 ? 'text-primary' : ''} m-0 ${item?.valueClassName}`}>
+              <span className="font-weight-bolder mb-1 text-dark-75">{item?.label}</span>
+              <span className={`${index === 0 ? 'text-primary' : ''} m-0 ${item?.valueClassName}`}>
                 {item?.value || <>&nbsp;</>}
-              </p>
+              </span>
             </div>
           ))}
           {current?.role === 'USER' || current?.role === 'ADMIN' ? (

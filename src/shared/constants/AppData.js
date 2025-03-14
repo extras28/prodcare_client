@@ -221,7 +221,7 @@ const AppData = {
 
   productAndComponentStatus: [
     { name: 'Good', value: 'GOOD' },
-    { name: 'OperationalWithErrors', value: 'DEGRADED' },
+    // { name: 'OperationalWithErrors', value: 'DEGRADED' },
     { name: 'HaveErrors', value: 'DEFECTIVE' },
   ],
   temporarilyUseStatus: [

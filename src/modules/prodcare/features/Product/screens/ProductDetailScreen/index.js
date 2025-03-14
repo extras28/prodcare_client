@@ -23,13 +23,15 @@ function ProductDetailScreen(props) {
   const { customers } = useSelector((state) => state?.app);
 
   const rows = useMemo(() => {
+    const count = issues.filter((item) => item.status != 'PROCESSED')?.length;
+    const active = count > 0 ? 'DEFECTIVE' : 'GOOD';
     return [
       { label: t('Serial'), value: productDetail?.serial ?? '' },
       { label: t('ProductName'), value: productDetail?.name ?? '' },
       {
         label: t('Customer'),
         value: productDetail?.customer?.name
-          ? `${productDetail?.customer?.military_region} - ${productDetail?.customer?.name}`
+          ? `${productDetail?.customer?.name} - ${productDetail?.customer?.military_region}`
           : '',
       },
       { label: t('SoftwareVersion'), value: productDetail?.version ?? '' },
@@ -46,17 +48,13 @@ function ProductDetailScreen(props) {
       {
         label: t('Status'),
         value:
-          productDetail?.situation == 'GOOD'
+          active == 'GOOD'
             ? t('Good')
-            : productDetail?.situation == 'DEFECTIVE'
+            : active == 'DEFECTIVE'
             ? t('HaveErrors')
             : t('OperationalWithErrors'),
         className: `badge badge-${
-          productDetail?.situation == 'GOOD'
-            ? 'success'
-            : productDetail?.situation == 'DEFECTIVE'
-            ? 'danger'
-            : 'warning'
+          active == 'GOOD' ? 'success' : active == 'DEFECTIVE' ? 'danger' : 'warning'
         }`,
       },
       { label: t('WarrantyStatus'), value: productDetail?.warranty_status ?? '' },
@@ -105,12 +103,12 @@ function ProductDetailScreen(props) {
                 current?.role !== 'USER' && current?.role !== 'ADMIN' && index === rows?.length - 1
                   ? ''
                   : 'border-bottom'
-              } py-2 `}
+              } py-2 d-flex justify-content-between`}
             >
-              <p className="font-weight-bolder mb-1">{item?.label}</p>
-              <p className={`${index === 0 ? 'text-primary' : ''} m-0 ${item.className}`}>
+              <span className="font-weight-bolder mb-1">{item?.label}</span>
+              <span className={`${index === 0 ? 'text-primary' : ''} m-0 ${item.className}`}>
                 {item?.value || <>&nbsp;</>}
-              </p>
+              </span>
             </div>
           ))}
           {current?.role === 'USER' || current?.role === 'ADMIN' ? (

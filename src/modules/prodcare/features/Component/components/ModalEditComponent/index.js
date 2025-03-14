@@ -28,6 +28,9 @@ function ModalEditComponent({
   componentItem = null,
   onExistDone = null,
   products = [],
+  productId = null,
+  level = null,
+  parentId = null,
 }) {
   const { t } = useTranslation();
   const dispatch = useDispatch();
@@ -144,13 +147,13 @@ function ModalEditComponent({
     <Formik
       initialValues={{
         componentId: componentItem?.id || '',
-        parentId: componentItem?.parent_id || '',
-        productId: componentItem?.product_id || '',
+        parentId: parentId ? parentId : componentItem?.parent_id || '',
+        productId: componentItem?.product_id || productId || '',
         type: componentItem?.type || 'HARDWARE',
         serial: componentItem ? componentItem.serial : '',
         description: componentItem?.description || '',
         category: componentItem ? componentItem.category : '',
-        level: componentItem ? String(componentItem.level) : '1',
+        level: level ? String(level) : componentItem ? String(componentItem.level) : '1',
         name: componentItem ? componentItem.name : '',
         version: componentItem ? componentItem.version : '',
         status: componentItem ? componentItem.status : 'USING',
@@ -343,7 +346,7 @@ function ModalEditComponent({
                                 };
                               });
                             }}
-                            disabled={current?.role === 'GUEST'}
+                            disabled={current?.role === 'GUEST' || Boolean(productId)}
                           />
                         )}
                       </FastField>
@@ -516,7 +519,7 @@ function ModalEditComponent({
                                 )}`,
                               }));
                             }}
-                            disabled={current?.role === 'GUEST'}
+                            disabled={current?.role === 'GUEST' || Boolean(level)}
                           />
                         )}
                       </Field>
@@ -582,7 +585,7 @@ function ModalEditComponent({
                                   };
                                 });
                               }}
-                              disabled={current?.role === 'GUEST'}
+                              disabled={current?.role === 'GUEST' || Boolean(parentId)}
                             />
                           )}
                         </Field>
